@@ -1,39 +1,45 @@
 # mybatis-helper
 
 #### 介绍
-{**以下是码云平台说明，您可以替换此简介**
-码云是开源中国推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用码云实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
-
+    该程序是一款加入lombok支持的mybatis-plus代码生成工具，
+    可生成controller成的基本增删改查方法，实体类自动生成toString equals和hashCode方法
+    doMain_X64.exe4j为exe4j生成exe文件的代码
 #### 软件架构
-软件架构说明
-
+    软件架构说明
+    1 采用springboot管理容器中的bean
+    2 使用javafx进行视图渲染
+    3 使用html编辑视图页面
+    4 使用mybatis-plus作为orm
+    5 使用sqlite保存用户自定义配置
+    6 使用exe4j生成启动文件
 
 #### 安装教程
 
-1. xxxx
-2. xxxx
-3. xxxx
+    1. 将代码download下来后添加到ide中，配置为springboot项目
+    2. 运行MybatisPlusHelperApplication的main方法
 
-#### 使用说明
+#### release使用说明
 
-1. xxxx
-2. xxxx
-3. xxxx
+    第一次启动程序可能很慢,会进行一些初始化工作
+    目录结构如下
+    -jre               ----- java程序运行环境
+    -libs		       ------java程序包
+    -view		       ------html视图文件
+    -templates	       ------代码生成模板
+    generator 86.exe   ------32位环境启动文件exe
+    generator 64.exe   ------64位环境启动文件exe
+    -log               ------日志目录,运行后生成
+    -config            ------配置文件目录,运行后生成
+    -db 		       ------本地数据库目录
+
+    必要的文件或文件夹
+    -jre
+    -libs
+    -view
+    -templates
+    generator 86.exe或者generator 64.exe
+    其他文件或文件夹在运行后自动创建
 
 #### 参与贡献
 
-1. Fork 本仓库
-2. 新建 Feat_xxx 分支
-3. 提交代码
-4. 新建 Pull Request
-
-
-#### 码云特技
-
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+    问道于盲 yangliu817@126.com
