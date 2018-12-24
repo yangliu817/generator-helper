@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+<typeAliases>
+   <!-- <typeAlias type="cn.yangliu.cashier.bean.ConfigBean" alias="ConfigBean"/>-->
+</typeAliases>
+    <environments default="default">
+        <environment id="default">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="org.sqlite.JDBC"/>
+                <property name="url" value="jdbc:sqlite:db/sqlite.db"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+    <!--    <mapper resource="mybatis/ConfigBeanMapper.xml"/>-->
+    </mappers>
+</configuration>

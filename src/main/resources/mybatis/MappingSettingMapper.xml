@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.yangliu.mybatis.mapper.MappingSettingMapper">
+
+
+    <insert id="bathchInsert" parameterType="list">
+        insert into t_mapping_setting(column_type_id,java_type_id,setting_id) values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.columnTypeId}, #{item.javaTypeId},#{item.settingId})
+        </foreach>
+    </insert>
+
+    <select id="loadMapping" parameterType="cn.yangliu.mybatis.bean.MappingSetting" resultType="cn.yangliu.mybatis.bean.MappingSetting">
+        select c.column_type as columnType,c.id as columnTypeId,j.id as javaTypeId,j.full_name as fullName
+        from t_mapping_setting m
+         left join t_column_type c on(c.id = m.column_type_id)
+         left join t_java_type j on (j.id=m.java_type_id)
+        <where>
+            <if test="dbType!=null and dbType!=''">
+               and c.db_type = #{dbType}
+            </if>
+            <if test="settingId!=null">
+                and m.setting_id=#{settingId}
+            </if>
+        </where>
+
+    </select>
+</mapper>

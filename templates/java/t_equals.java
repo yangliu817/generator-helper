@@ -1,0 +1,1 @@
+Objects.equals([fieldName], that.[fieldName]) &&
