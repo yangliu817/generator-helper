@@ -4,4 +4,5 @@ import cn.yangliu.mybatis.bean.ColumnType;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
 public interface ColumnTypeMapper extends BaseMapper<ColumnType> {
+
 }
