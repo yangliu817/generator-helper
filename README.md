@@ -4,6 +4,9 @@
     该程序是一款加入lombok支持的mybatis-plus代码生成工具，
     可生成controller成的基本增删改查方法，实体类自动生成toString equals和hashCode方法
     doMain_X64.exe4j为exe4j生成exe文件的代码
+    项目依赖于
+        javafx-springboot项目（由我改造支持webview）请移步https://gitee.com/yangliu817/springboot-javafx.git
+        comm项目 请移步https://git.oschina.net/yangliu817/comm.git
 #### 软件架构
     软件架构说明
     1 采用springboot管理容器中的bean
