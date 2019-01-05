@@ -22,7 +22,7 @@
     2. 运行MybatisPlusHelperApplication的main方法
 
 #### release使用说明
-
+    请将对应的jre目录添加到软件根目录
     第一次启动程序可能很慢,会进行一些初始化工作
     目录结构如下
     -jre               ----- java程序运行环境
