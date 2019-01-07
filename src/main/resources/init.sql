@@ -128,6 +128,7 @@ INSERT INTO "t_mapping_setting" VALUES (17, 18, 1, 0);
 INSERT INTO "t_mapping_setting" VALUES (18, 19, 12, 0);
 INSERT INTO "t_mapping_setting" VALUES (19, 20, 14, 0);
 INSERT INTO "t_mapping_setting" VALUES (20, 24, 10, 0);
+INSERT INTO "t_mapping_setting" VALUES (21, 22, 13, 0);
 
 CREATE TABLE "t_project_setting" (
   "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -138,7 +139,7 @@ CREATE TABLE "t_project_setting" (
   "create_service" TEXT,
   "create_controller" TEXT,
   "table_prefix" TEXT,
-  "primary_key_name" TEXT
+  "mybatis_type" TEXT
 );
 
 CREATE TABLE "t_service_setting" (

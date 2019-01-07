@@ -61,15 +61,23 @@ public class DBUtils {
     }
 
     private static DBType getDBType(LinkInfo linkInfo) {
+        String url = null;
+        String driver = null;
         switch (linkInfo.getDatabaseType()) {
             case "mysql":
-                String url = "jdbc:mysql://" + linkInfo.getHost() + ":" + linkInfo.getPort();
-                String driver = "com.mysql.jdbc.Driver";
-                return new DBType(url, driver);
+                url = "jdbc:mysql://" + linkInfo.getHost() + ":" + linkInfo.getPort()+"?useSSL=false";
+                driver = "com.mysql.jdbc.Driver";
+                break;
+            case "mariadb":
+                url = "jdbc:mysql://" + linkInfo.getHost() + ":" + linkInfo.getPort()+"?useSSL=false";
+                driver = "com.mysql.jdbc.Driver";
+                break;
             default:
                 throw new NullPointerException("不支持的数据库类型");
         }
+        return new DBType(url, driver);
     }
+
 
     @Data
     static class DBType {
@@ -82,11 +90,11 @@ public class DBUtils {
         }
     }
 
-    public static List<String> getDatabases(LinkInfo linkInfo) {
+    public static List<DatabaseInfo> getDatabases(LinkInfo linkInfo) {
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<String> databases = new ArrayList<>();
+        List<DatabaseInfo> databases = new ArrayList<>();
         try {
             DBType dbType = getDBType(linkInfo);
             Class.forName(dbType.getDriver());
@@ -97,7 +105,8 @@ public class DBUtils {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                databases.add(rs.getString(1));
+                String databaseName = rs.getString(1);
+                databases.add(new DatabaseInfo(databaseName));
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -124,6 +133,19 @@ public class DBUtils {
         }
     }
 
+    @Data
+    public static class DatabaseInfo {
+
+        private String name;
+
+        public DatabaseInfo(String name) {
+            this.name = name;
+        }
+
+        private List<TableInfo> tables;
+
+        private Boolean checked = false;
+    }
 
     @Data
     public static class ColumInfo {
@@ -146,6 +168,8 @@ public class DBUtils {
 
         private String name;
 
+        private Boolean checked = false;
+
         private String comment;
 
         private List<ColumInfo> columInfos;
@@ -154,6 +178,10 @@ public class DBUtils {
             this.name = name;
             this.comment = comment;
             this.columInfos = columInfos;
+        }
+
+        public TableInfo(String name) {
+            this.name = name;
         }
     }
 
@@ -191,8 +219,8 @@ public class DBUtils {
     }
 
 
-    public static List<String> getTables(LinkInfo linkInfo, String database) {
-        List<String> tables = new ArrayList<>();
+    public static List<TableInfo> getTables(LinkInfo linkInfo, String database) {
+        List<TableInfo> tables = new ArrayList<>();
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -217,7 +245,7 @@ public class DBUtils {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                tables.add(rs.getString(1));
+                tables.add(new TableInfo(rs.getString(1)));
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);

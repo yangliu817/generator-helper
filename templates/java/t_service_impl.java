@@ -2,9 +2,9 @@
 
 [imports]
 
-[annontations]
+[annotations]
 public class [className][extends][implements] {
-
+    [logger]
     [fields]
-
+[methods]
 }

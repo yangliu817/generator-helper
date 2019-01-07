@@ -1,0 +1,4 @@
+    <!-- 根据id删除一条记录 -->
+    <delete id="deleteById" parameterType="[primaryKeyType]">
+        delete from [tableName] where [primaryKeyName] = #{[primaryKeyFieldName]}
+    </delete>

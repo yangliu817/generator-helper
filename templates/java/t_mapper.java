@@ -2,7 +2,8 @@
 
 [imports]
 
-[annontations]
+[annotations]
 public interface [className][extends] {
 
+[methods]
 }

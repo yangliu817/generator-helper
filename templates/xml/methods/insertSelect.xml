@@ -1,0 +1,7 @@
+    <!-- 有则新增 -->
+    <insert id="insertSelect" parameterType="[entityClassFullName]">
+[selectKey]        insert into [tableName]
+        (
+[columnIfList]        ) values (
+[fieldIfList]        )
+    </insert>

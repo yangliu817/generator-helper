@@ -15,6 +15,7 @@ import java.util.Properties;
 @Slf4j
 public class ApplicationContant {
 
+    public static final String PACKAGE_SEPARATOR = ".";
 
     public static Properties config;
 

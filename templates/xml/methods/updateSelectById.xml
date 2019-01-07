@@ -1,0 +1,7 @@
+    <!-- 根据id修改有值字段 -->
+    <update id="updateSelectById" parameterType="[entityClassFullName]">
+        update [tableName]
+        set
+[ifList]        where
+            [primaryKeyName] = #{primaryKeyFieldName}
+    </update>

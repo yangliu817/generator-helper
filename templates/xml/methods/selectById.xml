@@ -1,0 +1,4 @@
+    <!-- 根据id查询一条记录 -->
+    <select id="selectById" parameterType="[primaryKeyType]">
+        select * from [tableName] where [primaryKeyName] = #{[primaryKeyFieldName]}
+    </select>

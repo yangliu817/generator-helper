@@ -1,3 +1,3 @@
-if ([fieldName] != null){
-    sb.append("[fieldName] = ").append([fieldName]);
-}
+        if ([fieldName] != null){
+            sb.append("[fieldName] = ").append([fieldName]);
+        }

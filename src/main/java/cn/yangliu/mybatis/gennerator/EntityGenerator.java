@@ -2,6 +2,7 @@ package cn.yangliu.mybatis.gennerator;
 
 import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.ApplicationContant;
+import cn.yangliu.mybatis.bean.ColumnType;
 import cn.yangliu.mybatis.bean.JavaType;
 import cn.yangliu.mybatis.source.EntitySource;
 import cn.yangliu.mybatis.tools.CodeUtils;
@@ -9,7 +10,9 @@ import cn.yangliu.mybatis.tools.DBUtils;
 import cn.yangliu.mybatis.tools.FileUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Component
 public class EntityGenerator extends AbstractGenerator<EntitySource> {
@@ -50,8 +53,10 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
             code = code.replace("[extends]", "");
         }
 
-        annotations.add("TableName(\"" + source.getTableInfo().getName() + "\")");
-        imports.add(ApplicationContant.config.getProperty("TableName"));
+        if (source.isMybatisPlus()) {
+            annotations.add("TableName(\"" + source.getTableInfo().getName() + "\")");
+            imports.add(ApplicationContant.config.getProperty("TableName"));
+        }
 
         StringBuilder setterAndGetterCode = new StringBuilder();
 
@@ -103,7 +108,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
         code = generateImports(code, imports);
 
-        code = generateAnnontations(code, annotations);
+        code = generateAnnotations(code, annotations);
 
         String comment = source.getTableInfo().getComment();
 
@@ -210,9 +215,6 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
 
     private String generateFieldCodes(EntitySource source, List<String> imports, List<String> annotations, List<String> fieldNames, StringBuilder setterAndGetterCode) {
-        Map<Long, Long> mapping = new HashMap<>();
-
-        source.getMapping().forEach(m -> mapping.put(m.getColumnTypeId(), m.getJavaTypeId()));
 
         StringBuilder sb = new StringBuilder();
 
@@ -227,10 +229,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
             String dbColumnType = CodeUtils.getColumnType(columInfo.getType());
 
-            Long columnTypeId = columnMap.get(dbColumnType);
-
-            JavaType javaType = getJavaType(source, mapping, columnName, columnTypeId);
-
+            JavaType javaType = getJavaType(source, columnName, dbColumnType);
 
             String fieldCode = template.t_field.replace("[fieldType]", javaType.getShortName());
 
@@ -245,19 +244,28 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
             String comment = columInfo.getComment();
 
+            boolean flag = false;
+            if (Objects.equals(columnName, source.getPrimaryKeyName())) {
+                if (source.isMybatisPlus()) {
+                    imports.add(ApplicationContant.config.getProperty("TableId"));
+                    fieldCode = fieldCode.replace("[annotations]", "@TableId");
+                    flag = true;
+                } else {
+                    fieldCode = fieldCode.replace("[annotations]", "");
+                }
+
+            } else {
+                fieldCode = fieldCode.replace("[annotations]", "");
+            }
+
             if (StringUtils.isEmpty(comment)) {
                 fieldCode = fieldCode.replace("[comment]", "");
             } else {
-                fieldCode = fieldCode.replace("[comment]", "/**\n" +
-                        "     * " + comment + "\n" +
-                        "     */");
-            }
-
-            if (Objects.equals(columnName, source.getPrimaryKeyName())) {
-                imports.add(ApplicationContant.config.getProperty("TableId"));
-                fieldCode = fieldCode.replace("[annotations]", "@TableId");
-            } else {
-                fieldCode = fieldCode.replace("[annotations]", "");
+                String commentCode = template.t_comment.replace("[desp]", comment).trim();
+                if (flag){
+                    commentCode = commentCode + "\n";
+                }
+                fieldCode = fieldCode.replace("[comment]", commentCode);
             }
 
             sb.append(fieldCode);
@@ -270,24 +278,45 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         return sb.toString();
     }
 
-    private JavaType getJavaType(EntitySource source, Map<Long, Long> mapping, String columnName, Long columnTypeId) {
+    private JavaType getJavaType(EntitySource source, String columnName, String columnType) {
 
         //判断是不是主键
         if (Objects.equals(source.getPrimaryKeyName(), columnName) && javaFullTypeMap.containsKey(source.getPrimaryKeyType())) {
             return javaFullTypeMap.get(source.getPrimaryKeyType());
         }
+        String javaTypeFullName = source.getMapping().get(columnType);
 
-        if (columnTypeId == null) {
-            return defaultType;
+        if (StringUtils.isEmpty(javaTypeFullName)) {
+            ColumnType ct = null;
+            switch (source.getDbType()) {
+                case "mysql":
+                    ct = mysqlColumnMap.get(columnType);
+                    break;
+                case "mariadb":
+                    ct = mariadbColumnMap.get(columnType);
+                    break;
+                case "oracle":
+                    ct = oracleColumnMap.get(columnType);
+                    break;
+                case "sqlServer":
+                    ct = sqlServerColumnMap.get(columnType);
+                    break;
+                default:
+                    break;
+            }
+            if (ct == null) {
+                return defaultType;
+            }
+
+            JavaType javaType = column2javaTypeMap.get(ct);
+
+            if (javaType == null) {
+                return defaultType;
+            }
+
+            return javaType;
         }
-
-        Long javaTypeId = mapping.get(columnTypeId);
-        if (javaTypeId != null && javaTypeMap.containsKey(javaTypeId)) {
-            return javaTypeMap.get(javaTypeId);
-        }
-
-
-        return defaultType;
+        return javaFullTypeMap.get(javaTypeFullName);
     }
 
 

@@ -1,6 +1,5 @@
 package cn.yangliu.mybatis.bean;
 
-import com.baomidou.mybatisplus.annotations.TableField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

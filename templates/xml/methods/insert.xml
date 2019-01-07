@@ -1,0 +1,7 @@
+    <!-- 全字段新增 -->
+    <insert id="insert" parameterType="[entityClassFullName]">
+[selectKey]        insert into [tableName]
+            ([columns])
+        values
+            ([fields])
+    </insert>

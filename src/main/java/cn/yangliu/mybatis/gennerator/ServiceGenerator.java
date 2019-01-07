@@ -18,26 +18,36 @@ public class ServiceGenerator extends AbstractGenerator<ServiceSource> {
 
         String code = template.t_service;
 
-        if (StringUtils.isEmpty(packageName)){
-            code = code.replace("[package]","");
-        }else {
-            code = code.replace("[package]","package "+packageName+";");
+        if (StringUtils.isEmpty(packageName)) {
+            code = code.replace("[package]", "");
+        } else {
+            code = code.replace("[package]", "package " + packageName + ";");
         }
 
-        code = code.replace("[className]",className);
+        code = code.replace("[className]", className);
+        List<String> imports = new ArrayList<>();
+        if (source.isMybatisPlus()) {
+            code = code.replace("[methods]", "");
+            if (source.getUseBaseService()) {
 
-        if (source.getUseBaseService()){
-            List<String> imports = new ArrayList<>();
-            imports.add(ApplicationContant.config.getProperty("IService"));
-            imports.add(source.getEntitySource().getClassFullName());
-            String extendCode = " extends IService<"+source.getEntitySource().getShortName()+">";
-            code = code.replace("[extends]",extendCode);
-            code = generateImports(code,imports);
-        }else {
-            code = code.replace("[extends]","");
-            code = code.replace("[imports]","");
+                imports.add(ApplicationContant.config.getProperty("IService"));
+                imports.add(source.getEntitySource().getClassFullName());
+                String extendCode = " extends IService<" + source.getEntitySource().getShortName() + ">";
+                code = code.replace("[extends]", extendCode);
+
+            } else {
+                code = code.replace("[extends]", "");
+                code = code.replace("[imports]", "");
+            }
+        } else {
+            String templateCode = template.t_abstract_methods_normal;
+            if (source.isContainsPrimaryKey()) {
+                templateCode = templateCode + template.t_abstract_methods_needprimarykey;
+            }
+            code = generateAbstractMethods(code, templateCode, source.getEntitySource(), imports);
         }
 
-        FileUtils.output(code,source.getFilepath(),source.getFilename());
+        code = generateImports(code, imports);
+        FileUtils.output(code, source.getFilepath(), source.getFilename());
     }
 }

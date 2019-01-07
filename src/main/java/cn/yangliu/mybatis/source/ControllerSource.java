@@ -32,7 +32,7 @@ public class ControllerSource extends CodeSource {
     }
 
     private void init(ControllerSetting controllerSetting, String entityName) {
-
+        setPrimaryKeyInfo(entitySource);
         useRestful = controllerSetting.getUseRestful();
         methodReturnTypeFullName = controllerSetting.getMethodReturnTypeFullName();
 
@@ -44,13 +44,13 @@ public class ControllerSource extends CodeSource {
             methodReturnTypeFullName = ApplicationContant.config.getProperty("ModelAndView");
         }
 
-        if (methodReturnTypeFullName.endsWith(".")) {
+        if (methodReturnTypeFullName.endsWith(ApplicationContant.PACKAGE_SEPARATOR)) {
             throw new HelperException("不合法");
         }
 
-        if (methodReturnTypeFullName.contains(".")) {
-            methodReturnTypeShortName = methodReturnTypeFullName.substring(methodReturnTypeFullName.lastIndexOf(".") + 1);
-            methodReturnTypePackage = methodReturnTypeFullName.substring(0, methodReturnTypeFullName.lastIndexOf("."));
+        if (methodReturnTypeFullName.contains(ApplicationContant.PACKAGE_SEPARATOR)) {
+            methodReturnTypeShortName = methodReturnTypeFullName.substring(methodReturnTypeFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR) + 1);
+            methodReturnTypePackage = methodReturnTypeFullName.substring(0, methodReturnTypeFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR));
         } else {
             methodReturnTypeShortName = methodReturnTypeFullName;
             methodReturnTypePackage = "";
@@ -63,7 +63,7 @@ public class ControllerSource extends CodeSource {
 
 
         if (StringUtils.isNotEmpty(fullPackage)) {
-            classFullName = fullPackage + "." + shortName;
+            classFullName = fullPackage + ApplicationContant.PACKAGE_SEPARATOR + shortName;
         } else {
             classFullName = shortName;
         }

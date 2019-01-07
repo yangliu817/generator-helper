@@ -33,10 +33,10 @@ public class MybatisPlusHelperApplication extends AbstractJavaFxApplicationSuppo
         super.beforeInitialView();
         Stage stage = GUIState.getStage();
         stage.setOnCloseRequest(event -> SystemUtils.closeSystem());
-        stage.setMinWidth(1280);
+       /* stage.setMinWidth(1280);
         stage.setMaxWidth(1280);
         stage.setMinHeight(860);
-        stage.setMaxHeight(860);
+        stage.setMaxHeight(860);*/
     }
 
     @Override

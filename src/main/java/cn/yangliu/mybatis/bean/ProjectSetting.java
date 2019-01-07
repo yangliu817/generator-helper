@@ -22,7 +22,6 @@ public class ProjectSetting {
     @JSONField(serialize = false)
     private Long settingId;
 
-
     private String projectPackage;
 
     private String tablePrefix;
@@ -34,5 +33,7 @@ public class ProjectSetting {
     private Boolean createService;
 
     private Boolean createController;
+
+    private Integer mybatisType;
 
 }

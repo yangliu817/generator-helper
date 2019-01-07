@@ -1,0 +1,4 @@
+    <!-- 批量插入 -->
+    <insert id="insertList" parameterType="[entityClassFullName]">
+[selectKey]        insert into [tableName] ([columns]) values
+[foreach]    </insert>

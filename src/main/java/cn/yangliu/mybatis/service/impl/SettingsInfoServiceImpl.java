@@ -55,12 +55,10 @@ public class SettingsInfoServiceImpl extends ServiceImpl<SettingsInfoMapper, Set
         ControllerSetting controllerSetting = settings.getController();
         controllerSetting.setSettingId(settingId);
 
-        List<MappingSetting> mapping = entitySetting.getMapping();
-
-        for (MappingSetting mappingSetting : mapping) {
-            mappingSetting.setSettingId(settingId);
+        List<MappingSetting> mapping = EntitySetting.getMappingList(entitySetting, settingId, entity.getDbType());
+        if (mapping != null && mapping.size() > 0) {
+            mappingSettingMapper.bathchInsert(mapping);
         }
-        mappingSettingMapper.bathchInsert(mapping);
         projectSettingMapper.insert(projectSetting);
         entitySettingMapper.insert(entitySetting);
         mapperSettingMapper.insert(mapperSetting);
@@ -94,9 +92,9 @@ public class SettingsInfoServiceImpl extends ServiceImpl<SettingsInfoMapper, Set
         ServiceSetting serviceSetting = serviceSettingMapper.selectOne(new ServiceSetting(settingsInfo.getId()));
         ControllerSetting controllerSetting = controllerSettingMapper.selectOne(new ControllerSetting(settingsInfo.getId()));
 
-        List<MappingSetting> mappingSettings = mappingSettingMapper.loadMapping(new MappingSetting(settingsInfo.getId(),null));
+     /*   List<MappingSetting> mappingSettings = mappingSettingMapper.loadMapping(new MappingSetting(settingsInfo.getId(),null));
 
-        entitySetting.setMapping(mappingSettings);
+        entitySetting.setMapping(mappingSettings);*/
         Settings settings = new Settings(projectSetting, entitySetting, mapperSetting, serviceSetting, controllerSetting);
 
         settingsInfo.setSettings(settings);

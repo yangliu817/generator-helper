@@ -15,6 +15,7 @@ import java.util.Objects;
 
 @Component
 public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
+
     @Override
     public void generate(ControllerSource source) {
         String code = template.t_controller;
@@ -36,12 +37,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         imports.add(ApplicationContant.config.getProperty("Autowired"));
 
-        if (!Objects.equals(source.getFullPackage(), source.getEntitySource().getFullPackage())) {
-            if (StringUtils.isEmpty(source.getEntitySource().getFullPackage())) {
-                throw new NullPointerException();
-            }
-            imports.add(source.getEntitySource().getClassFullName());
-        }
+        imports.add(source.getEntitySource().getClassFullName());
 
         String fieldType;
 
@@ -49,32 +45,13 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         if (serviceImplSource.getCreateInterface()) {
             ServiceSource serviceSource = serviceImplSource.getServiceSource();
-            if (!Objects.equals(source.getFullPackage(), serviceSource.getFullPackage())) {
-                if (StringUtils.isEmpty(source.getEntitySource().getFullPackage())) {
-                    throw new NullPointerException();
-                }
-                imports.add(serviceSource.getClassFullName());
-            }
+            imports.add(serviceSource.getClassFullName());
             fieldType = serviceSource.getShortName();
         } else {
-            if (!Objects.equals(source.getFullPackage(), serviceImplSource.getFullPackage())) {
-                if (StringUtils.isEmpty(source.getEntitySource().getFullPackage())) {
-                    throw new NullPointerException();
-                }
-                imports.add(serviceImplSource.getClassFullName());
-            }
+            imports.add(serviceImplSource.getClassFullName());
             fieldType = serviceImplSource.getShortName();
         }
-
-        String fieldName = CodeUtils.firstChar2Lowercase(fieldType);
-
-        String fieldCode = template.t_field;
-
-        fieldCode = fieldCode.replace("[comment]", "").replace("[annotations]", "@Autowired");
-        fieldCode = fieldCode.replace("[fieldName]", fieldName).replace("[fieldType]", fieldType);
-
-        code = code.replace("[fields]", fieldCode);
-
+        code = generateComponentFields(code, fieldType);
 
         if (StringUtils.isEmpty(source.getFullPackage())) {
             code = code.replace("[package]", "");
@@ -83,10 +60,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         }
 
 
-        if (source.getUseLombok()) {
-            imports.add(ApplicationContant.config.getProperty("Slf4j"));
-            anontations.add("Slf4j");
-        }
+        code = checkUseLombok(source, code, imports, anontations);
 
         String methodCode = generateMethod(source, imports, fieldType);
 
@@ -94,7 +68,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
 
         code = generateImports(code, imports);
-        code = generateAnnontations(code, anontations);
+        code = generateAnnotations(code, anontations);
 
         FileUtils.output(code, source.getFilepath(), source.getFilename());
     }
@@ -102,20 +76,24 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     private String generateMethod(ControllerSource source, List<String> imports, String serviceType) {
         StringBuilder sb = new StringBuilder();
         sb.append(generateInsertMethod(source, imports, serviceType));
-        sb.append(generateDeleteMethed(source, imports, serviceType));
         sb.append(generateUpdateMethod(source, imports, serviceType));
-        sb.append(generateGetByIdMethod(source, imports, serviceType));
         sb.append(generateListMethod(source, imports, serviceType));
 
+        if (source.isContainsPrimaryKey()) {
+            sb.append(generateGetByIdMethod(source, imports, serviceType));
+            sb.append(generateDeleteMethed(source, imports, serviceType));
+            imports.add(ApplicationContant.config.getProperty("PathVariable"));
+        }
         if (source.getUseRestful()) {
             imports.add(ApplicationContant.config.getProperty("PutMapping"));
-            imports.add(ApplicationContant.config.getProperty("DeleteMapping"));
-
+            if (source.isContainsPrimaryKey()) {
+                imports.add(ApplicationContant.config.getProperty("DeleteMapping"));
+            }
         }
         imports.add(ApplicationContant.config.getProperty("GetMapping"));
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
         imports.add(ApplicationContant.config.getProperty("RequestParam"));
-        imports.add(ApplicationContant.config.getProperty("PathVariable"));
+
 
         if (!checkPackageIsSame(source.getFullPackage(), source.getMethodReturnTypeFullName())) {
             imports.add(source.getMethodReturnTypeFullName());
@@ -191,15 +169,20 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         String entityClass = source.getEntitySource().getShortName();
         String returnInfo = getReturnInfo(source, imports, true);
         imports.add(ApplicationContant.config.getProperty("RequestParam"));
-        imports.add(ApplicationContant.config.getProperty("Page"));
-        imports.add(ApplicationContant.config.getProperty("EntityWrapper"));
 
         String listMethodCode = template.t_controller_list;
+        if (source.isMybatisPlus()) {
+            imports.add(ApplicationContant.config.getProperty("Page"));
+            imports.add(ApplicationContant.config.getProperty("EntityWrapper"));
+        } else {
+            listMethodCode = template.t_controller_list2;
+            imports.add(ApplicationContant.config.getProperty("PagehelperPage"));
+            imports.add(ApplicationContant.config.getProperty("PageHelper"));
+        }
 
         listMethodCode = listMethodCode.replace("[returnType]", returnType)
                 .replace("[entityClass]", entityClass)
                 .replace("[service]", serviceType)
-                .replace("[entityClass]", entityClass)
                 .replace("[returnInfo]", returnInfo);
 
         return listMethodCode;
@@ -209,11 +192,8 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         String insertMethodCode = template.t_controller_insert;
 
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
-//        insertMethodCode = insertMethodCode.replace("[annotation]", "PostMapping");
-
 
         String returnType = getClassShortName(source.getMethodReturnTypeFullName());
-
 
         insertMethodCode = insertMethodCode.replace("[returnType]", returnType);
 
@@ -224,7 +204,6 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         insertMethodCode = insertMethodCode.replace("[service]", service)
                 .replace("[entityClass]", entityClass);
         imports.add(source.getEntitySource().getClassFullName());
-
 
         String returnInfo = getReturnInfo(source, imports, false);
 
@@ -274,7 +253,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
     private String getReturnInfo(ControllerSource source, List<String> imports, boolean flag) {
         String returnInfo = "null";
-        if (Objects.equals(source.getMethodReturnTypeFullName(),"java.lang.String")){
+        if (Objects.equals(source.getMethodReturnTypeFullName(), "java.lang.String")) {
             return returnInfo;
         }
         if (Objects.equals(source.getMethodReturnTypeFullName(), ApplicationContant.config.getProperty("ModelAndView"))) {
@@ -288,7 +267,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         if (StringUtils.isEmpty(source.getReturnTypeStaticMethod())) {
 
             if (flag) {
-                returnInfo = "new " + source.getMethodReturnTypeShortName()+"(data)";
+                returnInfo = "new " + source.getMethodReturnTypeShortName() + "(data)";
                 return returnInfo;
             }
 
@@ -299,8 +278,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         if (!checkPackageIsSame(source.getFullPackage(), source.getMethodReturnTypeFullName())) {
             imports.add(source.getMethodReturnTypeFullName());
         }
-        returnInfo = source.getMethodReturnTypeShortName() + "." + source.getReturnTypeStaticMethod();
-
+        returnInfo = source.getMethodReturnTypeShortName() + ApplicationContant.PACKAGE_SEPARATOR + source.getReturnTypeStaticMethod();
 
 
         if (flag) {

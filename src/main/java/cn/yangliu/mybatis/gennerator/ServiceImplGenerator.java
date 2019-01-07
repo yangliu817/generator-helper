@@ -42,62 +42,82 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
 
         imports.add(ApplicationContant.config.getProperty("Service"));
         anontations.add("Service");
-
-        if (source.getUseBaseService()) {
-            code = code.replace("[fields]", "");
-
-            imports.add(source.getEntitySource().getClassFullName());
-            imports.add(source.getMapperSource().getClassFullName());
-
-            if (source.getCreateInterface()) {
-                code = code.replace("[implements]", " implements " + source.getServiceSource().getShortName());
-
-                imports.add(ApplicationContant.config.getProperty("ServiceImpl"));
-
-                imports.add(source.getServiceSource().getClassFullName());
-
-                code = code.replace("[extends]", " extends ServiceImpl<" + source.getMapperSource().getShortName() + "," + source.getEntitySource().getShortName() + ">");
-            } else {
-                String extendCode = " extends ServiceImpl<" + source.getMapperSource().getShortName() + "," + source.getEntitySource().getShortName() + ">";
-                imports.add(ApplicationContant.config.getProperty("ServiceImpl"));
-                imports.add(ApplicationContant.config.getProperty("IService"));
-                code = code.replace("[extends]", extendCode);
-                code = code.replace("[implements]", "");
+        if (source.isMybatisPlus()) {
+            code = code.replace("[methods]", "");
+            if (source.getUseBaseService()) {
+                code = code.replace("[fields]", "");
 
                 imports.add(source.getEntitySource().getClassFullName());
+                imports.add(source.getMapperSource().getClassFullName());
+
+                if (source.getCreateInterface()) {
+                    code = code.replace("[implements]", " implements " + source.getServiceSource().getShortName());
+
+                    imports.add(ApplicationContant.config.getProperty("ServiceImpl"));
+
+                    imports.add(source.getServiceSource().getClassFullName());
+
+                    code = code.replace("[extends]", " extends ServiceImpl<" + source.getMapperSource().getShortName() + "," + source.getEntitySource().getShortName() + ">");
+                } else {
+                    String extendCode = " extends ServiceImpl<" + source.getMapperSource().getShortName() + "," + source.getEntitySource().getShortName() + ">";
+                    imports.add(ApplicationContant.config.getProperty("ServiceImpl"));
+                    imports.add(ApplicationContant.config.getProperty("IService"));
+                    code = code.replace("[extends]", extendCode);
+                    code = code.replace("[implements]", "");
+
+                    imports.add(source.getEntitySource().getClassFullName());
+                }
+            } else {
+
+                String fieldType = source.getMapperSource().getShortName();
+                imports.add(source.getMapperSource().getClassFullName());
+                code = generateComponentFields(code, fieldType);
+
+                if (source.getCreateInterface()) {
+
+                    code = code.replace("[implements]", " implements " + source.getServiceSource().getShortName())
+                            .replace("[extends]", "");
+                    imports.add(source.getServiceSource().getClassFullName());
+                } else {
+                    code = code.replace("[implements]", "").replace("[extends]", "");
+                }
             }
         } else {
+            imports.add(ApplicationContant.config.getProperty("List"));
+            imports.add(source.getEntitySource().getClassFullName());
+            code = code.replace("[extends]", "");
 
             String fieldType = source.getMapperSource().getShortName();
-            String fieldName = CodeUtils.firstChar2Lowercase(fieldType);
-            String fieldCode = template.t_field;
-            fieldCode = fieldCode.replace("[comment]", "").replace("[annotations]", "@Autowired");
-            fieldCode = fieldCode.replace("[fieldName]", fieldName).replace("[fieldType]", fieldType);
+            imports.add(source.getMapperSource().getClassFullName());
+            code = generateComponentFields(code, fieldType);
 
-            code = code.replace("[fields]", fieldCode);
-
-            if (source.getCreateInterface()) {
-                code = code.replace("[implements]", " implements " + source.getServiceSource().getShortName())
-                        .replace("[extends]", "");
-                imports.add(source.getServiceSource().getClassFullName());
-            } else {
-                code = code.replace("[implements]", "").replace("[extends]", "");
+            String templateCode = template.t_service_impl_methods_normal;
+            if (source.isContainsPrimaryKey()) {
+                templateCode = templateCode + "\n" + template.t_service_impl_methods_needprimarykey;
             }
-
+            code = code.replace("[mapperName]", CodeUtils.firstChar2Lowercase(source.getMapperSource().getShortName()));
+            code = code.replace("[methods]", templateCode);
+            code = code.replace("[entityClass]", source.getEntitySource().getShortName());
+            code = code.replace("[primaryKeyType]", getClassShortName(source.getEntitySource().getPrimaryKeyType()));
+            if (source.getCreateInterface()) {
+                imports.add(source.getServiceSource().getClassFullName());
+                code = code.replace("[implements]", " implements " + source.getServiceSource().getShortName());
+            } else {
+                code = code.replace("[implements]", "");
+                code = code.replace("@Override", "");
+            }
         }
+
 
         if (source.getUseTransactional()) {
             imports.add(ApplicationContant.config.getProperty("Transactional"));
-            anontations.add("Transactional");
+            anontations.add("Transactional(rollbackFor = Throwable.class)");
         }
 
-        if (source.getUseLombok()) {
-            imports.add(ApplicationContant.config.getProperty("Slf4j"));
-            anontations.add("Slf4j");
-        }
+        code = checkUseLombok(source, code, imports, anontations);
 
         code = generateImports(code, imports);
-        code = generateAnnontations(code, anontations);
+        code = generateAnnotations(code, anontations);
         FileUtils.output(code, source.getFilepath(), source.getFilename());
     }
 

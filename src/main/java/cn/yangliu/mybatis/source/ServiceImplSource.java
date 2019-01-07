@@ -1,5 +1,6 @@
 package cn.yangliu.mybatis.source;
 
+import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.ProjectSetting;
 import cn.yangliu.mybatis.bean.ServiceSetting;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class ServiceImplSource extends CodeSource {
     }
 
     private void init(ServiceSetting serviceSetting, String entityName, String srcPath) {
+        setPrimaryKeyInfo(entitySource);
         createInterface = serviceSetting.getCreateInterface();
         useBaseService = serviceSetting.getUseBaseService();
         if (serviceSetting.getCreateInterface()) {
@@ -52,9 +54,9 @@ public class ServiceImplSource extends CodeSource {
             filepath = srcPath + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + fullPackage;
         }
 
-        classFullName = fullPackage + "." + shortName;
+        classFullName = fullPackage + ApplicationContant.PACKAGE_SEPARATOR + shortName;
 
-        filepath = filepath.replace(".", File.separator);
+        filepath = filepath.replace(ApplicationContant.PACKAGE_SEPARATOR, File.separator);
 
     }
 

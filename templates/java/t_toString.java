@@ -2,7 +2,7 @@
     public String toString() {
         StringBuilder sb = new StringBuilder("[className] = {");
 
-        [if]
+[if]
         sb.append("}");
         return sb.toString();
     }

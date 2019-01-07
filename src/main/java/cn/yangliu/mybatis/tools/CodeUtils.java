@@ -22,6 +22,7 @@ public class CodeUtils {
         return source.replaceAll("\\d+", "").replace("(","").replace(")","").toLowerCase();
     }
     public static String getFieldName(String columName){
+        columName = columName.toLowerCase();
         StringBuilder sb = new StringBuilder();
         String [] array = columName.split("_");
         for (String s : array) {

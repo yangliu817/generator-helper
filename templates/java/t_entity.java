@@ -6,19 +6,19 @@ import java.io.Serializable;
 /**
  * [comment]
  */
-[annontations]
+[annotations]
 public class [className][extends] implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    [constructor]
+[constructor]
 
     [fields]
 
-    [setter-getter]
+[setter-getter]
 
-    [equals-hash]
+[equals-hash]
 
-    [toString]
+[toString]
 
 }

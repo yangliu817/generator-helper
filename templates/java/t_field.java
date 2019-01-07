@@ -1,3 +1,2 @@
-    [comment]
-    [annotations]
+[comment]    [annotations]
     private [fieldType] [fieldName];

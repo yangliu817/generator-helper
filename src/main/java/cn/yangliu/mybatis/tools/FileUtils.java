@@ -10,11 +10,9 @@ public class FileUtils {
 
     public static String getFullPath(String folder, String filename) {
         String path = PathUtils.getHomePath(FileUtils.class);
-
         if (path.endsWith(File.separator)) {
             return path + folder + File.separator + filename;
         }
-
         return path + File.separator + folder + File.separator + filename;
     }
 
@@ -34,12 +32,6 @@ public class FileUtils {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
-       /* try (PrintWriter pw = new PrintWriter(file, "utf-8")) {
-            pw.println(content);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }*/
-
         try (FileOutputStream fos = new FileOutputStream(file);
              OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
              BufferedWriter bw = new BufferedWriter(osw)) {
@@ -51,30 +43,38 @@ public class FileUtils {
 
     public static String read(String filepath, boolean wrap) {
         try (InputStream is = new FileInputStream(filepath)) {
-
-            return read(is, wrap);
+            return read(is, "", wrap);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    public static String read(InputStream is, boolean wrap) {
+    public static String read(String filepath, String space, boolean wrap) {
+        try (InputStream is = new FileInputStream(filepath)) {
+            return read(is, space, wrap);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public static String read(InputStream is, String space, boolean wrap) {
         StringBuilder sb = new StringBuilder();
         try (InputStreamReader isr = new InputStreamReader(is);
              BufferedReader reader = new BufferedReader(isr)) {
-
             String line = null;
             while ((line = reader.readLine()) != null) {
-                sb.append(line);
+                sb.append(space).append(line);
                 if (wrap) {
                     sb.append("\n");
                 }
             }
-
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-
         return sb.toString();
+    }
+
+    public static String read(InputStream is, boolean wrap) {
+        return read(is, "", wrap);
     }
 }

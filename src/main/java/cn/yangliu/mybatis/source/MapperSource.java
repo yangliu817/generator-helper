@@ -1,6 +1,7 @@
 package cn.yangliu.mybatis.source;
 
 import cn.yangliu.comm.tools.StringUtils;
+import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.MapperSetting;
 import cn.yangliu.mybatis.bean.ProjectSetting;
 import lombok.Data;
@@ -18,11 +19,12 @@ public class MapperSource extends CodeSource {
 
     public MapperSource(ProjectSetting projectSetting, MapperSetting mapperSetting, EntitySource entitySource) {
         super(projectSetting, mapperSetting.getMapperPackage(), projectSetting.getCodePath());
-        init(mapperSetting, entitySource.shortName);
         this.entitySource = entitySource;
+        init(mapperSetting, entitySource.shortName);
     }
 
     private void init(MapperSetting mapperSetting, String entityName) {
+        setPrimaryKeyInfo(entitySource);
         String mapperSufix = mapperSetting.getMapperSufix();
         extendBaseMapper = mapperSetting.getExtendBaseMapper();
         useMapperAnonntation = mapperSetting.getUseMapperAnonntation();
@@ -31,7 +33,7 @@ public class MapperSource extends CodeSource {
 
         filename = shortName + ".java";
         if (StringUtils.isNotEmpty(fullPackage)) {
-            classFullName = fullPackage + "." + shortName;
+            classFullName = fullPackage + ApplicationContant.PACKAGE_SEPARATOR + shortName;
         } else {
             classFullName = shortName;
         }

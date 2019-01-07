@@ -4,4 +4,5 @@
 
 public interface [className][extends] {
 
+[methods]
 }

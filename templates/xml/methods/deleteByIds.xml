@@ -1,0 +1,8 @@
+    <!-- 批量删除 -->
+    <delete id="deleteByIds" parameterType="list">
+        delete from [tableName] where [primaryKeyName] in (
+            <foreach collection ="list" item="item" index= "index" separator =",">
+                #{item}
+            </foreach >
+        )
+    </delete>

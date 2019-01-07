@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 public class CodeTemplate {
 
-    protected String t_annontation;
+    protected String t_annotation;
     protected String t_entity;
     protected String t_equals;
     protected String t_equal_method;
@@ -40,6 +40,12 @@ public class CodeTemplate {
     protected String t_controller_insert;
     protected String t_controller_list;
     protected String t_controller_update;
+    protected String t_abstract_methods_needprimarykey;
+    protected String t_abstract_methods_normal;
+    protected String t_service_impl_methods_needprimarykey;
+    protected String t_service_impl_methods_normal;
+    protected String t_controller_list2;
+    protected String t_comment;
 
 
     public CodeTemplate() {

@@ -25,4 +25,7 @@ public class SettingsInfo implements Serializable {
     @TableField(exist = false)
     private Settings settings;
 
+    @TableField(exist = false)
+    private String dbType;
+
 }

@@ -16,20 +16,25 @@ public class MapperGenerator extends AbstractGenerator<MapperSource> {
 
     @Override
     public void generate(MapperSource source) {
-
-        String code = template.t_mapper;
-
         List<String> imports = new ArrayList<>();
 
         List<String> annotations = new ArrayList<>();
+        String code = template.t_mapper.replace("[className]", source.getShortName());
 
-        code = code.replace("[className]", source.getShortName());
-
-        if (source.getExtendBaseMapper()) {
-            imports.add(ApplicationContant.config.getProperty("BaseMapper"));
-            code = code.replace("[extends]", " extends BaseMapper<" + source.getEntitySource().getShortName() + ">");
+        if (source.isMybatisPlus()) {
+            code = code.replace("[methods]", "");
+            if (source.getExtendBaseMapper()) {
+                imports.add(ApplicationContant.config.getProperty("BaseMapper"));
+                code = code.replace("[extends]", " extends BaseMapper<" + source.getEntitySource().getShortName() + ">");
+            } else {
+                code = code.replace("[extends]", "");
+            }
         } else {
-            code = code.replace("[extends]", "");
+            String templateCode = template.t_abstract_methods_normal;
+            if (source.isContainsPrimaryKey()) {
+                templateCode = templateCode + template.t_abstract_methods_needprimarykey;
+            }
+            code = generateAbstractMethods(code, templateCode, source.getEntitySource(), imports);
         }
 
         if (source.getUseMapperAnonntation()) {
@@ -43,17 +48,11 @@ public class MapperGenerator extends AbstractGenerator<MapperSource> {
             code = code.replace("[package]", "package " + source.getFullPackage() + ";");
         }
 
-
-        if (!Objects.equals(source.getFullPackage(), source.getEntitySource().getFullPackage())) {
-            if (StringUtils.isEmpty(source.getEntitySource().getFullPackage())) {
-                throw new NullPointerException();
-            }
-            imports.add(source.getEntitySource().getClassFullName());
-        }
+        imports.add(source.getEntitySource().getClassFullName());
 
         code = generateImports(code, imports);
 
-        code = generateAnnontations(code, annotations);
+        code = generateAnnotations(code, annotations);
 
         FileUtils.output(code, source.getFilepath(), source.getFilename());
     }

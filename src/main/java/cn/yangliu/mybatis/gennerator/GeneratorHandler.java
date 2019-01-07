@@ -25,16 +25,16 @@ public class GeneratorHandler {
 
     @Async
     public Future<Boolean> doGenerator(ProjectSetting projectSetting, EntitySource entitySource, MapperSource mapperSource, XmlSource xmlSource,
-                                      ServiceImplSource serviceImplSource, ControllerSource controllerSource){
+                                       ServiceImplSource serviceImplSource, ControllerSource controllerSource) {
 
         entityGenerator.generate(entitySource);
         mapperGenerator.generate(mapperSource);
         xmlGenerator.generate(xmlSource);
-        if (projectSetting.getCreateService()){
+        if (projectSetting.getCreateService()) {
             serviceImplGenerator.generate(serviceImplSource);
         }
 
-        if (projectSetting.getCreateController()){
+        if (projectSetting.getCreateController() && projectSetting.getCreateService()) {
             controllerGenerator.generate(controllerSource);
         }
         return new AsyncResult<>(true);

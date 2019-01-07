@@ -16,6 +16,12 @@ public class MappingSetting {
         this.dbType = dbType;
     }
 
+    public MappingSetting(Long columnTypeId, Long javaTypeId, Long settingId) {
+        this.columnTypeId = columnTypeId;
+        this.javaTypeId = javaTypeId;
+        this.settingId = settingId;
+    }
+
     @TableId
     private Long id;
 

@@ -1,0 +1,8 @@
+    <!-- 根据id全字段修改 -->
+    <update id="updateById" parameterType="[entityClassFullName]">
+        update [tableName]
+        set
+            [column2field]
+        where
+            [primaryKeyName] = #{[primaryKeyFieldName]}
+    </update>
