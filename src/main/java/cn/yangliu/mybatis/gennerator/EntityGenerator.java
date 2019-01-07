@@ -102,7 +102,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
         code = generateConstructor(source, code);
 
-        code = generateEqualsAndHashCode(source, code, fieldNames);
+        code = generateEqualsAndHashCode(source, code, fieldNames, imports);
 
         code = generateToString(source, code, fieldNames);
 
@@ -147,36 +147,39 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
     }
 
 
-    private String generateEqualsAndHashCode(EntitySource entitySource, String sourceCode, List<String> fieldNames) {
+    private String generateEqualsAndHashCode(EntitySource entitySource, String sourceCode, List<String> fieldNames, List<String> imports) {
         String equalsAndHashCode = "";
         if (entitySource.getEqualAndHash() && !entitySource.getUseLombok()) {
+            imports.add(ApplicationContant.config.getProperty("Objects"));
             equalsAndHashCode = generateEqualsCode(entitySource, fieldNames) + generateHashCode(fieldNames);
         }
         return sourceCode.replace("[equals-hash]", equalsAndHashCode);
     }
 
     private String generateEqualsCode(EntitySource entitySource, List<String> fieldNames) {
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < fieldNames.size(); i++) {
-            String t;
+            String t = template.t_equals;
+
             if ((i + 1) == fieldNames.size()) {
-                t = template.t_equals.replace("[fieldName]", fieldNames.get(i)).replace("&&", ";");
+                t = t.replace("[fieldName]", fieldNames.get(i)).replace(" &&", ";");
             } else {
-                t = template.t_equals.replace("[fieldName]", fieldNames.get(i));
+                t = t.replace("[fieldName]", fieldNames.get(i));
             }
             sb.append(t);
         }
 
         String equalsCode = template.t_equal_method.replace("[className]", entitySource.getShortName())
                 .replace("[className-l]", CodeUtils.firstChar2Lowercase(entitySource.getShortName()));
-        equalsCode = equalsCode.replace("[equals]", sb.toString());
+        equalsCode = equalsCode.replace("[equals]", sb.toString().trim());
 
-        return equalsCode;
+        return equalsCode + "\n";
     }
 
     private String generateHashCode(List<String> fieldNames) {
         String fields = fieldNames.toString().replace("[", "").replace("]", "");
-        return template.t_hash.replace("[fields]", fields);
+        return template.t_hash.replace("[fields]", fields) + "\n";
     }
 
     private String generateConstructor(EntitySource source, String code) {
@@ -191,26 +194,24 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         String code = template.t_getter.replace("[returnType]", fieldType)
                 .replace("[fieldName-u]", CodeUtils.firstChar2Uppercase(fieldName))
                 .replace("[fieldName]", fieldName);
-        setterAndGetterCode.append(code);
+        setterAndGetterCode.append(code).append("\n");
     }
 
     private void generateSetterCode(boolean chain, String fieldType, String className, String fieldName, StringBuilder setterAndGetterCode) {
 
-        String code;
         if (chain) {
-            code = template.t_setter_chain.replace("[className]", className)
+            String code = template.t_setter_chain.replace("[className]", className)
                     .replace("[fieldName-u]", CodeUtils.firstChar2Uppercase(fieldName))
                     .replace("[fieldType]", fieldType)
-                    .replace("[fieldName]", fieldName)
-                    .replace("[fieldName]", fieldName)
                     .replace("[fieldName]", fieldName);
-        } else {
-            code = template.t_setter.replace("[fieldName-u]", CodeUtils.firstChar2Uppercase(fieldName))
-                    .replace("[fieldType]", fieldType)
-                    .replace("[fieldName]", fieldName)
-                    .replace("[fieldName]", fieldName);
+            setterAndGetterCode.append(code).append("\n");
+            return;
         }
-        setterAndGetterCode.append(code);
+        String code = template.t_setter.replace("[fieldName-u]", CodeUtils.firstChar2Uppercase(fieldName))
+                .replace("[fieldType]", fieldType)
+                .replace("[fieldName]", fieldName);
+        setterAndGetterCode.append(code).append("\n");
+
     }
 
 
@@ -262,7 +263,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
                 fieldCode = fieldCode.replace("[comment]", "");
             } else {
                 String commentCode = template.t_comment.replace("[desp]", comment).trim();
-                if (flag){
+                if (flag) {
                     commentCode = commentCode + "\n";
                 }
                 fieldCode = fieldCode.replace("[comment]", commentCode);
@@ -318,6 +319,5 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         }
         return javaFullTypeMap.get(javaTypeFullName);
     }
-
 
 }

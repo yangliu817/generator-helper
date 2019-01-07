@@ -1,1 +1,1 @@
-Objects.equals([fieldName], that.[fieldName]) &&
+        Objects.equals([fieldName], that.[fieldName]) &&

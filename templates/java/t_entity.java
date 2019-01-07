@@ -15,10 +15,5 @@ public class [className][extends] implements Serializable {
 
     [fields]
 
-[setter-getter]
-
-[equals-hash]
-
-[toString]
-
+[setter-getter][equals-hash][toString]
 }
