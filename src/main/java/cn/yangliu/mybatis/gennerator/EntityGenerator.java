@@ -245,29 +245,26 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
             String comment = columInfo.getComment();
 
-            boolean flag = false;
-            if (Objects.equals(columnName, source.getPrimaryKeyName())) {
-                if (source.isMybatisPlus()) {
-                    imports.add(ApplicationContant.config.getProperty("TableId"));
-                    fieldCode = fieldCode.replace("[annotations]", "@TableId");
-                    flag = true;
-                } else {
-                    fieldCode = fieldCode.replace("[annotations]", "");
-                }
-
-            } else {
-                fieldCode = fieldCode.replace("[annotations]", "");
+            String commentCode = "";
+            if (StringUtils.isNotEmpty(comment)) {
+                commentCode = template.t_comment.replace("[desp]", comment).trim();
             }
 
-            if (StringUtils.isEmpty(comment)) {
-                fieldCode = fieldCode.replace("[comment]", "");
-            } else {
-                String commentCode = template.t_comment.replace("[desp]", comment).trim();
-                if (flag) {
-                    commentCode = commentCode + "\n";
+
+            String annotationCode = "";
+            if (Objects.equals(columnName, source.getPrimaryKeyName()) && source.isMybatisPlus()) {
+                imports.add(ApplicationContant.config.getProperty("TableId"));
+                annotationCode = "@TableId";
+                if (StringUtils.isNotEmpty(comment)) {
+                    annotationCode = "\n    @TableId";
                 }
-                fieldCode = fieldCode.replace("[comment]", commentCode);
             }
+            if (StringUtils.isEmpty(annotationCode) && StringUtils.isNotEmpty(comment)) {
+                commentCode = "\n    " + commentCode;
+            }
+            fieldCode = fieldCode.replace("[comment]", commentCode);
+            fieldCode = fieldCode.replace("[annotations]", annotationCode);
+
 
             sb.append(fieldCode);
 
