@@ -6,6 +6,8 @@ import cn.yangliu.mybatis.bean.ProjectSetting;
 import lombok.Data;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 public abstract class CodeSource extends AbstractSource implements Source {
@@ -24,10 +26,20 @@ public abstract class CodeSource extends AbstractSource implements Source {
 
     protected boolean mybatisPlus;
 
+    protected String contact;
+
+    protected String author;
+
+    protected String date;
+
     public CodeSource(ProjectSetting projectSetting, String sourcePackage, String srcPath) {
         initBaseInfo(projectSetting.getProjectPackage(), sourcePackage, srcPath);
         useLombok = projectSetting.getUseLombok();
         mybatisPlus = (projectSetting.getMybatisType() == 2);
+        this.contact = projectSetting.getContact();
+        this.author = projectSetting.getAuthor();
+        LocalDateTime now = LocalDateTime.now();
+        this.date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
 
     protected void initBaseInfo(String basePackage, String sourcePackage, String srcPath) {

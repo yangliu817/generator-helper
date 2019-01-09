@@ -8,9 +8,7 @@ import cn.yangliu.mybatis.ex.HelperException;
 import cn.yangliu.mybatis.tools.DBUtils;
 import lombok.Data;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Data
 public class EntitySource extends CodeSource {
@@ -56,8 +54,15 @@ public class EntitySource extends CodeSource {
     private void init(EntitySetting entitySetting, String entityName) {
 
         String[] split = entitySetting.getExcludeColumns().split(",");
-
+        
         excludeColumns = Arrays.asList(split);
+        for (String s : split) {
+            if (StringUtils.isNotEmpty(s)){
+                excludeColumns.add(s.toLowerCase());
+                excludeColumns.add(s.toUpperCase());
+            }
+        }
+        excludeColumns = new ArrayList<>(new HashSet<>(excludeColumns));
 
         equalAndHash = entitySetting.getEqualAndHash();
 

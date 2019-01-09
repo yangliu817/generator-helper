@@ -1,6 +1,8 @@
 package cn.yangliu.mybatis.tools;
 
+import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.bean.LinkInfo;
+import cn.yangliu.mybatis.enums.DBTypeEnum;
 import lombok.Data;
 import org.apache.ibatis.io.Resources;
 
@@ -9,8 +11,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiConsumer;
 
 public class DBUtils {
 
@@ -34,7 +36,7 @@ public class DBUtils {
             //建表语句
             statement.executeUpdate(initSql);
 
-            conn.close();
+            close(statement,conn);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -65,12 +67,23 @@ public class DBUtils {
         String driver = null;
         switch (linkInfo.getDatabaseType()) {
             case "mysql":
-                url = "jdbc:mysql://" + linkInfo.getHost() + ":" + linkInfo.getPort()+"?useSSL=false";
+                url = "jdbc:mysql://" + linkInfo.getHost() + ":" + linkInfo.getPort() + "?useSSL=false";
                 driver = "com.mysql.jdbc.Driver";
                 break;
             case "mariadb":
-                url = "jdbc:mysql://" + linkInfo.getHost() + ":" + linkInfo.getPort()+"?useSSL=false";
+                url = "jdbc:mysql://" + linkInfo.getHost() + ":" + linkInfo.getPort() + "?useSSL=false";
                 driver = "com.mysql.jdbc.Driver";
+                break;
+            case "oracle":
+                url = "jdbc:oracle:thin:@//" + linkInfo.getHost() + ":" + linkInfo.getPort() + "/" + linkInfo.getService();
+                driver = "oracle.jdbc.driver.OracleDriver";
+                break;
+            case "sqlserver":
+                url = "jdbc:sqlserver://" + linkInfo.getHost() + ":" + linkInfo.getPort();
+                if (StringUtils.isNotEmpty(linkInfo.getDatabase())){
+                    url = url +";DatabaseName="+linkInfo.getDatabase();
+                }
+                driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
                 break;
             default:
                 throw new NullPointerException("不支持的数据库类型");
@@ -90,30 +103,48 @@ public class DBUtils {
         }
     }
 
-    public static List<DatabaseInfo> getDatabases(LinkInfo linkInfo) {
+
+    private static <T> List<T> excuteSQL(String sql, LinkInfo linkInfo, BiConsumer<ResultSet, List<T>> consumer) {
+        List<T> dataList = new ArrayList<>();
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<DatabaseInfo> databases = new ArrayList<>();
         try {
-            DBType dbType = getDBType(linkInfo);
-            Class.forName(dbType.getDriver());
-            connection = DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
-
-            ps = connection.prepareStatement("show databases;");
-
+            connection = getConnection(linkInfo);
+            ps = connection.prepareStatement(sql);
             rs = ps.executeQuery();
-
             while (rs.next()) {
-                String databaseName = rs.getString(1);
-                databases.add(new DatabaseInfo(databaseName));
+                consumer.accept(rs, dataList);
             }
+            return dataList;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         } finally {
             close(rs, ps, connection);
         }
-        return databases;
+    }
+
+    public static List<DatabaseInfo> getDatabases(LinkInfo linkInfo) {
+        String sql = "";
+        BiConsumer<ResultSet, List<DatabaseInfo>> consumer = (rs, list) -> {
+            try {
+                String databaseName = rs.getString(1);
+                list.add(new DatabaseInfo(databaseName));
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        };
+        if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.ORACLE.getDbType())) {
+            return Arrays.asList(new DatabaseInfo(linkInfo.getUser().toUpperCase()));
+        } else if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.MYSQL.getDbType())) {
+            sql = "show databases";
+        } else if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.MARIADB.getDbType())) {
+            sql = "show databases";
+        } else if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.SQLSERVER.getDbType())) {
+            sql = "SELECT name FROM sys.databases WHERE HAS_DBACCESS(name) = 1 and name not in ('master','tempdb','msdb')";
+        }
+
+        return excuteSQL(sql, linkInfo, consumer);
     }
 
 
@@ -185,123 +216,135 @@ public class DBUtils {
         }
     }
 
-    public static List<ColumInfo> getTableColumInfo(LinkInfo linkInfo, String database, String table) {
-        String sql = "show full columns from " + database + "." + table + ";";
-        List<ColumInfo> columInfoList = new ArrayList<>();
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    private static Connection getConnection(LinkInfo linkInfo) {
         try {
             DBType dbType = getDBType(linkInfo);
             Class.forName(dbType.getDriver());
-            connection = DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
-
-
-            ps = connection.prepareStatement(sql);
-
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                String name = rs.getString("Field");
-                String type = rs.getString("Type");
-                String comment = rs.getString("Comment");
-
-                ColumInfo columInfo = new ColumInfo(name, type, comment);
-                columInfoList.add(columInfo);
-            }
+            DriverManager.setLoginTimeout(3);
+            return DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            close(rs, ps, connection);
         }
-        return columInfoList;
+
     }
 
+    public static List<ColumInfo> getTableColumInfo(LinkInfo linkInfo, String database, String table) {
+        String sql = "";
+        if (Objects.equals(DBTypeEnum.ORACLE.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "select distinct cc.column_name,tc.data_type,cc.comments from user_col_comments cc,user_tab_columns tc " +
+                    "where cc.column_name = tc.column_name and tc.table_name = '" + table + "'";
+        } else if (Objects.equals(DBTypeEnum.MYSQL.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "show full columns from " + database + "." + table;
+
+        } else if (Objects.equals(DBTypeEnum.MARIADB.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "show full columns from " + database + "." + table;
+        } else if (Objects.equals(DBTypeEnum.SQLSERVER.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "SELECT " +
+                    "column_name=a.name, " +
+                    "column_type=b.name, " +
+                    "column_comment=isnull(convert(varchar(100), g.[value]),'') " +
+                    "FROM syscolumns a " +
+                    "left join systypes b on a.xusertype=b.xusertype " +
+                    "inner join sysobjects d on a.id=d.id and d.xtype='U' and d.name<>'dtproperties' " +
+                    "left join sys.extended_properties g on a.id=g.major_id and a.colid=g.minor_id " +
+                    "left join sys.extended_properties f on d.id=f.major_id and f.minor_id=0 " +
+                    "where d.name='" + table + "' " +
+                    "order by a.id,a.colorder";
+            linkInfo.setDatabase(database);
+        }
+
+        BiConsumer<ResultSet, List<ColumInfo>> consumer = (rs, list) -> {
+            try {
+                String name = rs.getString(1);
+                String type = rs.getString(2);
+                String comment = rs.getString(3);
+                ColumInfo columInfo = new ColumInfo(name, type, comment);
+                list.add(columInfo);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        };
+        List<ColumInfo> columInfos = excuteSQL(sql, linkInfo, consumer);
+        Set<ColumInfo> set = new HashSet<>(columInfos);
+        columInfos = new ArrayList<>(set);
+        return columInfos;
+    }
 
     public static List<TableInfo> getTables(LinkInfo linkInfo, String database) {
-        List<TableInfo> tables = new ArrayList<>();
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            DBType dbType = getDBType(linkInfo);
-            Class.forName(dbType.getDriver());
-            connection = DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
+        String sql = "";
 
-            String sql = "select table_name from INFORMATION_SCHEMA.TABLES Where table_schema = ?;";
-            String params = "";
+        if (Objects.equals(DBTypeEnum.ORACLE.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "select TABLE_NAME from user_tables";
 
-            for (int i = 0; i < tables.size(); i++) {
-                params += "'" + tables.get(i) + "'";
-                if ((i + 1) != tables.size()) {
-                    params += ",";
-                }
-            }
-            sql = String.format(sql, params);
+        } else if (Objects.equals(DBTypeEnum.MYSQL.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES Where table_schema = '" + database + "'";
 
-            ps = connection.prepareStatement(sql);
-            ps.setString(1, database);
-            rs = ps.executeQuery();
+        } else if (Objects.equals(DBTypeEnum.MARIADB.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES Where table_schema = '" + database + "'";
 
-            while (rs.next()) {
-                tables.add(new TableInfo(rs.getString(1)));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            close(rs, ps, connection);
-        }
-        return tables;
-    }
-
-    public static List<TableInfo> getTablesInfo(LinkInfo linkInfo, String database, List<String> tables) {
-
-        if (tables.size() == 0) {
-            throw new NullPointerException();
+        } else if (Objects.equals(DBTypeEnum.SQLSERVER.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "select name from sysobjects where xtype='U'";
+            linkInfo.setDatabase(database);
         }
 
-        List<TableInfo> tableInfos = new ArrayList<>();
-
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            DBType dbType = getDBType(linkInfo);
-            Class.forName(dbType.getDriver());
-            connection = DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
-
-            String sql = "Select table_name,table_comment  from INFORMATION_SCHEMA.TABLES Where table_schema = ? AND table_name in ([tables]);";
-
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < tables.size(); i++) {
-                String table = tables.get(i);
-                sb.append("'").append(table).append("'");
-                if ((i + 1) != tables.size()) {
-                    sb.append(",");
-                }
+        BiConsumer<ResultSet, List<TableInfo>> consumer = (rs, list) -> {
+            try {
+                list.add(new TableInfo(rs.getString(1)));
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
             }
-
-            sql = sql.replace("[tables]", sb.toString());
-
-            ps = connection.prepareStatement(sql);
-            ps.setString(1, database);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                String tableName = rs.getString("table_name");
-                String tableComment = rs.getString("table_comment");
-
-                List<ColumInfo> tableColumInfo = getTableColumInfo(linkInfo, database, tableName);
-                tableInfos.add(new TableInfo(tableName, tableComment, tableColumInfo));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            close(rs, ps, connection);
-        }
+        };
+        List<TableInfo> tableInfos = excuteSQL(sql, linkInfo, consumer);
+        Set<TableInfo> set = new HashSet<>(tableInfos);
+        tableInfos = new ArrayList<>(set);
         return tableInfos;
     }
 
+    public static List<TableInfo> getTablesInfo(LinkInfo linkInfo, String database, List<String> tables) {
+        String tableString = tables.toString().replace("[", "'").replace("]", "'").replace(", ", "', '");
+        String sql = "";
+        if (Objects.equals(DBTypeEnum.ORACLE.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "select a.TABLE_NAME as TABLE_NAME,b.COMMENTS as TABLE_COMMENT " +
+                    "from user_tables a,user_tab_comments b " +
+                    "WHERE a.TABLE_NAME = b.TABLE_NAME and a.TABLE_NAME IN([tables]) " +
+                    "order by TABLE_NAME";
+        } else if (Objects.equals(DBTypeEnum.MYSQL.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "Select table_name as TABLE_NAME,table_comment as TABLE_COMMENT " +
+                    "from INFORMATION_SCHEMA.TABLES " +
+                    "Where table_schema = '" + database + "' AND table_name in ([tables])";
+
+        } else if (Objects.equals(DBTypeEnum.MARIADB.getDbType(), linkInfo.getDatabaseType())) {
+            sql = "Select table_name as TABLE_NAME,table_comment as TABLE_COMMENT " +
+                    "from INFORMATION_SCHEMA.TABLES " +
+                    "Where table_schema = '" + database + "' AND table_name in ([tables])";
+        } else if (Objects.equals(DBTypeEnum.SQLSERVER.getDbType(), linkInfo.getDatabaseType())) {
+
+            sql = "SELECT " +
+                    "d.name TABLE_NAME," +
+                    "TABLE_COMMENT = case when a.colorder = 1 then isnull(convert(varchar(100), f.value),'') else '' end " +
+                    "FROM syscolumns a " +
+                    "inner join sysobjects d on a.id=d.id and d.xtype = 'U' and d.name<>'dtproperties' " +
+                    "left join sys.extended_properties f on d.id = f.major_id and f.minor_id = 0 " +
+                    "where d.name in ([tables])" +
+                    "order by a.id,a.colorder";
+            linkInfo.setDatabase(database);
+        }
+        sql = sql.replace("[tables]", tableString);
+
+        BiConsumer<ResultSet, List<TableInfo>> consumer = (rs, list) -> {
+            try {
+                String tableName = rs.getString("TABLE_NAME");
+                String tableComment = rs.getString("TABLE_COMMENT");
+
+                List<ColumInfo> tableColumInfo = getTableColumInfo(linkInfo, database, tableName);
+                list.add(new TableInfo(tableName, tableComment, tableColumInfo));
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        };
+        List<TableInfo> tableInfos = excuteSQL(sql, linkInfo, consumer);
+        Set<TableInfo> set = new HashSet<>(tableInfos);
+        tableInfos = new ArrayList<>(set);
+        return tableInfos;
+    }
 }

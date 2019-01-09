@@ -18,7 +18,7 @@ public class XmlGenerator implements Generator<XmlSource> {
     private String t_mapper_where_if;
     private String t_mapper_where;
     private String deleteById;
-    private String deleteByIds;
+    private String deleteBatchIds;
     private String insert;
     private String insertList;
     private String insertSelect;
@@ -39,7 +39,7 @@ public class XmlGenerator implements Generator<XmlSource> {
         t_mapper_where = FileUtils.read(FileUtils.getFullPath("templates/xml", "t_mapper_where.xml"), true);
         t_mapper_result = FileUtils.read(FileUtils.getFullPath("templates/xml", "t_mapper_result.xml"), true);
         deleteById = FileUtils.read(FileUtils.getFullPath("templates/xml/methods", "deleteById.xml"), true);
-        deleteByIds = FileUtils.read(FileUtils.getFullPath("templates/xml/methods", "deleteByIds.xml"), true);
+        deleteBatchIds = FileUtils.read(FileUtils.getFullPath("templates/xml/methods", "deleteBatchIds.xml"), true);
         insert = FileUtils.read(FileUtils.getFullPath("templates/xml/methods", "insert.xml"), true);
         insertList = FileUtils.read(FileUtils.getFullPath("templates/xml/methods", "insertList.xml"), true);
         insertSelect = FileUtils.read(FileUtils.getFullPath("templates/xml/methods", "insertSelect.xml"), true);
@@ -71,10 +71,12 @@ public class XmlGenerator implements Generator<XmlSource> {
 
         boolean containsPrimaryKey = source.isContainsPrimaryKey();
         boolean primaryKeyTypeIsString = Objects.equals(source.getEntitySource().getPrimaryKeyType(), "java.lang.String");
+        String entityClassFullName = source.getEntitySource().getClassFullName();
 
         xmlCode = generateColumnSQL(columns, containsPrimaryKey, primaryKeyName, xmlCode);
         xmlCode = generateMapping(primaryKeyName, containsPrimaryKey, columns, fields, xmlCode);
         xmlCode = xmlCode.replace("[mapperClassFullName]", source.getMapperFullName());
+        xmlCode = xmlCode.replace("[entityClassFullName]", entityClassFullName);
 
         if (source.isMybatisPlus()) {
             xmlCode = xmlCode.replace("[methods]", "");
@@ -101,9 +103,9 @@ public class XmlGenerator implements Generator<XmlSource> {
             String updateByIdCode = generateUpdateById(columns, fields) + "\n";
             String uspdateSelectByIdCode = generateUspdateSelectById(columns, fields) + "\n";
             String deleteByIdCode = generateDeleteById() + "\n";
-            String deleteByIdsCode = generateDeleteByIds() + "\n";
+            String deleteBatchIdsCode = generateDeleteBatchIds() + "\n";
             String selectByIdCode = generateSelectById() + "\n";
-            methodCode = methodCode + updateByIdCode + uspdateSelectByIdCode + deleteByIdCode + deleteByIdsCode + selectByIdCode;
+            methodCode = methodCode + updateByIdCode + uspdateSelectByIdCode + deleteByIdCode + deleteBatchIdsCode + selectByIdCode;
         }
         String selectOneCode = generateSelectOne(columns, fields) + "\n";
         String selectListCode = generateSelectList(columns, fields);
@@ -227,8 +229,8 @@ public class XmlGenerator implements Generator<XmlSource> {
         return deleteById;
     }
 
-    protected String generateDeleteByIds() {
-        return deleteByIds;
+    protected String generateDeleteBatchIds() {
+        return deleteBatchIds;
     }
 
     protected String generateUspdateSelectById(List<String> columns, List<String> fields) {

@@ -72,8 +72,8 @@ public class EntitySetting {
                 case "oracle":
                     columnTypeId = AbstractGenerator.oracleColumnMap.get(columnType).getId();
                     break;
-                case "sqlServer":
-                    columnTypeId = AbstractGenerator.sqlServerColumnMap.get(columnType).getId();
+                case "sqlserver":
+                    columnTypeId = AbstractGenerator.sqlserverColumnMap.get(columnType).getId();
                     break;
                 default:
                     break;

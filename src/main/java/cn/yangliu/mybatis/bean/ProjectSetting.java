@@ -36,4 +36,8 @@ public class ProjectSetting {
 
     private Integer mybatisType;
 
+    protected String contact;
+
+    protected String author;
+
 }

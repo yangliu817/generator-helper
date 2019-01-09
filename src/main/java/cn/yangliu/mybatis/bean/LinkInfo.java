@@ -1,5 +1,7 @@
 package cn.yangliu.mybatis.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import lombok.Getter;
@@ -38,6 +40,12 @@ public class LinkInfo implements Serializable {
 
     private String port;
 
+    private String service;
+
     private String databaseType;
+
+    @TableField(exist = false)
+    @JSONField(serialize = false)
+    private String database;
 
 }

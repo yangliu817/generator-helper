@@ -1,5 +1,6 @@
 package cn.yangliu.mybatis.gennerator;
 
+import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.ColumnType;
 import cn.yangliu.mybatis.bean.JavaType;
@@ -44,7 +45,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
                     mysqlColumnMap = new HashMap<>();
                     mariadbColumnMap = new HashMap<>();
                     oracleColumnMap = new HashMap<>();
-                    sqlServerColumnMap = new HashMap<>();
+                    sqlserverColumnMap = new HashMap<>();
 
                     List<JavaType> javaTypes = javaTypeService.selectList(new EntityWrapper<>());
                     javaTypes.forEach(t -> {
@@ -63,8 +64,8 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
                             case "oracle":
                                 oracleColumnMap.put(columnType.getColumnType(), columnType);
                                 break;
-                            case "sqlServer":
-                                sqlServerColumnMap.put(columnType.getColumnType(), columnType);
+                            case "sqlserver":
+                                sqlserverColumnMap.put(columnType.getColumnType(), columnType);
                                 break;
                             default:
                                 break;
@@ -85,8 +86,8 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
                             case "oracle":
                                 column2javaTypeMap.put(oracleColumnMap.get(m.getColumnType()), javaFullTypeMap.get(m.getFullName()));
                                 break;
-                            case "sqlServer":
-                                column2javaTypeMap.put(sqlServerColumnMap.get(m.getColumnType()), javaFullTypeMap.get(m.getFullName()));
+                            case "sqlserver":
+                                column2javaTypeMap.put(sqlserverColumnMap.get(m.getColumnType()), javaFullTypeMap.get(m.getFullName()));
                                 break;
                             default:
                                 break;
@@ -104,7 +105,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     public static Map<String, ColumnType> mysqlColumnMap;
     public static Map<String, ColumnType> mariadbColumnMap;
     public static Map<String, ColumnType> oracleColumnMap;
-    public static Map<String, ColumnType> sqlServerColumnMap;
+    public static Map<String, ColumnType> sqlserverColumnMap;
 
     protected static Map<ColumnType, JavaType> column2javaTypeMap;
 
@@ -129,6 +130,16 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return source.replace("[imports]", code);
     }
 
+    protected String generateComments(String source, CodeSource codeSource) {
+        String author = codeSource.getAuthor();
+        String contact = codeSource.getContact();
+        String date = codeSource.getDate();
+
+        source = source.replace("[contact]", contact);
+        source = source.replace("[author]", author);
+        source = source.replace("[date]", date);
+        return source;
+    }
 
     protected String generateAnnotations(String source, List<String> annotations) {
         Set<String> set = new HashSet<>(annotations);
@@ -198,7 +209,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return code;
     }
 
-    protected String generateAbstractMethods(String code,String templateCode, EntitySource source,Collection<String> imports){
+    protected String generateAbstractMethods(String code, String templateCode, EntitySource source, Collection<String> imports) {
         code = code.replace("[extends]", "");
         imports.add(source.getClassFullName());
         imports.add(ApplicationContant.config.getProperty("List"));

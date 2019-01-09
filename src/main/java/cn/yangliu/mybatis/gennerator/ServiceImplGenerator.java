@@ -26,7 +26,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
         }
 
         String code = template.t_service_impl;
-
+        code = generateComments(code,source);
         String className = source.getShortName();
         code = code.replace("[className]", className);
 
@@ -83,6 +83,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
                 }
             }
         } else {
+            imports.add(ApplicationContant.config.getProperty("Autowired"));
             imports.add(ApplicationContant.config.getProperty("List"));
             imports.add(source.getEntitySource().getClassFullName());
             code = code.replace("[extends]", "");
@@ -95,8 +96,9 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             if (source.isContainsPrimaryKey()) {
                 templateCode = templateCode + "\n" + template.t_service_impl_methods_needprimarykey;
             }
-            code = code.replace("[mapperName]", CodeUtils.firstChar2Lowercase(source.getMapperSource().getShortName()));
+
             code = code.replace("[methods]", templateCode);
+            code = code.replace("[mapperName]", CodeUtils.firstChar2Lowercase(source.getMapperSource().getShortName()));
             code = code.replace("[entityClass]", source.getEntitySource().getShortName());
             code = code.replace("[primaryKeyType]", getClassShortName(source.getEntitySource().getPrimaryKeyType()));
             if (source.getCreateInterface()) {

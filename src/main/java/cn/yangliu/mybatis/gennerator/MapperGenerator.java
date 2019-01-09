@@ -20,7 +20,7 @@ public class MapperGenerator extends AbstractGenerator<MapperSource> {
 
         List<String> annotations = new ArrayList<>();
         String code = template.t_mapper.replace("[className]", source.getShortName());
-
+        code = generateComments(code,source);
         if (source.isMybatisPlus()) {
             code = code.replace("[methods]", "");
             if (source.getExtendBaseMapper()) {

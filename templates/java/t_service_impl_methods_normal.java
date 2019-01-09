@@ -2,7 +2,7 @@
     /** 全字段新增 */
     @Override
     public int insert([entityClass] entity) {
-        return service.insert(entity);
+        return [mapperName].insert(entity);
     }
 
     /** 有则新增 */
@@ -23,7 +23,7 @@
     /** 根据实体属性查询一条记录 */
     @Override
     public [entityClass] selectOne([entityClass] entity) {
-        return [mapperName].selectOne(id);
+        return [mapperName].selectOne(entity);
     }
 
     /** 根据实体属性查询列表 */

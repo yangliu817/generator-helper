@@ -22,6 +22,10 @@
 	<root level="info">
 		<appender-ref ref="CONSOLE"/>
 	</root>
+	<logger name="jdbc.connection" additivity="false" level="OFF"/>
+	<logger name="jdbc.resultset" additivity="false" level="OFF"/>
+	<logger name="jdbc.audit" additivity="false" level="OFF"/>
+	<logger name="jdbc.sqlonly" additivity="false" level="OFF"/>
 	<logger name="com.sun.javafx.webkit.prism.WCPathImpl" additivity="false" level="OFF"/>
 	<logger name="sun.rmi.transport.tcp" additivity="false" level="OFF"/>
 	<logger name="sun.rmi.loader" additivity="false" level="OFF"/>

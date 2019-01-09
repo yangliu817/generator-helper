@@ -18,11 +18,11 @@
 
     /** 根据id删除多条记录 */
     @Override
-    public int deleteByIds(List<[primaryKeyType]> ids) {
-        if (ids == null || ids.length == 0) {
+    public int deleteBatchIds(List<[primaryKeyType]> ids) {
+        if (ids == null || ids.size() == 0) {
             return 0;
         }
-        return [mapperName].deleteByIds(ids);
+        return [mapperName].deleteBatchIds(ids);
     }
 
     /** 根据id查询一条记录 */

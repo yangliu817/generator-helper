@@ -13,11 +13,11 @@ import java.util.List;
 public class ServiceGenerator extends AbstractGenerator<ServiceSource> {
     @Override
     public void generate(ServiceSource source) {
+        String code = template.t_service;
+        code = generateComments(code,source);
+
         String packageName = source.getFullPackage();
         String className = source.getShortName();
-
-        String code = template.t_service;
-
         if (StringUtils.isEmpty(packageName)) {
             code = code.replace("[package]", "");
         } else {

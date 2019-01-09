@@ -19,6 +19,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     @Override
     public void generate(ControllerSource source) {
         String code = template.t_controller;
+        code = generateComments(code,source);
         String className = source.getShortName();
         code = code.replace("[className]", className);
 

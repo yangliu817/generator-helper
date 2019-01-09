@@ -11,7 +11,7 @@ public enum DBTypeEnum{
     MYSQL("mysql"),
     ORACLE("oracle"),
     MARIADB("mariadb"),
-    SQLSERVER("sqlServer"),
+    SQLSERVER("sqlserver"),
     ;
     private String dbType;
 

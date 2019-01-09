@@ -10,12 +10,14 @@ import de.felixroske.jfxsupport.SplashScreen;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.io.File;
 
 
 @SpringBootApplication
 @Slf4j
+@EnableAsync
 public class MybatisPlusHelperApplication extends AbstractJavaFxApplicationSupport {
 
     static {

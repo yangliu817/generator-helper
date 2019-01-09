@@ -8,7 +8,7 @@
     int deleteById([primaryKeyType] id);
 
     /** 根据id删除多条记录 */
-    int deleteByIds(List<[primaryKeyType]> ids);
+    int deleteBatchIds(List<[primaryKeyType]> ids);
 
     /** 根据id查询一条记录 */
     [entityClass] selectById([primaryKeyType] id);

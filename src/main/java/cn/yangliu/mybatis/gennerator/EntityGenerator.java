@@ -27,9 +27,9 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
     @Override
     public void generate(EntitySource source) {
-
-
         String code = template.t_entity;
+
+        code = generateComments(code,source);
 
         String packageName = source.getFullPackage();
 
@@ -279,7 +279,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
     private JavaType getJavaType(EntitySource source, String columnName, String columnType) {
 
         //判断是不是主键
-        if (Objects.equals(source.getPrimaryKeyName(), columnName) && javaFullTypeMap.containsKey(source.getPrimaryKeyType())) {
+            if (Objects.equals(source.getPrimaryKeyName(), columnName) && javaFullTypeMap.containsKey(source.getPrimaryKeyType())) {
             return javaFullTypeMap.get(source.getPrimaryKeyType());
         }
         String javaTypeFullName = source.getMapping().get(columnType);
@@ -296,8 +296,8 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
                 case "oracle":
                     ct = oracleColumnMap.get(columnType);
                     break;
-                case "sqlServer":
-                    ct = sqlServerColumnMap.get(columnType);
+                case "sqlserver":
+                    ct = sqlserverColumnMap.get(columnType);
                     break;
                 default:
                     break;

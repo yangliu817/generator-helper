@@ -4,7 +4,10 @@ import java.io.Serializable;
 [imports]
 
 /**
- * [comment]
+ * @author [author]
+ * @contact [contact]
+ * @date [date]
+ * @desp [comment]
  */
 [annotations]
 public class [className][extends] implements Serializable {
