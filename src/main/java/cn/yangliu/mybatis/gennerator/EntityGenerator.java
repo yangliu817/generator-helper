@@ -17,19 +17,11 @@ import java.util.Objects;
 @Component
 public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
-    private JavaType defaultType = new JavaType();
-
-    public EntityGenerator() {
-        defaultType.setFullName("java.lang.String");
-        defaultType.setShortName("String");
-        defaultType.setNeedImport(false);
-    }
-
     @Override
     public void generate(EntitySource source) {
         String code = template.t_entity;
 
-        code = generateComments(code,source);
+        code = generateComments(code, source);
 
         String packageName = source.getFullPackage();
 
@@ -259,7 +251,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
                     annotationCode = "\n    @TableId";
                 }
             }
-            if (StringUtils.isEmpty(annotationCode) && StringUtils.isNotEmpty(comment)) {
+            if (StringUtils.isNotEmpty(comment)) {
                 commentCode = "\n    " + commentCode;
             }
             fieldCode = fieldCode.replace("[comment]", commentCode);
@@ -279,8 +271,12 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
     private JavaType getJavaType(EntitySource source, String columnName, String columnType) {
 
         //判断是不是主键
-            if (Objects.equals(source.getPrimaryKeyName(), columnName) && javaFullTypeMap.containsKey(source.getPrimaryKeyType())) {
-            return javaFullTypeMap.get(source.getPrimaryKeyType());
+        if (Objects.equals(source.getPrimaryKeyName(), columnName) && javaFullTypeMap.containsKey(source.getPrimaryKeyType())) {
+            return javaFullTypeMap.getOrDefault(source.getPrimaryKeyType(), JavaType.DEFAULT);
+        }
+
+        if (source.isSingleTable()) {
+            return source.getSingleTableMapping().getOrDefault(columnName, JavaType.DEFAULT);
         }
         String javaTypeFullName = source.getMapping().get(columnType);
 
@@ -303,18 +299,12 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
                     break;
             }
             if (ct == null) {
-                return defaultType;
+                return JavaType.DEFAULT;
             }
 
-            JavaType javaType = column2javaTypeMap.get(ct);
-
-            if (javaType == null) {
-                return defaultType;
-            }
-
-            return javaType;
+            return column2javaTypeMap.getOrDefault(ct, JavaType.DEFAULT);
         }
-        return javaFullTypeMap.get(javaTypeFullName);
+        return javaFullTypeMap.getOrDefault(javaTypeFullName, JavaType.DEFAULT);
     }
 
 }

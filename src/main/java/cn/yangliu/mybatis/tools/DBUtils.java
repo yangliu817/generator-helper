@@ -231,7 +231,7 @@ public class DBUtils {
     public static List<ColumInfo> getTableColumInfo(LinkInfo linkInfo, String database, String table) {
         String sql = "";
         if (Objects.equals(DBTypeEnum.ORACLE.getDbType(), linkInfo.getDatabaseType())) {
-            sql = "select distinct cc.column_name,tc.data_type,cc.comments from user_col_comments cc,user_tab_columns tc " +
+            sql = "select distinct cc.column_name as Field,tc.data_type as Type,cc.comments as \"Comment\" from user_col_comments cc,user_tab_columns tc " +
                     "where cc.column_name = tc.column_name and tc.table_name = '" + table + "'";
         } else if (Objects.equals(DBTypeEnum.MYSQL.getDbType(), linkInfo.getDatabaseType())) {
             sql = "show full columns from " + database + "." + table;
@@ -240,9 +240,9 @@ public class DBUtils {
             sql = "show full columns from " + database + "." + table;
         } else if (Objects.equals(DBTypeEnum.SQLSERVER.getDbType(), linkInfo.getDatabaseType())) {
             sql = "SELECT " +
-                    "column_name=a.name, " +
-                    "column_type=b.name, " +
-                    "column_comment=isnull(convert(varchar(100), g.[value]),'') " +
+                    "a.name as Field, " +
+                    "b.name as Type, " +
+                    "isnull(convert(varchar(100), g.[value]),'') as Comment " +
                     "FROM syscolumns a " +
                     "left join systypes b on a.xusertype=b.xusertype " +
                     "inner join sysobjects d on a.id=d.id and d.xtype='U' and d.name<>'dtproperties' " +
@@ -255,9 +255,9 @@ public class DBUtils {
 
         BiConsumer<ResultSet, List<ColumInfo>> consumer = (rs, list) -> {
             try {
-                String name = rs.getString(1);
-                String type = rs.getString(2);
-                String comment = rs.getString(3);
+                String name = rs.getString("Field");
+                String type = rs.getString("Type");
+                String comment = rs.getString("Comment");
                 ColumInfo columInfo = new ColumInfo(name, type, comment);
                 list.add(columInfo);
             } catch (Exception e) {

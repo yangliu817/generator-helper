@@ -107,7 +107,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     public static Map<String, ColumnType> oracleColumnMap;
     public static Map<String, ColumnType> sqlserverColumnMap;
 
-    protected static Map<ColumnType, JavaType> column2javaTypeMap;
+    public static Map<ColumnType, JavaType> column2javaTypeMap;
 
     public static Map<String, JavaType> javaFullTypeMap;
 

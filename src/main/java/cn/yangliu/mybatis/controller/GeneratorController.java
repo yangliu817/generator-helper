@@ -1,6 +1,7 @@
 package cn.yangliu.mybatis.controller;
 
 import cn.yangliu.mybatis.bean.*;
+import cn.yangliu.mybatis.gennerator.AbstractGenerator;
 import cn.yangliu.mybatis.gennerator.GeneratorHandler;
 import cn.yangliu.mybatis.service.LinkInfoService;
 import cn.yangliu.mybatis.source.*;
@@ -10,12 +11,14 @@ import com.alibaba.fastjson.JSON;
 import de.felixroske.jfxsupport.annotations.Mapping;
 import de.felixroske.jfxsupport.annotations.MappingController;
 import de.felixroske.jfxsupport.web.AbstractController;
-import javafx.application.Platform;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
@@ -32,8 +35,10 @@ public class GeneratorController extends AbstractController {
     @Autowired
     private LinkInfoService linkInfoService;
 
+
     @Mapping("/generateCode")
-    public void generateCode(String data) {
+    public void generateCode(String data, String singleTableMappingString) {
+
         Request request = JSON.parseObject(data, Request.class);
 
         LinkInfo linkInfo = linkInfoService.selectById(request.getId());
@@ -62,6 +67,16 @@ public class GeneratorController extends AbstractController {
         ControllerSetting controllerSetting = settings.getController();
 
         List<Future<Boolean>> futures = new ArrayList<>();
+
+        boolean singleTable = tableInfos.size() == 1;
+        Map<String, JavaType> mapping = new HashMap<>();
+        if (singleTable) {
+            List<SingleTableMapping> mappings = JSON.parseArray(singleTableMappingString, SingleTableMapping.class);
+            for (SingleTableMapping m : mappings) {
+                mapping.put(m.column, AbstractGenerator.javaFullTypeMap.getOrDefault(m.javaType, JavaType.DEFAULT));
+            }
+        }
+
         tableInfos.parallelStream().forEach(tableInfo -> {
 
             String tableName = tableInfo.getName();
@@ -70,7 +85,9 @@ public class GeneratorController extends AbstractController {
 
             String entityName = CodeUtils.getClassName(tableName, tablePrefix);
 
-            EntitySource entitySource = new EntitySource(projectSetting, entitySetting, entityName, tableInfo,linkInfo.getDatabaseType());
+
+            EntitySource entitySource = new EntitySource(projectSetting, entitySetting, entityName,
+                    tableInfo, linkInfo.getDatabaseType(), singleTable, mapping);
             MapperSource mapperSource = new MapperSource(projectSetting, mapperSetting, entitySource);
             ServiceImplSource serviceImplSource = new ServiceImplSource(projectSetting, serviceSetting, mapperSource);
             ControllerSource controllerSource = new ControllerSource(projectSetting, controllerSetting, serviceImplSource);
@@ -89,4 +106,11 @@ public class GeneratorController extends AbstractController {
             }
         });
     }
+
+    @Data
+    public static class SingleTableMapping {
+        private String column;
+        private String javaType;
+    }
+
 }

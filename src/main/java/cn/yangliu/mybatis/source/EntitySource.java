@@ -3,6 +3,7 @@ package cn.yangliu.mybatis.source;
 import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.EntitySetting;
+import cn.yangliu.mybatis.bean.JavaType;
 import cn.yangliu.mybatis.bean.ProjectSetting;
 import cn.yangliu.mybatis.ex.HelperException;
 import cn.yangliu.mybatis.tools.DBUtils;
@@ -41,9 +42,17 @@ public class EntitySource extends CodeSource {
 
     private String dbType;
 
-    public EntitySource(ProjectSetting projectSetting, EntitySetting entitySetting, String entityName, DBUtils.TableInfo tableInfo, String dbType) {
+    private boolean singleTable;
+
+    private Map<String, JavaType> singleTableMapping;
+
+    public EntitySource(ProjectSetting projectSetting, EntitySetting entitySetting, String entityName,
+                        DBUtils.TableInfo tableInfo, String dbType, boolean singleTable,
+                        Map<String, JavaType> singleTableMapping) {
         super(projectSetting, entitySetting.getEntityPackage(), projectSetting.getCodePath());
+        this.singleTable = singleTable;
         this.tableInfo = tableInfo;
+        this.singleTableMapping = singleTableMapping;
         this.dbType = dbType;
         this.mapping = EntitySetting.getMappings(entitySetting);
         this.primaryKeyName = entitySetting.getPrimaryKeyName();
@@ -54,10 +63,10 @@ public class EntitySource extends CodeSource {
     private void init(EntitySetting entitySetting, String entityName) {
 
         String[] split = entitySetting.getExcludeColumns().split(",");
-        
+
         excludeColumns = Arrays.asList(split);
         for (String s : split) {
-            if (StringUtils.isNotEmpty(s)){
+            if (StringUtils.isNotEmpty(s)) {
                 excludeColumns.add(s.toLowerCase());
                 excludeColumns.add(s.toUpperCase());
             }
