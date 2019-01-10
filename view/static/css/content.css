@@ -1,0 +1,21 @@
+.el-input {
+  width: 32%;
+}
+
+.el-row {
+  margin-bottom: 20px;
+}
+.el-checkbox{
+  padding: 9px 20px 9px 10px;
+}
+h3 {
+  color: #478fca;
+  border-bottom: 1px solid #CCC;
+  line-height: 28px;
+  margin-bottom: 16px;
+  margin-top: 18px;
+  padding-bottom: 4px;
+  font-weight: lighter;
+  border-bottom-color: #d5e3ef;
+  font-size: 21px;
+}
