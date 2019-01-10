@@ -1,12 +1,21 @@
 # mybatis-helper
 
+#### 1.1.0
+    1 视图界面改版
+    2 新增oracle sqlserver支持
+    3 新增作者 联系方式注释
+    4 新增mybatis支持
+    5 新增单表操作时字段映射
+    6 其他bugfix
+
 #### 介绍
     该程序是一款加入lombok支持的mybatis-plus代码生成工具，
     可生成controller成的基本增删改查方法，实体类自动生成toString equals和hashCode方法
     doMain_X64.exe4j为exe4j生成exe文件的代码
     项目依赖于
-        javafx-springboot项目（由我改造支持webview）请移步https://gitee.com/yangliu817/springboot-javafx.git
-        comm项目 请移步https://git.oschina.net/yangliu817/comm.git
+        ojdbc14-10.2.0.3.0.jar 
+        springboot-javafx-support-1.5.0.jar  https://gitee.com/yangliu817/springboot-javafx
+        comm-3.0.jar git地址: https://git.oschina.net/yangliu817/comm
 #### 软件架构
     软件架构说明
     1 采用springboot管理容器中的bean
@@ -18,8 +27,9 @@
 
 #### 安装教程
 
-    1. 将代码download下来后添加到ide中，配置为springboot项目
-    2. 运行MybatisPlusHelperApplication的main方法
+    1. 将libs目录下的jar包分别安装到本地maven仓库中
+    2. 将代码download下来后添加到ide中，配置为springboot项目
+    3. 运行MybatisPlusHelperApplication的main方法
 
 #### release使用说明
     请将对应的jre目录添加到软件根目录
