@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.sql.*;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class DBUtils {
 
@@ -36,7 +37,7 @@ public class DBUtils {
             //建表语句
             statement.executeUpdate(initSql);
 
-            close(statement,conn);
+            close(statement, conn);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -80,8 +81,8 @@ public class DBUtils {
                 break;
             case "sqlserver":
                 url = "jdbc:sqlserver://" + linkInfo.getHost() + ":" + linkInfo.getPort();
-                if (StringUtils.isNotEmpty(linkInfo.getDatabase())){
-                    url = url +";DatabaseName="+linkInfo.getDatabase();
+                if (StringUtils.isNotEmpty(linkInfo.getDatabase())) {
+                    url = url + ";DatabaseName=" + linkInfo.getDatabase();
                 }
                 driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
                 break;
@@ -187,10 +188,13 @@ public class DBUtils {
 
         private String comment;
 
-        public ColumInfo(String name, String type, String comment) {
+        private int index;
+
+        public ColumInfo(String name, String type, String comment, int index) {
             this.name = name;
             this.type = type;
             this.comment = comment;
+            this.index = index;
         }
     }
 
@@ -254,11 +258,13 @@ public class DBUtils {
         }
 
         BiConsumer<ResultSet, List<ColumInfo>> consumer = (rs, list) -> {
+
             try {
+                int index = rs.getRow();
                 String name = rs.getString("Field");
                 String type = rs.getString("Type");
                 String comment = rs.getString("Comment");
-                ColumInfo columInfo = new ColumInfo(name, type, comment);
+                ColumInfo columInfo = new ColumInfo(name, type, comment, index);
                 list.add(columInfo);
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage());
@@ -267,6 +273,7 @@ public class DBUtils {
         List<ColumInfo> columInfos = excuteSQL(sql, linkInfo, consumer);
         Set<ColumInfo> set = new HashSet<>(columInfos);
         columInfos = new ArrayList<>(set);
+        columInfos.sort(Comparator.comparingInt(c -> c.index));
         return columInfos;
     }
 
