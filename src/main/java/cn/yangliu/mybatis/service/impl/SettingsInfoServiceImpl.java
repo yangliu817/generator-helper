@@ -30,7 +30,8 @@ public class SettingsInfoServiceImpl extends ServiceImpl<SettingsInfoMapper, Set
     private SqliteSequenceMapper sqliteSequenceMapper;
     @Autowired
     private MappingSettingMapper mappingSettingMapper;
-
+    @Autowired
+    private RepositorySettingMapper repositorySettingMapper;
     @Override
     public boolean insert(SettingsInfo entity) {
 
@@ -88,15 +89,12 @@ public class SettingsInfoServiceImpl extends ServiceImpl<SettingsInfoMapper, Set
         }
         ProjectSetting projectSetting = projectSettingMapper.selectOne(new ProjectSetting(settingsInfo.getId()));
         EntitySetting entitySetting = entitySettingMapper.selectOne(new EntitySetting(settingsInfo.getId()));
+        RepositorySetting repositorySetting = repositorySettingMapper.selectOne(new RepositorySetting(settingsInfo.getId()));
         MapperSetting mapperSetting = mapperSettingMapper.selectOne(new MapperSetting(settingsInfo.getId()));
         ServiceSetting serviceSetting = serviceSettingMapper.selectOne(new ServiceSetting(settingsInfo.getId()));
         ControllerSetting controllerSetting = controllerSettingMapper.selectOne(new ControllerSetting(settingsInfo.getId()));
-
-     /*   List<MappingSetting> mappingSettings = mappingSettingMapper.loadMapping(new MappingSetting(settingsInfo.getId(),null));
-
-        entitySetting.setMapping(mappingSettings);*/
-        Settings settings = new Settings(projectSetting, entitySetting, mapperSetting, serviceSetting, controllerSetting);
-
+        Settings settings = new Settings(projectSetting, entitySetting, repositorySetting,
+                mapperSetting, serviceSetting, controllerSetting);
         settingsInfo.setSettings(settings);
     }
 

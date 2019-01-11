@@ -5,6 +5,7 @@ import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.ColumnType;
 import cn.yangliu.mybatis.bean.JavaType;
 import cn.yangliu.mybatis.bean.MappingSetting;
+import cn.yangliu.mybatis.enums.OrmTypeEnum;
 import cn.yangliu.mybatis.service.ColumnTypeService;
 import cn.yangliu.mybatis.service.JavaTypeService;
 import cn.yangliu.mybatis.service.MappingSettingService;
@@ -20,6 +21,9 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 
+/**
+ * @author mechrevo
+ */
 @Data
 public abstract class AbstractGenerator<S extends Source> implements Generator<S> {
 
@@ -93,8 +97,6 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
                                 break;
                         }
                     });
-
-
                 }
             }
         }
@@ -112,6 +114,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     public static Map<String, JavaType> javaFullTypeMap;
 
 
+    /**
+     * 生成导包代码
+     */
     protected String generateImports(String source, List<String> imports) {
         Set<String> set = new HashSet<>(imports);
         imports = new ArrayList<>(set);
@@ -130,6 +135,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return source.replace("[imports]", code);
     }
 
+    /**
+     * 生成类注释代码
+     */
     protected String generateComments(String source, CodeSource codeSource) {
         String author = codeSource.getAuthor();
         String contact = codeSource.getContact();
@@ -141,6 +149,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return source;
     }
 
+    /**
+     * 生成注解代码
+     */
     protected String generateAnnotations(String source, List<String> annotations) {
         Set<String> set = new HashSet<>(annotations);
         annotations = new ArrayList<>(set);
@@ -157,6 +168,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return source;
     }
 
+    /**
+     * 获取类的包名
+     */
     protected String getClassPackage(String fullName) {
 
         if (fullName.contains(ApplicationContant.PACKAGE_SEPARATOR)) {
@@ -166,6 +180,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return "";
     }
 
+    /**
+     * 获取类的短类名
+     */
     protected String getClassShortName(String fullName) {
 
         if (fullName.contains(ApplicationContant.PACKAGE_SEPARATOR)) {
@@ -176,6 +193,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     }
 
 
+    /**
+     * 比较类所在的包和目标包是否一致
+     */
     protected boolean checkPackageIsSame(String firstPackage, String classFullName) {
         if (classFullName.contains(ApplicationContant.PACKAGE_SEPARATOR) && !Objects.equals(firstPackage, "")) {
             String classPackage = classFullName.substring(classFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR) + 1);
@@ -184,6 +204,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return false;
     }
 
+    /**
+     *  生成log实例
+     */
     protected String checkUseLombok(CodeSource source, String code, List<String> imports, List<String> anontations) {
         if (source.getUseLombok()) {
             imports.add(ApplicationContant.config.getProperty("Slf4j"));
@@ -197,6 +220,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return code;
     }
 
+    /**
+     * 生成组件类属性代码
+     */
     protected String generateComponentFields(String code, String fieldType) {
         String fieldName = CodeUtils.firstChar2Lowercase(fieldType);
 
@@ -209,13 +235,38 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return code;
     }
 
-    protected String generateAbstractMethods(String code, String templateCode, EntitySource source, Collection<String> imports) {
-        code = code.replace("[extends]", "");
+    /**
+     * 生成接口公共抽象方法
+     */
+    protected String generateAbstractMethods(String code, EntitySource source, Collection<String> imports) {
+        String templateCode = template.t_abstract_methods_normal;
+
+        if (source.isContainsPrimaryKey()) {
+            templateCode = templateCode + template.t_abstract_methods_needprimarykey;
+        }
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+            imports.add(ApplicationContant.config.getProperty("Pageable"));
+            imports.add(ApplicationContant.config.getProperty("PageJpa"));
+            templateCode = template.t_abstract_methods_jpa;
+        }
+
         imports.add(source.getClassFullName());
         imports.add(ApplicationContant.config.getProperty("List"));
         code = code.replace("[methods]", templateCode);
         code = code.replace("[entityClass]", source.getShortName());
         code = code.replace("[primaryKeyType]", getClassShortName(source.getPrimaryKeyType()));
+        return code;
+    }
+
+    /**
+     * 生成包代码
+     */
+    protected String generatePackage(CodeSource source, String code) {
+        String packageCode = "";
+        if (StringUtils.isNotEmpty(source.getFullPackage())) {
+            packageCode = "package " + source.getFullPackage() + ";";
+        }
+        code = code.replace("[package]", packageCode);
         return code;
     }
 }

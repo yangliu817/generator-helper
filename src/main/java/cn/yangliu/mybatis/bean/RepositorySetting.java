@@ -7,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@TableName("t_project_setting")
+@TableName("t_repository_setting")
 @NoArgsConstructor
-public class ProjectSetting {
+public class RepositorySetting {
 
-    public ProjectSetting(Long settingId) {
+    public RepositorySetting(Long settingId) {
         this.settingId = settingId;
     }
 
@@ -22,22 +22,10 @@ public class ProjectSetting {
     @JSONField(serialize = false)
     private Long settingId;
 
-    private String projectPackage;
+    private String repositoryPackage;
 
-    private String tablePrefix;
+    private String repositorySufix;
 
-    private String codePath;
-
-    private Boolean useLombok;
-
-    private Boolean createService;
-
-    private Boolean createController;
-
-    private Integer ormType;
-
-    protected String contact;
-
-    protected String author;
+    private Boolean useRepositoryAnonntation;
 
 }

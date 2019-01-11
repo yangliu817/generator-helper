@@ -174,6 +174,14 @@ CREATE TABLE "t_mapper_setting" (
   "use_mapper_anonntation" TEXT
 );
 
+CREATE TABLE "t_repository_setting" (
+  "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "setting_id" INTEGER,
+  "repository_package" TEXT,
+  "repository_sufix" TEXT,
+  "use_repository_anonntation" TEXT
+);
+
 CREATE TABLE "t_mapping_setting" (
   "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   "column_type_id" TEXT,

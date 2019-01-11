@@ -46,6 +46,14 @@ public class CodeTemplate {
     protected String t_service_impl_methods_normal;
     protected String t_controller_list2;
     protected String t_comment;
+    protected String t_repository;
+    protected String t_abstract_methods_jpa;
+    protected String t_controller_delete_jpa;
+    protected String t_controller_getById_jpa;
+    protected String t_controller_list_jpa;
+    protected String t_controller_save_jpa;
+    protected String t_service_impl_methods_jpa;
+    protected String t_if_jpa;
 
 
     public CodeTemplate() {

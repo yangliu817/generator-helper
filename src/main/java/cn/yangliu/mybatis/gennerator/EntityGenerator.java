@@ -4,6 +4,7 @@ import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.ColumnType;
 import cn.yangliu.mybatis.bean.JavaType;
+import cn.yangliu.mybatis.enums.OrmTypeEnum;
 import cn.yangliu.mybatis.source.EntitySource;
 import cn.yangliu.mybatis.tools.CodeUtils;
 import cn.yangliu.mybatis.tools.DBUtils;
@@ -23,9 +24,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
         code = generateComments(code, source);
 
-        String packageName = source.getFullPackage();
-
-        code = code.replace("[package]", "package " + packageName + ";");
+        code = generatePackage(source, code);
 
         code = code.replace("[className]", source.getShortName());
 
@@ -45,9 +44,15 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
             code = code.replace("[extends]", "");
         }
 
-        if (source.isMybatisPlus()) {
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
             annotations.add("TableName(\"" + source.getTableInfo().getName() + "\")");
             imports.add(ApplicationContant.config.getProperty("TableName"));
+        } else if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+            annotations.add("Table(name = \"" + source.getTableInfo().getName() + "\")");
+            imports.add(ApplicationContant.config.getProperty("Table"));
+
+            annotations.add("Entity");
+            imports.add(ApplicationContant.config.getProperty("Entity"));
         }
 
         StringBuilder setterAndGetterCode = new StringBuilder();
@@ -224,7 +229,9 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
             JavaType javaType = getJavaType(source, columnName, dbColumnType);
 
+            source.getColumnMapping().put(columnName, javaType);
             String fieldCode = template.t_field.replace("[fieldType]", javaType.getShortName());
+
 
             if (javaType.isNeedImport()) {
                 imports.add(javaType.getFullName());
@@ -244,13 +251,28 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
 
             String annotationCode = "";
-            if (Objects.equals(columnName, source.getPrimaryKeyName()) && source.isMybatisPlus()) {
-                imports.add(ApplicationContant.config.getProperty("TableId"));
-                annotationCode = "@TableId";
-                if (StringUtils.isNotEmpty(comment)) {
-                    annotationCode = "\n    @TableId";
+            if (Objects.equals(columnName, source.getPrimaryKeyName())) {
+                if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
+                    imports.add(ApplicationContant.config.getProperty("TableId"));
+                    annotationCode = "@TableId";
+                    if (StringUtils.isNotEmpty(comment)) {
+                        annotationCode = "\n    @TableId";
+                    }
+                } else if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+                    imports.add(ApplicationContant.config.getProperty("Id"));
+                    imports.add(ApplicationContant.config.getProperty("GeneratedValue"));
+                    annotationCode = "@Id\n    @GeneratedValue";
+                    if (StringUtils.isNotEmpty(comment)) {
+                        annotationCode = "\n    @Id\n    @GeneratedValue";
+                    }
+                }
+            } else {
+                if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+                    annotationCode = "\n    @Column(name = \"" + columnName + "\")";
+                    imports.add(ApplicationContant.config.getProperty("Column"));
                 }
             }
+
             if (StringUtils.isNotEmpty(comment)) {
                 commentCode = "\n    " + commentCode;
             }

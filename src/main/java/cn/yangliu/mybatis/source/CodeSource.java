@@ -3,6 +3,7 @@ package cn.yangliu.mybatis.source;
 import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.ProjectSetting;
+import cn.yangliu.mybatis.enums.OrmTypeEnum;
 import lombok.Data;
 
 import java.io.File;
@@ -24,7 +25,7 @@ public abstract class CodeSource extends AbstractSource implements Source {
 
     protected Boolean useLombok;
 
-    protected boolean mybatisPlus;
+    protected OrmTypeEnum ormType;
 
     protected String contact;
 
@@ -35,7 +36,7 @@ public abstract class CodeSource extends AbstractSource implements Source {
     public CodeSource(ProjectSetting projectSetting, String sourcePackage, String srcPath) {
         initBaseInfo(projectSetting.getProjectPackage(), sourcePackage, srcPath);
         useLombok = projectSetting.getUseLombok();
-        mybatisPlus = (projectSetting.getMybatisType() == 2);
+        ormType = OrmTypeEnum.getOrmTypeEnumByType(projectSetting.getOrmType());
         this.contact = projectSetting.getContact();
         this.author = projectSetting.getAuthor();
         LocalDateTime now = LocalDateTime.now();

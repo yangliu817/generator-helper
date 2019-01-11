@@ -2,6 +2,7 @@ package cn.yangliu.mybatis.gennerator;
 
 import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.ApplicationContant;
+import cn.yangliu.mybatis.enums.OrmTypeEnum;
 import cn.yangliu.mybatis.source.ControllerSource;
 import cn.yangliu.mybatis.source.ServiceImplSource;
 import cn.yangliu.mybatis.source.ServiceSource;
@@ -19,20 +20,21 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     @Override
     public void generate(ControllerSource source) {
         String code = template.t_controller;
-        code = generateComments(code,source);
-        String className = source.getShortName();
-        code = code.replace("[className]", className);
+        code = generatePackage(source, code);
+        code = generateComments(code, source);
+        code = code.replace("[className]", source.getShortName());
 
         List<String> imports = new ArrayList<>();
         List<String> anontations = new ArrayList<>();
-
+        String controllerAnnotationFullName = ApplicationContant.config.getProperty("Controller");
+        String anontation = "Controller";
         if (source.getUseRestful()) {
-            imports.add(ApplicationContant.config.getProperty("RestController"));
+            controllerAnnotationFullName = ApplicationContant.config.getProperty("RestController");
             anontations.add("RestController");
-        } else {
-            imports.add(ApplicationContant.config.getProperty("Controller"));
-            anontations.add("Controller");
         }
+        imports.add(controllerAnnotationFullName);
+        anontations.add(anontation);
+
         imports.add(ApplicationContant.config.getProperty("RequestMapping"));
         anontations.add("RequestMapping(\"/" + CodeUtils.firstChar2Lowercase(source.getEntitySource().getShortName()) + "\")");
 
@@ -40,26 +42,17 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         imports.add(source.getEntitySource().getClassFullName());
 
-        String fieldType;
-
+        //引用service
         ServiceImplSource serviceImplSource = source.getServiceImplSource();
-
+        String fieldType = serviceImplSource.getShortName();
+        String serverClassFullName = serviceImplSource.getClassFullName();
         if (serviceImplSource.getCreateInterface()) {
             ServiceSource serviceSource = serviceImplSource.getServiceSource();
-            imports.add(serviceSource.getClassFullName());
+            serverClassFullName = serviceSource.getClassFullName();
             fieldType = serviceSource.getShortName();
-        } else {
-            imports.add(serviceImplSource.getClassFullName());
-            fieldType = serviceImplSource.getShortName();
         }
+        imports.add(serverClassFullName);
         code = generateComponentFields(code, fieldType);
-
-        if (StringUtils.isEmpty(source.getFullPackage())) {
-            code = code.replace("[package]", "");
-        } else {
-            code = code.replace("[package]", "package " + source.getFullPackage() + ";");
-        }
-
 
         code = checkUseLombok(source, code, imports, anontations);
 
@@ -67,22 +60,28 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         code = code.replace("[methods]", methodCode);
 
-
         code = generateImports(code, imports);
         code = generateAnnotations(code, anontations);
 
         FileUtils.output(code, source.getFilepath(), source.getFilename());
     }
 
+
     private String generateMethod(ControllerSource source, List<String> imports, String serviceType) {
         StringBuilder sb = new StringBuilder();
-        sb.append(generateInsertMethod(source, imports, serviceType));
-        sb.append(generateUpdateMethod(source, imports, serviceType));
-        sb.append(generateListMethod(source, imports, serviceType));
+
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+            sb.append(generateSaveMethod(source, imports));
+        }else {
+            sb.append(generateInsertMethod(source, imports));
+            sb.append(generateUpdateMethod(source, imports));
+        }
+
+        sb.append(generateListMethod(source, imports));
 
         if (source.isContainsPrimaryKey()) {
-            sb.append(generateGetByIdMethod(source, imports, serviceType));
-            sb.append(generateDeleteMethed(source, imports, serviceType));
+            sb.append(generateGetByIdMethod(source, imports));
+            sb.append(generateDeleteMethed(source, imports));
             imports.add(ApplicationContant.config.getProperty("PathVariable"));
         }
         if (source.getUseRestful()) {
@@ -95,48 +94,14 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
         imports.add(ApplicationContant.config.getProperty("RequestParam"));
 
-
         if (!checkPackageIsSame(source.getFullPackage(), source.getMethodReturnTypeFullName())) {
             imports.add(source.getMethodReturnTypeFullName());
         }
-        return sb.toString();
-    }
-
-    private String generateUpdateMethod(ControllerSource source, List<String> imports, String serviceType) {
-        String updateMethodCode = template.t_controller_update;
-
-        serviceType = CodeUtils.firstChar2Lowercase(serviceType);
-
-        String entityClass = source.getEntitySource().getShortName();
 
         String returnType = getClassShortName(source.getMethodReturnTypeFullName());
 
-        String returnInfo = getReturnInfo(source, imports, false);
+        String service = CodeUtils.firstChar2Lowercase(serviceType);
 
-        updateMethodCode = updateMethodCode.replace("[returnType]", returnType);
-
-        if (source.getUseRestful()) {
-            imports.add(ApplicationContant.config.getProperty("PutMapping"));
-            updateMethodCode = updateMethodCode.replace("[annotation]", "PutMapping");
-        } else {
-            imports.add(ApplicationContant.config.getProperty("PostMapping"));
-            updateMethodCode = updateMethodCode.replace("[annotation]", "PostMapping");
-        }
-
-        updateMethodCode = updateMethodCode.replace("[service]", serviceType);
-        updateMethodCode = updateMethodCode.replace("[entityClass]", entityClass);
-        updateMethodCode = updateMethodCode.replace("[returnInfo]", returnInfo);
-
-        return updateMethodCode;
-    }
-
-    private String generateGetByIdMethod(ControllerSource source, List<String> imports, String serviceType) {
-
-        serviceType = CodeUtils.firstChar2Lowercase(serviceType);
-        String returnType = getClassShortName(source.getMethodReturnTypeFullName());
-        String returnInfo = getReturnInfo(source, imports, true);
-        String getByIdMethodCode = template.t_controller_getById;
-        String entityClass = source.getEntitySource().getShortName();
         String primaryKeyType = source.getEntitySource().getPrimaryKeyType();
 
         if (!checkPackageIsSame(source.getFullPackage(), primaryKeyType)) {
@@ -145,11 +110,41 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         primaryKeyType = getClassShortName(primaryKeyType);
 
-        getByIdMethodCode = getByIdMethodCode.replace("[returnType]", returnType)
-                .replace("[service]", serviceType)
-                .replace("[entityClass]", entityClass)
-                .replace("[returnInfo]", returnInfo)
-                .replace("[primaryKeyType]", primaryKeyType);
+        String methodCode = sb.toString();
+
+        methodCode = methodCode.replace("[primaryKeyType]", primaryKeyType);
+        methodCode = methodCode.replace("[returnType]", returnType);
+        methodCode = methodCode.replace("[service]", service);
+        methodCode = methodCode.replace("[entityClass]", source.getEntitySource().getShortName());
+        return methodCode;
+    }
+
+    private String generateUpdateMethod(ControllerSource source, List<String> imports) {
+        String updateMethodCode = template.t_controller_update;
+
+        String returnInfo = getReturnInfo(source, imports, false);
+
+        String importCode = ApplicationContant.config.getProperty("PostMapping");
+        String annotationCode = "PostMapping";
+        if (source.getUseRestful()) {
+            importCode = ApplicationContant.config.getProperty("PutMapping");
+            annotationCode = "PutMapping";
+        }
+        imports.add(importCode);
+        updateMethodCode = updateMethodCode.replace("[annotation]", annotationCode);
+
+        updateMethodCode = updateMethodCode.replace("[returnInfo]", returnInfo);
+
+        return updateMethodCode;
+    }
+
+    private String generateGetByIdMethod(ControllerSource source, List<String> imports) {
+        String returnInfo = getReturnInfo(source, imports, true);
+        String getByIdMethodCode = template.t_controller_getById;
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+            getByIdMethodCode = template.t_controller_getById_jpa;
+        }
+        getByIdMethodCode = getByIdMethodCode.replace("[returnInfo]", returnInfo);
 
         String primaryKey = source.getEntitySource().getPrimaryKeyName();
 
@@ -159,84 +154,68 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             primaryKey = "id";
         }
 
+
         getByIdMethodCode = getByIdMethodCode.replace("[primaryKey]", primaryKey);
 
         return getByIdMethodCode;
     }
 
-    private String generateListMethod(ControllerSource source, List<String> imports, String serviceType) {
-        serviceType = CodeUtils.firstChar2Lowercase(serviceType);
-        String returnType = getClassShortName(source.getMethodReturnTypeFullName());
-        String entityClass = source.getEntitySource().getShortName();
+    private String generateListMethod(ControllerSource source, List<String> imports) {
         String returnInfo = getReturnInfo(source, imports, true);
         imports.add(ApplicationContant.config.getProperty("RequestParam"));
 
         String listMethodCode = template.t_controller_list;
-        if (source.isMybatisPlus()) {
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
             imports.add(ApplicationContant.config.getProperty("Page"));
             imports.add(ApplicationContant.config.getProperty("EntityWrapper"));
-        } else {
+        }
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis)) {
             listMethodCode = template.t_controller_list2;
             imports.add(ApplicationContant.config.getProperty("PagehelperPage"));
             imports.add(ApplicationContant.config.getProperty("PageHelper"));
         }
 
-        listMethodCode = listMethodCode.replace("[returnType]", returnType)
-                .replace("[entityClass]", entityClass)
-                .replace("[service]", serviceType)
-                .replace("[returnInfo]", returnInfo);
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+            listMethodCode = template.t_controller_list_jpa;
+            imports.add(ApplicationContant.config.getProperty("PageJpa"));
+            imports.add(ApplicationContant.config.getProperty("PageRequest"));
+        }
+
+        listMethodCode = listMethodCode.replace("[returnInfo]", returnInfo);
 
         return listMethodCode;
     }
-
-    private String generateInsertMethod(ControllerSource source, List<String> imports, String serviceType) {
-        String insertMethodCode = template.t_controller_insert;
-
+    private String generateSaveMethod(ControllerSource source, List<String> imports) {
+        String saveMethodCode = template.t_controller_save_jpa;
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
-
-        String returnType = getClassShortName(source.getMethodReturnTypeFullName());
-
-        insertMethodCode = insertMethodCode.replace("[returnType]", returnType);
-
-        String entityClass = source.getEntitySource().getShortName();
-
-        String service = CodeUtils.firstChar2Lowercase(serviceType);
-
-        insertMethodCode = insertMethodCode.replace("[service]", service)
-                .replace("[entityClass]", entityClass);
-        imports.add(source.getEntitySource().getClassFullName());
-
         String returnInfo = getReturnInfo(source, imports, false);
-
+        imports.add(source.getEntitySource().getClassFullName());
+        saveMethodCode = saveMethodCode.replace("[returnInfo]", returnInfo);
+        return saveMethodCode;
+    }
+    private String generateInsertMethod(ControllerSource source, List<String> imports) {
+        String insertMethodCode = template.t_controller_insert;
+        imports.add(ApplicationContant.config.getProperty("PostMapping"));
+        imports.add(source.getEntitySource().getClassFullName());
+        String returnInfo = getReturnInfo(source, imports, false);
         insertMethodCode = insertMethodCode.replace("[returnInfo]", returnInfo);
-
         return insertMethodCode;
 
     }
 
 
-    private String generateDeleteMethed(ControllerSource source, List<String> imports, String serviceType) {
+    private String generateDeleteMethed(ControllerSource source, List<String> imports) {
 
         String deleteMethodCode = template.t_controller_delete;
 
-        imports.add(ApplicationContant.config.getProperty("RequestBody"));
-        imports.add(ApplicationContant.config.getProperty("Arrays"));
-
-        String returnType = getClassShortName(source.getMethodReturnTypeFullName());
-
-        String service = CodeUtils.firstChar2Lowercase(serviceType);
-
-        String primaryKeyType = source.getEntitySource().getPrimaryKeyType();
-
-        if (!checkPackageIsSame(source.getFullPackage(), primaryKeyType)) {
-            imports.add(primaryKeyType);
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+            deleteMethodCode = template.t_controller_delete_jpa;
+        }else {
+            imports.add(ApplicationContant.config.getProperty("Arrays"));
         }
 
-        primaryKeyType = getClassShortName(primaryKeyType);
+        imports.add(ApplicationContant.config.getProperty("RequestBody"));
 
-        deleteMethodCode = deleteMethodCode.replace("[primaryKeyType]", primaryKeyType);
-        deleteMethodCode = deleteMethodCode.replace("[returnType]", returnType);
-        deleteMethodCode = deleteMethodCode.replace("[service]", service);
         if (source.getUseRestful()) {
             imports.add(ApplicationContant.config.getProperty("DeleteMapping"));
             deleteMethodCode = deleteMethodCode.replace("[annotation]", "DeleteMapping");

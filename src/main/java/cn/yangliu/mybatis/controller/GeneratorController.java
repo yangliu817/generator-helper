@@ -63,6 +63,7 @@ public class GeneratorController extends AbstractController {
         ProjectSetting projectSetting = settings.getProject();
         EntitySetting entitySetting = settings.getEntity();
         MapperSetting mapperSetting = settings.getMapper();
+        RepositorySetting repositorySetting = settings.getRepository();
         ServiceSetting serviceSetting = settings.getService();
         ControllerSetting controllerSetting = settings.getController();
 
@@ -88,11 +89,14 @@ public class GeneratorController extends AbstractController {
 
             EntitySource entitySource = new EntitySource(projectSetting, entitySetting, entityName,
                     tableInfo, linkInfo.getDatabaseType(), singleTable, mapping);
+            RepositorySource repositorySource = new RepositorySource(projectSetting, repositorySetting, entitySource);
             MapperSource mapperSource = new MapperSource(projectSetting, mapperSetting, entitySource);
-            ServiceImplSource serviceImplSource = new ServiceImplSource(projectSetting, serviceSetting, mapperSource);
+            ServiceImplSource serviceImplSource = new ServiceImplSource(projectSetting, serviceSetting,
+                    repositorySource, mapperSource);
             ControllerSource controllerSource = new ControllerSource(projectSetting, controllerSetting, serviceImplSource);
             XmlSource xmlSource = new XmlSource(projectSetting, mapperSetting, mapperSource, entityName);
-            Future<Boolean> future = generatorHandler.doGenerator(projectSetting, entitySource, mapperSource, xmlSource, serviceImplSource, controllerSource);
+            Future<Boolean> future = generatorHandler.doGenerator(projectSetting, entitySource, repositorySource, mapperSource, xmlSource,
+                    serviceImplSource, controllerSource);
             futures.add(future);
         });
 

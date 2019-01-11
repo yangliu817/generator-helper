@@ -33,7 +33,7 @@ public class XmlSource extends AbstractSource {
 
         mapperFullName = mapperSource.getClassFullName();
 
-        mybatisPlus = (projectSetting.getMybatisType() == 2);
+        mybatisPlus = (projectSetting.getOrmType() == 2);
 
         setPrimaryKeyInfo(entitySource);
     }

@@ -1,7 +1,7 @@
 package cn.yangliu.mybatis.gennerator;
 
-import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.ApplicationContant;
+import cn.yangliu.mybatis.enums.OrmTypeEnum;
 import cn.yangliu.mybatis.source.MapperSource;
 import cn.yangliu.mybatis.tools.FileUtils;
 import org.springframework.stereotype.Component;
@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-public class MapperGenerator extends AbstractGenerator<MapperSource> {
-
+public class MapperGenerator extends AbstractDaoGnerator<MapperSource> {
 
     @Override
     public void generate(MapperSource source) {
@@ -20,33 +19,25 @@ public class MapperGenerator extends AbstractGenerator<MapperSource> {
 
         List<String> annotations = new ArrayList<>();
         String code = template.t_mapper.replace("[className]", source.getShortName());
-        code = generateComments(code,source);
-        if (source.isMybatisPlus()) {
+        code = generateComments(code, source);
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
             code = code.replace("[methods]", "");
+            String extendCode = "";
             if (source.getExtendBaseMapper()) {
                 imports.add(ApplicationContant.config.getProperty("BaseMapper"));
-                code = code.replace("[extends]", " extends BaseMapper<" + source.getEntitySource().getShortName() + ">");
-            } else {
-                code = code.replace("[extends]", "");
+                extendCode = " extends BaseMapper<" + source.getEntitySource().getShortName() + ">";
             }
-        } else {
-            String templateCode = template.t_abstract_methods_normal;
-            if (source.isContainsPrimaryKey()) {
-                templateCode = templateCode + template.t_abstract_methods_needprimarykey;
-            }
-            code = generateAbstractMethods(code, templateCode, source.getEntitySource(), imports);
+            code = code.replace("[extends]", extendCode);
         }
+
+        code = generateAbstractMethods(code, source.getEntitySource(), imports);
 
         if (source.getUseMapperAnonntation()) {
             imports.add(ApplicationContant.config.getProperty("Mapper"));
             annotations.add("Mapper");
         }
 
-        if (StringUtils.isEmpty(source.getFullPackage())) {
-            code = code.replace("[package]", "");
-        } else {
-            code = code.replace("[package]", "package " + source.getFullPackage() + ";");
-        }
+        code = generatePackage(source, code);
 
         imports.add(source.getEntitySource().getClassFullName());
 

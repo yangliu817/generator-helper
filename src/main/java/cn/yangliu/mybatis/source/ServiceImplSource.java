@@ -20,12 +20,16 @@ public class ServiceImplSource extends CodeSource {
 
     private MapperSource mapperSource;
 
+    private RepositorySource repositorySource;
+
     private EntitySource entitySource;
 
-    public ServiceImplSource(ProjectSetting projectSetting, ServiceSetting serviceSetting, MapperSource mapperSource) {
+    public ServiceImplSource(ProjectSetting projectSetting, ServiceSetting serviceSetting,
+                             RepositorySource repositorySource, MapperSource mapperSource) {
         super(projectSetting, serviceSetting.getServicePackage(), projectSetting.getCodePath());
 
         this.mapperSource = mapperSource;
+        this.repositorySource = repositorySource;
         this.useTransactional = serviceSetting.getUseTransactional();
         this.entitySource = mapperSource.getEntitySource();
         if (serviceSetting.getCreateInterface()) {

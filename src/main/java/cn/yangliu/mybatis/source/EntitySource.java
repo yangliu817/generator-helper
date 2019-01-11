@@ -44,6 +44,8 @@ public class EntitySource extends CodeSource {
 
     private boolean singleTable;
 
+    private Map<String,JavaType> columnMapping = new HashMap<>();
+
     private Map<String, JavaType> singleTableMapping;
 
     public EntitySource(ProjectSetting projectSetting, EntitySetting entitySetting, String entityName,
