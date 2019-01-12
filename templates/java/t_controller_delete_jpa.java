@@ -2,9 +2,9 @@
     /**
      * 删除
      */
-    @[annotation]("/delete")
-    public [returnType] delete(@RequestBody [primaryKeyType] id){
-        [service].delete(id);
+    @[annotation]("/deleteById")
+    public [returnType] deleteById(@RequestBody [primaryKeyType] id){
+        [service].deleteById(id);
 
         return [returnInfo];
     }

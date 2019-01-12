@@ -5,6 +5,7 @@ import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.ColumnType;
 import cn.yangliu.mybatis.bean.JavaType;
 import cn.yangliu.mybatis.enums.OrmTypeEnum;
+import cn.yangliu.mybatis.enums.StrategyEnum;
 import cn.yangliu.mybatis.source.EntitySource;
 import cn.yangliu.mybatis.tools.CodeUtils;
 import cn.yangliu.mybatis.tools.DBUtils;
@@ -251,26 +252,56 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
 
             String annotationCode = "";
-            if (Objects.equals(columnName, source.getPrimaryKeyName())) {
-                if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
-                    imports.add(ApplicationContant.config.getProperty("TableId"));
-                    annotationCode = "@TableId";
-                    if (StringUtils.isNotEmpty(comment)) {
-                        annotationCode = "\n    @TableId";
-                    }
-                } else if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
-                    imports.add(ApplicationContant.config.getProperty("Id"));
-                    imports.add(ApplicationContant.config.getProperty("GeneratedValue"));
-                    annotationCode = "@Id\n    @GeneratedValue";
-                    if (StringUtils.isNotEmpty(comment)) {
-                        annotationCode = "\n    @Id\n    @GeneratedValue";
-                    }
-                }
-            } else {
-                if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
-                    annotationCode = "\n    @Column(name = \"" + columnName + "\")";
-                    imports.add(ApplicationContant.config.getProperty("Column"));
-                }
+            if (Objects.equals(columnName, source.getPrimaryKeyName())
+                    && Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
+                imports.add(ApplicationContant.config.getProperty("TableId"));
+                annotationCode = "@TableId";
+            }
+            if (Objects.equals(columnName, source.getPrimaryKeyName())
+                    && Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)
+                    && StringUtils.isNotEmpty(comment)) {
+                annotationCode = "\n    @TableId";
+            }
+            if (Objects.equals(columnName, source.getPrimaryKeyName())
+                    && Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)
+                    && !Objects.equals(source.getStrategy(), "0")) {
+                annotationCode = "\n    @TableId";
+            }
+            if (Objects.equals(columnName, source.getPrimaryKeyName())
+                    && Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+                imports.add(ApplicationContant.config.getProperty("Id"));
+                imports.add(ApplicationContant.config.getProperty("GeneratedValue"));
+                annotationCode = "@Id\n    @GeneratedValue";
+            }
+
+            if (Objects.equals(columnName, source.getPrimaryKeyName())
+                    && Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)
+                    && StringUtils.isNotEmpty(comment)) {
+                annotationCode = "\n    @Id\n    @GeneratedValue";
+            }
+
+            StrategyEnum strategy = null;
+            if (!Objects.equals(source.getStrategy(),"0")
+                    &&!Objects.equals(source.getOrmType(),OrmTypeEnum.Mybatis)){
+                strategy = StrategyEnum.getEnumByStrategy(source.getStrategy());
+            }
+            if (Objects.equals(columnName, source.getPrimaryKeyName())
+                    && Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)
+                    && Objects.nonNull(strategy)){
+                imports.add(ApplicationContant.config.getProperty("IdType"));
+                annotationCode = annotationCode+"(type = IdType." +strategy.getName()+")";
+            }
+
+            if (Objects.equals(columnName, source.getPrimaryKeyName())
+                    && Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)
+                    && Objects.nonNull(strategy)){
+                imports.add(ApplicationContant.config.getProperty("GenerationType"));
+                annotationCode = annotationCode+"(strategy = GenerationType." +strategy.getName()+")";
+            }
+
+            if (!Objects.equals(columnName, source.getPrimaryKeyName()) && Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+                annotationCode = "\n    @Column(name = \"" + columnName + "\")";
+                imports.add(ApplicationContant.config.getProperty("Column"));
             }
 
             if (StringUtils.isNotEmpty(comment)) {

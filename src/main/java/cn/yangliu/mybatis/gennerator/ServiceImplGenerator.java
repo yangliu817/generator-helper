@@ -117,7 +117,9 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             imports.add(ApplicationContant.config.getProperty("Pageable"));
             imports.add(ApplicationContant.config.getProperty("Predicate"));
             imports.add(ApplicationContant.config.getProperty("Autowired"));
+            imports.add(ApplicationContant.config.getProperty("Optional"));
             code = generateComponentFields(code, fieldType);
+            methodCode = methodCode.replace("[entityClass-l]", CodeUtils.firstChar2Lowercase(source.getEntitySource().getShortName()));
             methodCode = generateConditions(source.getEntitySource(), imports, methodCode);
         }
 
@@ -155,6 +157,8 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
 
     protected String generateConditions(EntitySource entitySource, List<String> imports, String code) {
         List<DBUtils.ColumInfo> columInfos = entitySource.getTableInfo().getColumInfos();
+        imports.add(ApplicationContant.config.getProperty("Path"));
+        imports.add(ApplicationContant.config.getProperty("Optional"));
         Map<String, JavaType> columnMapping = entitySource.getColumnMapping();
         List<String> excludeColumns = entitySource.getExcludeColumns();
         StringBuilder sb = new StringBuilder();
@@ -170,7 +174,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             String fieldType = javaType.getShortName();
             String fieldName = CodeUtils.getFieldName(columnName);
             String getMethod = "get" + CodeUtils.firstChar2Uppercase(fieldName);
-            if (Objects.equals(fieldType, "Boolean")) {
+            if (Objects.equals(fieldType, "Boolean") && fieldName.startsWith("is")) {
                 getMethod = "is" + CodeUtils.firstChar2Uppercase(fieldName);
             }
             String ifCode = template.t_if_jpa.replace("[getMethod]", getMethod)

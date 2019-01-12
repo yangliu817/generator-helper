@@ -120,7 +120,8 @@ CREATE TABLE "t_entity_setting" (
   "setting_id" INTEGER,
   "primary_key_name" TEXT,
   "exclude_columns" TEXT,
-  "primary_key_type" TEXT
+  "primary_key_type" TEXT,
+  "strategy" TEXT
 );
 
 
@@ -295,7 +296,7 @@ CREATE TABLE "t_project_setting" (
   "create_service" TEXT,
   "create_controller" TEXT,
   "table_prefix" TEXT,
-  "mybatis_type" TEXT,
+  "orm_type" TEXT,
   "author" TEXT,
   "contact" TEXT,
   "primary_key_name" TEXT

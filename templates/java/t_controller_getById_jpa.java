@@ -2,9 +2,9 @@
     /**
      * 查询单个
      */
-    @GetMapping("/getById/{[primaryKey]}")
-    public [returnType] getById(@PathVariable("[primaryKey]") [primaryKeyType] [primaryKey]){
-        [entityClass] data = [service].findOne([primaryKey]);
+    @GetMapping("/findById/{[primaryKey]}")
+    public [returnType] findById(@PathVariable("[primaryKey]") [primaryKeyType] [primaryKey]){
+        [entityClass] data = [service].findById([primaryKey]);
 
         return [returnInfo];
     }

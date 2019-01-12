@@ -1,6 +1,6 @@
 
     /** 根据id删除一条记录 */
-    void delete([primaryKeyType] id);
+    void deleteById([primaryKeyType] id);
 
     /** 批量删除 */
     void deleteInBatch(List<[entityClass]> list);
@@ -9,10 +9,10 @@
     void save([entityClass] entity);
 
     /** 批量保存(新增或者修改) */
-    void save(List<[entityClass]> list);
+    void saveAll(List<[entityClass]> list);
 
     /** 根据id查询 */
-    [entityClass] findOne([primaryKeyType] id);
+    [entityClass] findById([primaryKeyType] id);
 
     /** 根据条件查询单个 */
     [entityClass] findOne([entityClass] query);

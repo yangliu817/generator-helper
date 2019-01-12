@@ -1,6 +1,7 @@
 package cn.yangliu.mybatis.tools;
 
 import cn.yangliu.comm.tools.StringUtils;
+import org.springframework.util.Assert;
 
 public class CodeUtils {
 
@@ -30,15 +31,20 @@ public class CodeUtils {
         columName = columName.toLowerCase();
         StringBuilder sb = new StringBuilder();
         String[] array = columName.split("_");
-        for (String s : array) {
-            sb.append(firstChar2Lowercase(s));
+        for (int i = 0; i < array.length; i++) {
+            if (i == 0) {
+                sb.append(firstChar2Lowercase(array[i]));
+                continue;
+            }
+            sb.append(firstChar2Uppercase(array[i]));
         }
         return sb.toString();
     }
 
     public static String firstChar2Uppercase(String source) {
-        if (StringUtils.isEmpty(source)) {
-            throw new NullPointerException();
+        Assert.hasText(source, "source不能为空");
+        if (source.length() == 1) {
+            return source.toUpperCase();
         }
         String firstChar = source.substring(0, 1);
         String remain = source.substring(1);
@@ -46,8 +52,9 @@ public class CodeUtils {
     }
 
     public static String firstChar2Lowercase(String source) {
-        if (StringUtils.isEmpty(source)) {
-            throw new NullPointerException();
+        Assert.hasText(source, "source不能为空");
+        if (source.length() == 1) {
+            return source.toLowerCase();
         }
         String firstChar = source.substring(0, 1);
         String remain = source.substring(1);

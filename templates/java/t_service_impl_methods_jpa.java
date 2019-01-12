@@ -1,8 +1,8 @@
 
     /** 根据id删除一条记录 */
     @Override
-    public void delete([primaryKeyType] id) {
-        [repositoryName].delete(id);
+    public void deleteById([primaryKeyType] id) {
+        [repositoryName].deleteById(id);
     }
 
     /** 批量删除 */
@@ -19,21 +19,31 @@
 
     /** 批量保存(新增或者修改) */
     @Override
-    public void save(List<[entityClass]> list) {
-        [repositoryName].save(list);
+    public void saveAll(List<[entityClass]> list) {
+        [repositoryName].saveAll(list);
     }
 
     /** 根据id查询 */
     @Override
-    public [entityClass] findOne([primaryKeyType] id) {
-        return [repositoryName].findOne(id);
+    public [entityClass] findById([primaryKeyType] id) {
+        Optional<[entityClass]> optional = userRepository.findById(id);
+        [entityClass] [entityClass-l] = null;
+        if (optional.isPresent()) {
+            [entityClass-l] = optional.get();
+        }
+        return [entityClass-l];
     }
 
     /** 根据条件查询单个 */
     @Override
     public [entityClass] findOne([entityClass] query) {
         Specification<[entityClass]> specification = createSpecification(query);
-        return [repositoryName].findOne(specification);
+        Optional<[entityClass]> optional = userRepository.findOne(specification);
+        [entityClass] [entityClass-l] = null;
+        if (optional.isPresent()) {
+            [entityClass-l] = optional.get();
+        }
+        return [entityClass-l];
     }
 
     /** 根据条件查询列表 */

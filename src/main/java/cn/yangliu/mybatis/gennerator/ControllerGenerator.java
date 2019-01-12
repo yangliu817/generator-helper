@@ -30,7 +30,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         String anontation = "Controller";
         if (source.getUseRestful()) {
             controllerAnnotationFullName = ApplicationContant.config.getProperty("RestController");
-            anontations.add("RestController");
+            anontation = "RestController";
         }
         imports.add(controllerAnnotationFullName);
         anontations.add(anontation);
@@ -72,7 +72,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
             sb.append(generateSaveMethod(source, imports));
-        }else {
+        } else {
             sb.append(generateInsertMethod(source, imports));
             sb.append(generateUpdateMethod(source, imports));
         }
@@ -185,6 +185,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         return listMethodCode;
     }
+
     private String generateSaveMethod(ControllerSource source, List<String> imports) {
         String saveMethodCode = template.t_controller_save_jpa;
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
@@ -193,6 +194,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         saveMethodCode = saveMethodCode.replace("[returnInfo]", returnInfo);
         return saveMethodCode;
     }
+
     private String generateInsertMethod(ControllerSource source, List<String> imports) {
         String insertMethodCode = template.t_controller_insert;
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
@@ -210,7 +212,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
             deleteMethodCode = template.t_controller_delete_jpa;
-        }else {
+        } else {
             imports.add(ApplicationContant.config.getProperty("Arrays"));
         }
 

@@ -1,13 +1,9 @@
 # mybatis-helper
 
-#### 1.1.0
-    1 视图界面改版
-    2 新增oracle sqlserver支持
-    3 新增作者 联系方式注释
-    4 新增mybatis支持
-    5 新增单表操作时字段映射
-    6 其他bugfix
-
+#### 1.2.0
+    1 加入JPA支持
+    2 新增mybatis plus 主键策略
+    3 jpa 主键策略
 #### 介绍
     该程序是一款加入lombok支持的mybatis-plus代码生成工具，
     可生成controller成的基本增删改查方法，实体类自动生成toString equals和hashCode方法

@@ -46,6 +46,8 @@ public class EntitySetting {
 
     private String primaryKeyType;
 
+    private String strategy;
+
     /*@TableField(exist = false)
     private List<MappingSetting> mapping;*/
 

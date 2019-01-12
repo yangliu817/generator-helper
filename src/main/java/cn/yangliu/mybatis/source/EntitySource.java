@@ -5,6 +5,7 @@ import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.EntitySetting;
 import cn.yangliu.mybatis.bean.JavaType;
 import cn.yangliu.mybatis.bean.ProjectSetting;
+import cn.yangliu.mybatis.enums.StrategyEnum;
 import cn.yangliu.mybatis.ex.HelperException;
 import cn.yangliu.mybatis.tools.DBUtils;
 import lombok.Data;
@@ -44,6 +45,8 @@ public class EntitySource extends CodeSource {
 
     private boolean singleTable;
 
+    private String strategy;
+
     private Map<String,JavaType> columnMapping = new HashMap<>();
 
     private Map<String, JavaType> singleTableMapping;
@@ -56,6 +59,7 @@ public class EntitySource extends CodeSource {
         this.tableInfo = tableInfo;
         this.singleTableMapping = singleTableMapping;
         this.dbType = dbType;
+        this.strategy = entitySetting.getStrategy();
         this.mapping = EntitySetting.getMappings(entitySetting);
         this.primaryKeyName = entitySetting.getPrimaryKeyName();
         this.primaryKeyType = entitySetting.getPrimaryKeyType();

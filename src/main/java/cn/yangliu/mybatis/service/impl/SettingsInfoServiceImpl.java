@@ -47,6 +47,9 @@ public class SettingsInfoServiceImpl extends ServiceImpl<SettingsInfoMapper, Set
         EntitySetting entitySetting = settings.getEntity();
         entitySetting.setSettingId(settingId);
 
+        RepositorySetting repositorySetting = settings.getRepository();
+        repositorySetting.setSettingId(settingId);
+
         MapperSetting mapperSetting = settings.getMapper();
         mapperSetting.setSettingId(settingId);
 
@@ -63,6 +66,7 @@ public class SettingsInfoServiceImpl extends ServiceImpl<SettingsInfoMapper, Set
         projectSettingMapper.insert(projectSetting);
         entitySettingMapper.insert(entitySetting);
         mapperSettingMapper.insert(mapperSetting);
+        repositorySettingMapper.insert(repositorySetting);
         serviceSettingMapper.insert(serviceSetting);
         controllerSettingMapper.insert(controllerSetting);
         return flag;
