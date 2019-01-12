@@ -1,9 +1,10 @@
-# mybatis-helper
+# generator-helper
 
 #### 1.2.0
     1 加入JPA支持
     2 新增mybatis plus 主键策略
     3 jpa 主键策略
+    4 项目更名为generator-helper
 #### 介绍
     该程序是一款加入lombok支持的mybatis-plus代码生成工具，
     可生成controller成的基本增删改查方法，实体类自动生成toString equals和hashCode方法
@@ -25,7 +26,7 @@
 
     1. 将libs目录下的jar包分别安装到本地maven仓库中
     2. 将代码download下来后添加到ide中，配置为springboot项目
-    3. 运行MybatisPlusHelperApplication的main方法
+    3. 运行GeneratorHelperApplication的main方法
 
 #### release使用说明
     请将对应的jre目录添加到软件根目录

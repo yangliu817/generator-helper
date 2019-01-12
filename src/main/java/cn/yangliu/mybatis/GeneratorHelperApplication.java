@@ -12,13 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import java.io.File;
-
 
 @SpringBootApplication
 @Slf4j
 @EnableAsync
-public class MybatisPlusHelperApplication extends AbstractJavaFxApplicationSupport {
+public class GeneratorHelperApplication extends AbstractJavaFxApplicationSupport {
 
     static {
         SplashScreen.setImagePath("/imgs/start.png");
@@ -26,7 +24,7 @@ public class MybatisPlusHelperApplication extends AbstractJavaFxApplicationSuppo
 
     public static void main(String[] args) {
         DBUtils.init();
-        launchApp(MybatisPlusHelperApplication.class, args);
+        launchApp(GeneratorHelperApplication.class, args);
 //        SpringApplication.run(MybatisPlusHelperApplication.class,args);
     }
 
@@ -45,7 +43,7 @@ public class MybatisPlusHelperApplication extends AbstractJavaFxApplicationSuppo
     protected String getUrl() {
         String url = super.getUrl();
         if (url.startsWith("file:")) {
-            String path = PathUtils.getHomePath(MybatisPlusHelperApplication.class);
+            String path = PathUtils.getHomePath(GeneratorHelperApplication.class);
 
             if (!path.endsWith("/")) {
                 path += "/";
