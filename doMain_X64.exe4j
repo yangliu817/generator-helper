@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exe4j version="6.0" transformSequenceNumber="2">
+  <directoryPresets config="E:/workspace/project/personal/mybatis-helper/generator" />
+  <application name="generator" distributionSourceDir="E:/workspace/project/personal/mybatis-helper/generator">
+    <languages>
+      <principalLanguage id="en" customLocalizationFile="" />
+    </languages>
+  </application>
+  <executable name="generator" type="1" iconSet="true" iconFile="E:/workspace/project/personal/mybatis-helper/generator/123.ico" executableDir="." redirectStderr="true" stderrFile="log/error.log" stderrMode="append" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="." singleInstance="true" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="false" amd64="true">
+    <messageSet />
+    <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" companyName="" productVersion="" />
+  </executable>
+  <splashScreen show="false" width="692" height="528" bitmapFile="E:/Users/mechrevo/Desktop/环境包/loading.png" textOverlay="true">
+    <text>
+      <statusLine x="33" y="365" text="" fontSize="8" fontColor="0,0,0" bold="false" />
+      <versionLine x="34" y="489" text="version %VERSION%" fontSize="8" fontColor="0,0,0" bold="false" />
+    </text>
+  </splashScreen>
+  <java mainClass="org.springframework.boot.loader.JarLauncher" mainMode="1" vmParameters="" arguments="" allowVMPassthroughParameters="false" preferredVM="" bundleRuntime="true" minVersion="1.8" maxVersion="" allowBetaVM="true" jdkOnly="false">
+    <searchSequence>
+      <directory location="jre" />
+    </searchSequence>
+    <classPath>
+      <archive location="./libs/generator-helper.jar" failOnError="false" />
+    </classPath>
+    <modulePath />
+    <nativeLibraryDirectories />
+    <vmOptions />
+  </java>
+  <includedFiles />
+  <unextractableFiles />
+</exe4j>
