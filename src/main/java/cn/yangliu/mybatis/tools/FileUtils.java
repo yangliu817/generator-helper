@@ -59,7 +59,7 @@ public class FileUtils {
 
     public static String read(InputStream is, String space, boolean wrap) {
         StringBuilder sb = new StringBuilder();
-        try (InputStreamReader isr = new InputStreamReader(is);
+        try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
              BufferedReader reader = new BufferedReader(isr)) {
             String line = null;
             while ((line = reader.readLine()) != null) {
