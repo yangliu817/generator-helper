@@ -20,18 +20,24 @@ public class MapperGenerator extends AbstractDaoGnerator<MapperSource> {
         List<String> annotations = new ArrayList<>();
         String code = template.t_mapper.replace("[className]", source.getShortName());
         code = generateComments(code, source);
-        if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
-            code = code.replace("[methods]", "");
-            String extendCode = "";
-            if (source.getExtendBaseMapper()) {
-                imports.add(ApplicationContant.config.getProperty("BaseMapper"));
-                extendCode = " extends BaseMapper<" + source.getEntitySource().getShortName() + ">";
-            }
-            code = code.replace("[extends]", extendCode);
+
+        String methodCode = "";
+        String extendCode = "";
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus) && source.getExtendBaseMapper()) {
+            imports.add(ApplicationContant.config.getProperty("BaseMapper"));
+            extendCode = " extends BaseMapper<" + source.getEntitySource().getShortName() + ">";
+        }
+        code = code.replace("[extends]", extendCode);
+
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus) && !source.getExtendBaseMapper()) {
+            code = generateAbstractMethods(code, source.getEntitySource(), imports);
+        }
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis) ) {
+            code = generateAbstractMethods(code, source.getEntitySource(), imports);
         }
 
-        code = generateAbstractMethods(code, source.getEntitySource(), imports);
 
+        code = code.replace("[methods]", methodCode);
         if (source.getUseMapperAnonntation()) {
             imports.add(ApplicationContant.config.getProperty("Mapper"));
             annotations.add("Mapper");

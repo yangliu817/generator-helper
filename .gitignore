@@ -10,5 +10,5 @@ gen
 target
 log
 db
-config
+/config
 generator
