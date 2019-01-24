@@ -30,6 +30,8 @@ public class ProjectSetting {
 
     private Boolean useLombok;
 
+    private Boolean useSwagger;
+
     private Boolean createService;
 
     private Boolean createController;

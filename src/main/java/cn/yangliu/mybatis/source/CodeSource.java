@@ -33,8 +33,11 @@ public abstract class CodeSource extends AbstractSource implements Source {
 
     protected String date;
 
+    protected Boolean useSwagger;
+
     public CodeSource(ProjectSetting projectSetting, String sourcePackage, String srcPath) {
         initBaseInfo(projectSetting.getProjectPackage(), sourcePackage, srcPath);
+        useSwagger = projectSetting.getUseSwagger();
         useLombok = projectSetting.getUseLombok();
         ormType = OrmTypeEnum.getOrmTypeEnumByType(projectSetting.getOrmType());
         this.contact = projectSetting.getContact();
