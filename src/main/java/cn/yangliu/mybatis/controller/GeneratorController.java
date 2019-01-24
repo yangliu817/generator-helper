@@ -94,7 +94,7 @@ public class GeneratorController extends AbstractController {
             ServiceImplSource serviceImplSource = new ServiceImplSource(projectSetting, serviceSetting,
                     repositorySource, mapperSource);
             ControllerSource controllerSource = new ControllerSource(projectSetting, controllerSetting, serviceImplSource);
-            XmlSource xmlSource = new XmlSource(projectSetting, mapperSetting, mapperSource, entityName);
+            XmlSource xmlSource = new XmlSource(projectSetting, mapperSetting, mapperSource, entityName, linkInfo.getDatabaseType());
             Future<Boolean> future = generatorHandler.doGenerator(projectSetting, entitySource, repositorySource, mapperSource, xmlSource,
                     serviceImplSource, controllerSource);
             futures.add(future);

@@ -35,16 +35,19 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
         List<String> fieldNames = new ArrayList<>();
 
+        String extendsCode = "";
         if (source.getUseBaseClass()) {
             String baseClassPackage = getClassPackage(source.getBaseClassFullName());
             if (!Objects.equals(source.getFullPackage(), baseClassPackage)) {
                 imports.add(source.getBaseClassFullName());
             }
-            code = code.replace("[extends]", " extends " + getClassShortName(source.getBaseClassFullName()));
-        } else {
-            code = code.replace("[extends]", "");
+            extendsCode = " extends " + getClassShortName(source.getBaseClassFullName());
         }
-
+        code = code.replace("[extends]", extendsCode);
+        if (source.getUseSwagger()) {
+            imports.add(ApplicationContant.config.getProperty("ApiModel"));
+            annotations.add("@ApiModel");
+        }
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
             annotations.add("TableName(\"" + source.getTableInfo().getName() + "\")");
             imports.add(ApplicationContant.config.getProperty("TableName"));
@@ -281,27 +284,37 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
             }
 
             StrategyEnum strategy = null;
-            if (!Objects.equals(source.getStrategy(),"0")
-                    &&!Objects.equals(source.getOrmType(),OrmTypeEnum.Mybatis)){
+            if (!Objects.equals(source.getStrategy(), "0")
+                    && !Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis)) {
                 strategy = StrategyEnum.getEnumByStrategy(source.getStrategy());
             }
             if (Objects.equals(columnName, source.getPrimaryKeyName())
                     && Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)
-                    && Objects.nonNull(strategy)){
+                    && Objects.nonNull(strategy)) {
                 imports.add(ApplicationContant.config.getProperty("IdType"));
-                annotationCode = annotationCode+"(type = IdType." +strategy.getName()+")";
+                annotationCode = annotationCode + "(type = IdType." + strategy.getName() + ")";
             }
 
             if (Objects.equals(columnName, source.getPrimaryKeyName())
                     && Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)
-                    && Objects.nonNull(strategy)){
+                    && Objects.nonNull(strategy)) {
                 imports.add(ApplicationContant.config.getProperty("GenerationType"));
-                annotationCode = annotationCode+"(strategy = GenerationType." +strategy.getName()+")";
+                annotationCode = annotationCode + "(strategy = GenerationType." + strategy.getName() + ")";
             }
 
             if (!Objects.equals(columnName, source.getPrimaryKeyName()) && Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
                 annotationCode = "\n    @Column(name = \"" + columnName + "\")";
                 imports.add(ApplicationContant.config.getProperty("Column"));
+            }
+
+            if (source.getUseSwagger() && StringUtils.isNotEmpty(comment)) {
+                annotationCode = annotationCode + "\n    @ApiModelProperty(value = \"" + comment + "\")";
+                imports.add(ApplicationContant.config.getProperty("ApiModelProperty"));
+            }
+
+            if (source.getUseSwagger() && StringUtils.isEmpty(comment)) {
+                annotationCode = annotationCode + "\n    @ApiModelProperty()";
+                imports.add(ApplicationContant.config.getProperty("ApiModelProperty"));
             }
 
             if (StringUtils.isNotEmpty(comment)) {

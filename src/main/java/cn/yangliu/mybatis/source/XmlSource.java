@@ -19,7 +19,9 @@ public class XmlSource extends AbstractSource {
 
     private EntitySource entitySource;
 
-    public XmlSource(ProjectSetting projectSetting, MapperSetting mapperSetting, MapperSource mapperSource, String entityName) {
+    private String dbType;
+
+    public XmlSource(ProjectSetting projectSetting, MapperSetting mapperSetting, MapperSource mapperSource, String entityName,String dbType) {
         filepath = projectSetting.getCodePath();
         if (filepath.endsWith(File.separator)) {
             filepath += "src/main/resources" + File.separator + "mybatis";
@@ -28,6 +30,8 @@ public class XmlSource extends AbstractSource {
         }
 
         this.entitySource = mapperSource.getEntitySource();
+
+        this.dbType = dbType;
 
         filename = entityName + mapperSetting.getMapperSufix().trim() + ".xml";
 

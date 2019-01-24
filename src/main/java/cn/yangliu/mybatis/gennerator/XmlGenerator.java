@@ -1,5 +1,6 @@
 package cn.yangliu.mybatis.gennerator;
 
+import cn.yangliu.mybatis.enums.DBTypeEnum;
 import cn.yangliu.mybatis.source.XmlSource;
 import cn.yangliu.mybatis.tools.CodeUtils;
 import cn.yangliu.mybatis.tools.DBUtils;
@@ -111,7 +112,7 @@ public class XmlGenerator implements Generator<XmlSource> {
         String selectListCode = generateSelectList(columns, fields);
         methodCode = methodCode + selectOneCode + selectListCode;
         String selectKeyCode = "";
-        if (containsPrimaryKey && !primaryKeyTypeIsString) {
+        if (containsPrimaryKey && !primaryKeyTypeIsString && !Objects.equals(DBTypeEnum.ORACLE.getDbType(), source.getDbType())) {
             selectKeyCode = t_mapper_select_key;
         }
         methodCode = methodCode.replace("[selectKey]", selectKeyCode);
