@@ -1,10 +1,8 @@
 # generator-helper
 
-#### 1.2.0
-    1 加入JPA支持
-    2 新增mybatis plus 主键策略
-    3 jpa 主键策略
-    4 项目更名为generator-helper
+#### 1.2.1
+    1 新增快捷访问代码生成目录
+    2 新增swagger支持
 #### 介绍
     该程序是一款加入lombok支持的mybatis-plus代码生成工具，
     可生成controller成的基本增删改查方法，实体类自动生成toString equals和hashCode方法
