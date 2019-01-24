@@ -293,6 +293,7 @@ CREATE TABLE "t_project_setting" (
   "project_package" TEXT,
   "code_path" TEXT,
   "use_lombok" TEXT,
+  "use_swagger" TEXT,
   "create_service" TEXT,
   "create_controller" TEXT,
   "table_prefix" TEXT,
