@@ -1,6 +1,6 @@
 
     /**
-     * 列表
+     * 列表查询
      */
     @GetMapping("/findAll")
     [swaggerAnnotation]
