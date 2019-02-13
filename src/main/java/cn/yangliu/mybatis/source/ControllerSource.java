@@ -24,9 +24,12 @@ public class ControllerSource extends CodeSource {
 
     private EntitySource entitySource;
 
+    private Boolean useShiro;
+
     public ControllerSource(ProjectSetting projectSetting, ControllerSetting controllerSetting, ServiceImplSource serviceImplSource) {
         super(projectSetting, controllerSetting.getControllerPackage(), projectSetting.getCodePath());
         this.serviceImplSource = serviceImplSource;
+        this.useShiro = projectSetting.getUseShiro();
         entitySource = serviceImplSource.getEntitySource();
         init(controllerSetting, entitySource.shortName);
     }

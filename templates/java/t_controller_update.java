@@ -4,6 +4,7 @@
      */
     @[annotation]("/update")
     [swaggerAnnotation]
+    [shiroAnnotation]
     public [returnType] update(@RequestBody [entityClass] data){
         [service].updateById(data);
 

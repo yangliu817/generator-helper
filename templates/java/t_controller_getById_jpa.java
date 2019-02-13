@@ -4,6 +4,7 @@
      */
     @GetMapping("/findById/{[primaryKey]}")
     [swaggerAnnotation]
+    [shiroAnnotation]
     public [returnType] findById(@PathVariable("[primaryKey]") [primaryKeyType] [primaryKey]){
         [entityClass] data = [service].findById([primaryKey]);
 

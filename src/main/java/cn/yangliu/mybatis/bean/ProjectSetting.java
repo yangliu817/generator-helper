@@ -42,4 +42,6 @@ public class ProjectSetting {
 
     protected String author;
 
+    protected Boolean useShiro;
+
 }

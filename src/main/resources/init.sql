@@ -294,6 +294,7 @@ CREATE TABLE "t_project_setting" (
   "code_path" TEXT,
   "use_lombok" TEXT,
   "use_swagger" TEXT,
+  "use_shiro" TEXT,
   "create_service" TEXT,
   "create_controller" TEXT,
   "table_prefix" TEXT,
