@@ -46,7 +46,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         code = code.replace("[extends]", extendsCode);
         if (source.getUseSwagger()) {
             imports.add(ApplicationContant.config.getProperty("ApiModel"));
-            annotations.add("@ApiModel");
+            annotations.add("ApiModel");
         }
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
             annotations.add("TableName(\"" + source.getTableInfo().getName() + "\")");
