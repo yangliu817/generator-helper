@@ -154,9 +154,11 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
     private String generateGetByIdMethod(ControllerSource source, List<String> imports, String swaggerDesp) {
         String returnInfo = getReturnInfo(source, imports, true);
-        String getByIdMethodCode = template.t_controller_getById;
+        String getByIdMethodCode = template.t_controller_getById_mybatis;
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
             getByIdMethodCode = template.t_controller_getById_jpa;
+        } else if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
+            getByIdMethodCode = template.t_controller_getById_mybatis_plus;
         }
         getByIdMethodCode = getByIdMethodCode.replace("[returnInfo]", returnInfo);
 
@@ -200,13 +202,15 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         String returnInfo = getReturnInfo(source, imports, true);
         imports.add(ApplicationContant.config.getProperty("RequestParam"));
 
-        String listMethodCode = template.t_controller_list;
+        String listMethodCode = null;
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
+            listMethodCode = template.t_controller_list_mybatis_plus;
             imports.add(ApplicationContant.config.getProperty("Page"));
-            imports.add(ApplicationContant.config.getProperty("EntityWrapper"));
+            imports.add(ApplicationContant.config.getProperty("IPage"));
+            imports.add(ApplicationContant.config.getProperty("QueryWrapper"));
         }
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis)) {
-            listMethodCode = template.t_controller_list2;
+            listMethodCode = template.t_controller_list_mybatis;
             imports.add(ApplicationContant.config.getProperty("PagehelperPage"));
             imports.add(ApplicationContant.config.getProperty("PageHelper"));
         }
@@ -258,7 +262,16 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     }
 
     private String generateInsertMethod(ControllerSource source, List<String> imports, String swaggerDesp) {
-        String insertMethodCode = template.t_controller_insert;
+        String insertMethodCode = null;
+
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis)) {
+            insertMethodCode = template.t_controller_save_mybatis;
+        } else if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
+            insertMethodCode = template.t_controller_save_mybatis_plus;
+        } else if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+            insertMethodCode = template.t_controller_save_jpa;
+        }
+
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
         imports.add(source.getEntitySource().getClassFullName());
         String returnInfo = getReturnInfo(source, imports, false);
@@ -274,12 +287,18 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
     private String generateDeleteMethed(ControllerSource source, List<String> imports, String swaggerDesp) {
 
-        String deleteMethodCode = template.t_controller_delete;
+        String deleteMethodCode = null;
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
             deleteMethodCode = template.t_controller_delete_jpa;
         } else {
             imports.add(ApplicationContant.config.getProperty("Arrays"));
+        }
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis)) {
+            deleteMethodCode = template.t_controller_delete_mybatis;
+        }
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
+            deleteMethodCode = template.t_controller_delete_mybatis_plus;
         }
 
         imports.add(ApplicationContant.config.getProperty("RequestBody"));
