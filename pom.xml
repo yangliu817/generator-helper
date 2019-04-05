@@ -6,7 +6,7 @@
 
     <groupId>cn.yangliu</groupId>
     <artifactId>generator-helper</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
