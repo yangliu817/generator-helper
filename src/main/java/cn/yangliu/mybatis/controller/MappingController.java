@@ -63,7 +63,7 @@ public class MappingController extends AbstractController {
         if (!Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.SQLSERVER.getDbType())) {
             javaTypes.remove(new JavaType("DateTimeOffset", "microsoft.sql.DateTimeOffset", true));
         }
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>(500);
         data.put("javaTypes", javaTypes);
         data.put("mappings", mappings);
         return JSON.toJSONString(data);
@@ -113,7 +113,7 @@ public class MappingController extends AbstractController {
 
         List<JavaType> javaTypes = javaTypeService.selectList(new EntityWrapper<>());
 
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>(500);
         data.put("javaTypes", javaTypes);
         data.put("mappingSettings", mappingSettings);
 

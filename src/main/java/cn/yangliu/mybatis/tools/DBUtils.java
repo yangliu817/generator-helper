@@ -19,12 +19,12 @@ public class DBUtils {
 
     public static void init() {
         try {
-            String db_path = "db";
-            File file = new File(db_path);
+            String dbPath = "db";
+            File file = new File(dbPath);
             if (!file.exists()) {
                 file.mkdirs();
             }
-            file = new File(db_path + "/sqlite.db");
+            file = new File(dbPath + "/sqlite.db");
             if (file.exists()) {
                 return;
             }

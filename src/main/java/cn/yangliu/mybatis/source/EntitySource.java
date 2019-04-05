@@ -13,7 +13,7 @@ import lombok.Data;
 import java.util.*;
 
 @Data
-public class EntitySource extends CodeSource {
+public class EntitySource extends AbstractCodeSource {
 
     private String baseClassFullName;
 

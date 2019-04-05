@@ -70,7 +70,7 @@ public class GeneratorController extends AbstractController {
         List<Future<Boolean>> futures = new ArrayList<>();
 
         boolean singleTable = tableInfos.size() == 1;
-        Map<String, JavaType> mapping = new HashMap<>();
+        Map<String, JavaType> mapping = new HashMap<>(1000);
         if (singleTable) {
             List<SingleTableMapping> mappings = JSON.parseArray(singleTableMappingString, SingleTableMapping.class);
             for (SingleTableMapping m : mappings) {

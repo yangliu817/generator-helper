@@ -8,7 +8,7 @@ import cn.yangliu.mybatis.bean.RepositorySetting;
 import lombok.Data;
 
 @Data
-public class RepositorySource extends CodeSource {
+public class RepositorySource extends AbstractCodeSource {
 
     private Boolean useRepositoryAnonntation;
 

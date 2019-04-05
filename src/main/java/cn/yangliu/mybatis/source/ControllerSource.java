@@ -8,7 +8,7 @@ import cn.yangliu.mybatis.ex.HelperException;
 import lombok.Data;
 
 @Data
-public class ControllerSource extends CodeSource {
+public class ControllerSource extends AbstractCodeSource {
 
     private String methodReturnTypeFullName;
 

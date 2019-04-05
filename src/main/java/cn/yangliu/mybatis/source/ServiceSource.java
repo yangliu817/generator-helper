@@ -7,7 +7,7 @@ import cn.yangliu.mybatis.bean.ServiceSetting;
 import lombok.Data;
 
 @Data
-public class ServiceSource extends CodeSource {
+public class ServiceSource extends AbstractCodeSource {
 
     private Boolean useBaseService;
 

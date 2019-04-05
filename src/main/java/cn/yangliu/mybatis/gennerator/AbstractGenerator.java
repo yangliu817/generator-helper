@@ -9,7 +9,7 @@ import cn.yangliu.mybatis.enums.OrmTypeEnum;
 import cn.yangliu.mybatis.service.ColumnTypeService;
 import cn.yangliu.mybatis.service.JavaTypeService;
 import cn.yangliu.mybatis.service.MappingSettingService;
-import cn.yangliu.mybatis.source.CodeSource;
+import cn.yangliu.mybatis.source.AbstractCodeSource;
 import cn.yangliu.mybatis.source.EntitySource;
 import cn.yangliu.mybatis.source.Source;
 import cn.yangliu.mybatis.tools.CodeUtils;
@@ -44,12 +44,12 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         if (javaFullTypeMap == null) {
             synchronized (this) {
                 if (javaFullTypeMap == null) {
-                    column2javaTypeMap = new HashMap<>();
-                    javaFullTypeMap = new HashMap<>();
-                    mysqlColumnMap = new HashMap<>();
-                    mariadbColumnMap = new HashMap<>();
-                    oracleColumnMap = new HashMap<>();
-                    sqlserverColumnMap = new HashMap<>();
+                    column2javaTypeMap = new HashMap<>(500);
+                    javaFullTypeMap = new HashMap<>(500);
+                    mysqlColumnMap = new HashMap<>(500);
+                    mariadbColumnMap = new HashMap<>(500);
+                    oracleColumnMap = new HashMap<>(500);
+                    sqlserverColumnMap = new HashMap<>(500);
 
                     List<JavaType> javaTypes = javaTypeService.selectList(new EntityWrapper<>());
                     javaTypes.forEach(t -> {
@@ -138,7 +138,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     /**
      * 生成类注释代码
      */
-    protected String generateComments(String source, CodeSource codeSource) {
+    protected String generateComments(String source, AbstractCodeSource codeSource) {
         String author = codeSource.getAuthor();
         String contact = codeSource.getContact();
         String date = codeSource.getDate();
@@ -207,7 +207,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     /**
      *  生成log实例
      */
-    protected String checkUseLombok(CodeSource source, String code, List<String> imports, List<String> anontations) {
+    protected String checkUseLombok(AbstractCodeSource source, String code, List<String> imports, List<String> anontations) {
         if (source.getUseLombok()) {
             imports.add(ApplicationContant.config.getProperty("Slf4j"));
             anontations.add("Slf4j");
@@ -261,7 +261,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     /**
      * 生成包代码
      */
-    protected String generatePackage(CodeSource source, String code) {
+    protected String generatePackage(AbstractCodeSource source, String code) {
         String packageCode = "";
         if (StringUtils.isNotEmpty(source.getFullPackage())) {
             packageCode = "package " + source.getFullPackage() + ";";

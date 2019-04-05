@@ -138,7 +138,9 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             importCode = ApplicationContant.config.getProperty("PutMapping");
             annotationCode = "PutMapping";
             httpMethod = "PUT";
+            updateMethodCode = updateMethodCode.replace("(\"/update\")", "");
         }
+
         imports.add(importCode);
         updateMethodCode = updateMethodCode.replace("[annotation]", annotationCode);
 
@@ -168,6 +170,11 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             primaryKey = CodeUtils.getFieldName(primaryKey);
         } else {
             primaryKey = "id";
+        }
+
+        if (source.getUseRestful()) {
+            getByIdMethodCode = getByIdMethodCode.replace("/findById", "");
+            getByIdMethodCode = getByIdMethodCode.replace("/getById", "");
         }
 
         getByIdMethodCode = getByIdMethodCode.replace("[primaryKey]", primaryKey);
@@ -226,6 +233,11 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         listMethodCode = generateSwaggerAnnotation(methodDesp, "GET", listMethodCode, swaggerDesp, imports, source);
 
         listMethodCode = generateShiroAnnotation(listMethodCode, "query", source, imports);
+
+        if (source.getUseRestful()) {
+            listMethodCode = listMethodCode.replace("(\"/findAll\")", "");
+            listMethodCode = listMethodCode.replace("(\"/list\")", "");
+        }
         return listMethodCode;
     }
 
@@ -257,6 +269,11 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         saveMethodCode = generateSwaggerAnnotation("新增或修改" + source.getEntitySource().getShortName(),
                 "POST", saveMethodCode, swaggerDesp, imports, source);
 
+        if (source.getUseRestful()) {
+            saveMethodCode = saveMethodCode.replace("(\"/save\")", "");
+            saveMethodCode = saveMethodCode.replace("(\"/insert\")", "");
+        }
+
         saveMethodCode = generateShiroAnnotation(saveMethodCode, "save", source, imports);
         return saveMethodCode;
     }
@@ -276,7 +293,10 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         imports.add(source.getEntitySource().getClassFullName());
         String returnInfo = getReturnInfo(source, imports, false);
         insertMethodCode = insertMethodCode.replace("[returnInfo]", returnInfo);
-
+        if (source.getUseRestful()) {
+            insertMethodCode = insertMethodCode.replace("(\"/save\")", "");
+            insertMethodCode = insertMethodCode.replace("(\"/insert\")", "");
+        }
         String methodDesp = "新增" + source.getEntitySource().getShortName();
         insertMethodCode = generateSwaggerAnnotation(methodDesp, "POST", insertMethodCode, swaggerDesp, imports, source);
         insertMethodCode = generateShiroAnnotation(insertMethodCode, "insert", source, imports);
@@ -309,6 +329,9 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             httpMethod = "DELETE";
             imports.add(ApplicationContant.config.getProperty("DeleteMapping"));
             deleteMethodCode = deleteMethodCode.replace("[annotation]", "DeleteMapping");
+            deleteMethodCode = deleteMethodCode.replace("(\"/delete\")", "");
+            deleteMethodCode = deleteMethodCode.replace("(\"/deleteById\")", "");
+
         } else {
             imports.add(ApplicationContant.config.getProperty("PostMapping"));
             deleteMethodCode = deleteMethodCode.replace("[annotation]", "PostMapping");

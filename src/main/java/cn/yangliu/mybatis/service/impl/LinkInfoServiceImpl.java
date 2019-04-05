@@ -13,9 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * @author mechrevo
+ */
 @Slf4j
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class LinkInfoServiceImpl extends ServiceImpl<LinkInfoMapper, LinkInfo> implements LinkInfoService {
 
     @Autowired
@@ -28,7 +31,7 @@ public class LinkInfoServiceImpl extends ServiceImpl<LinkInfoMapper, LinkInfo> i
 
     @Override
     public synchronized boolean insert(LinkInfo entity) {
-        boolean flag =  super.insert(entity);
+        boolean flag = super.insert(entity);
 
         SqliteSequence sqliteSequence = sqliteSequenceMapper.selectOne(new SqliteSequence(entity));
 

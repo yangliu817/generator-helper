@@ -7,7 +7,7 @@ import cn.yangliu.mybatis.bean.ProjectSetting;
 import lombok.Data;
 
 @Data
-public class MapperSource extends CodeSource {
+public class MapperSource extends AbstractCodeSource {
 
 
     private Boolean extendBaseMapper;

@@ -8,7 +8,7 @@ import lombok.Data;
 import java.io.File;
 
 @Data
-public class ServiceImplSource extends CodeSource {
+public class ServiceImplSource extends AbstractCodeSource {
 
     private Boolean createInterface;
 

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Data
-public abstract class CodeSource extends AbstractSource implements Source {
+public abstract class AbstractCodeSource extends AbstractSource implements Source {
 
     protected String fullPackage;
 
@@ -35,7 +35,7 @@ public abstract class CodeSource extends AbstractSource implements Source {
 
     protected Boolean useSwagger;
 
-    public CodeSource(ProjectSetting projectSetting, String sourcePackage, String srcPath) {
+    public AbstractCodeSource(ProjectSetting projectSetting, String sourcePackage, String srcPath) {
         initBaseInfo(projectSetting.getProjectPackage(), sourcePackage, srcPath);
         useSwagger = projectSetting.getUseSwagger();
         useLombok = projectSetting.getUseLombok();
