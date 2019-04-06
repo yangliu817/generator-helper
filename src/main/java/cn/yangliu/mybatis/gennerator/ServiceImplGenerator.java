@@ -6,12 +6,14 @@ import cn.yangliu.mybatis.enums.OrmTypeEnum;
 import cn.yangliu.mybatis.source.EntitySource;
 import cn.yangliu.mybatis.source.ServiceImplSource;
 import cn.yangliu.mybatis.source.ServiceSource;
+import cn.yangliu.mybatis.source.Source;
 import cn.yangliu.mybatis.tools.CodeUtils;
 import cn.yangliu.mybatis.tools.DBUtils;
 import cn.yangliu.mybatis.tools.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +106,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             implementsCode = " implements " + source.getServiceSource().getShortName();
         }
 
-        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && !source.getUseBaseService()) {
             methodCode = template.t_service_impl_methods_jpa;
 
             String fieldType = source.getRepositorySource().getShortName();
@@ -132,6 +134,30 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             implementsCode = " implements " + source.getServiceSource().getShortName();
         }
 
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && source.getCreateInterface() && source.getUseBaseService()) {
+            imports.add(source.getRepositorySource().getClassFullName());
+            imports.add(source.getEntitySource().getClassFullName());
+            String templateBaseServiceImplCode = template.t_service_impl_base_jpa;
+            templateBaseServiceImplCode = templateBaseServiceImplCode.replace("[baseServiceImport]", "import " + source.getServiceSource().getFullPackage() + ".JpaService;");
+            generateJpaService(source, templateBaseServiceImplCode, source.getFilepath(), "JpaServiceImpl.java");
+            imports.add(source.getServiceSource().getClassFullName());
+            methodCode = "";
+            implementsCode = " implements " + source.getServiceSource().getShortName();
+            extendsCode = " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
+        }
+
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && !source.getCreateInterface() && source.getUseBaseService()) {
+            imports.add(source.getRepositorySource().getClassFullName());
+            imports.add(source.getEntitySource().getClassFullName());
+            String templateBaseServiceImplCode = template.t_service_impl_base_jpa;
+            templateBaseServiceImplCode = templateBaseServiceImplCode.replace("[baseServiceImport]\n", "");
+            generateJpaService(source, templateBaseServiceImplCode, source.getFilepath(), "JpaServiceImpl.java");
+            generateJpaService(source, template.t_service_base_jpa, source.getFilepath(), "JpaService.java");
+            methodCode = "";
+            implementsCode = " implements JpaService<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ">";
+            extendsCode = " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
+        }
+
         code = code.replace("[methods]", methodCode);
         code = code.replace("[mapperName]", CodeUtils.firstChar2Lowercase(source.getMapperSource().getShortName()));
         code = code.replace("[repositoryName]", CodeUtils.firstChar2Lowercase(source.getRepositorySource().getShortName()));
@@ -153,6 +179,16 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
         code = generateImports(code, imports);
         code = generateAnnotations(code, anontations);
         FileUtils.output(code, source.getFilepath(), source.getFilename());
+    }
+
+    protected void generateJpaService(Source source, String templateCode, String path, String filename) {
+        ServiceImplSource serviceSource = (ServiceImplSource) source;
+        templateCode = generateComments(templateCode, serviceSource);
+        templateCode = templateCode.replace("[package]", "package " + serviceSource.getFullPackage() + ";");
+        File file = new File(serviceSource.getFilepath(), filename);
+        if (!file.exists()) {
+            FileUtils.output(templateCode, path, filename);
+        }
     }
 
     protected String generateConditions(EntitySource entitySource, List<String> imports, String code) {

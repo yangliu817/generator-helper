@@ -57,6 +57,8 @@ public class CodeTemplate {
     protected String t_abstract_methods_jpa;
     protected String t_service_impl_methods_jpa;
     protected String t_if_jpa;
+    protected String t_service_base_jpa;
+    protected String t_service_impl_base_jpa;
 
 
     public CodeTemplate() {
