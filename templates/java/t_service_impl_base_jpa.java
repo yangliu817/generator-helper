@@ -21,7 +21,7 @@ import java.util.function.Function;
  * @contact [contact]
  * @date [date]
  */
-public abstract class JpaServiceImpl<T, ID, Repository extends JpaRepository<T, ID>> implements JpaServiceImpl<T, ID> {
+public abstract class JpaServiceImpl<T, ID, Repository extends JpaRepository<T, ID>> implements JpaService<T, ID> {
 
     @Autowired
     protected EntityManagerFactory entityManagerFactory;
