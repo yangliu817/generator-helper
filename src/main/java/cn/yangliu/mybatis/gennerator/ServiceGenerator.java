@@ -53,10 +53,9 @@ public class ServiceGenerator extends AbstractGenerator<ServiceSource> {
 
         code = code.replace("[extends]", extendCode);
 
-       /* if (!Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) || source.getUseBaseService()) {
-
-        }*/
-        code = generateAbstractMethods(code, source.getEntitySource(), imports);
+        if (!(Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && source.getUseBaseService())) {
+            code = generateAbstractMethods(code, source.getEntitySource(), imports);
+        }
 
         code = generateImports(code, imports);
         FileUtils.output(code, source.getFilepath(), source.getFilename());
