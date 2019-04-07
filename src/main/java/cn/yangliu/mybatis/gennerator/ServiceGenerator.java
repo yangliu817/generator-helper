@@ -50,10 +50,20 @@ public class ServiceGenerator extends AbstractGenerator<ServiceSource> {
             code = code.replace("[methods]", "");
         }
 
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis) && source.getUseBaseService() && source.getMapperSource().getExtendBaseMapper()) {
+            String mybatisServicePackage = generateMybatisBaseService(source);
+            imports.add(source.getEntitySource().getClassFullName());
+            imports.add(mybatisServicePackage + ".MybatisService");
+            String primaryKeyType = getClassShortName(source.getEntitySource().getPrimaryKeyType());
+            extendCode = " extends MybatisService<" + source.getEntitySource().getShortName() + ", " + primaryKeyType + ">";
+            code = code.replace("[methods]", "");
+        }
 
         code = code.replace("[extends]", extendCode);
 
-        if (!(Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && source.getUseBaseService())) {
+        boolean flag = !((Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) || Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis)) && source.getUseBaseService());
+
+        if (flag) {
             code = generateAbstractMethods(code, source.getEntitySource(), imports);
         }
 

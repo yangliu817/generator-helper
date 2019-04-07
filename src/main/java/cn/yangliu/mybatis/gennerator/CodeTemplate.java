@@ -59,6 +59,9 @@ public class CodeTemplate {
     protected String t_if_jpa;
     protected String t_service_base_jpa;
     protected String t_service_impl_base_jpa;
+    protected String t_service_base_mybatis;
+    protected String t_service_impl_base_mybatis;
+    protected String t_mapper_base_mybatis;
 
 
     public CodeTemplate() {

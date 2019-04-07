@@ -3,10 +3,7 @@ package cn.yangliu.mybatis.gennerator;
 import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.JavaType;
 import cn.yangliu.mybatis.enums.OrmTypeEnum;
-import cn.yangliu.mybatis.source.EntitySource;
-import cn.yangliu.mybatis.source.ServiceImplSource;
-import cn.yangliu.mybatis.source.ServiceSource;
-import cn.yangliu.mybatis.source.Source;
+import cn.yangliu.mybatis.source.*;
 import cn.yangliu.mybatis.tools.CodeUtils;
 import cn.yangliu.mybatis.tools.DBUtils;
 import cn.yangliu.mybatis.tools.FileUtils;
@@ -106,6 +103,34 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             implementsCode = " implements " + source.getServiceSource().getShortName();
         }
 
+        //mybatis 创建baseService 并且创建接口
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis) && source.getUseBaseService() && source.getMapperSource().getExtendBaseMapper()) {
+            String mybatisServiceImplPackage = generateMybatisBaseService(source);
+            String baseServiceImplCode = template.t_service_impl_base_mybatis;
+            baseServiceImplCode = generateComments(baseServiceImplCode, source);
+            String filename = "MybatisServiceImpl.java";
+            String basePackage = source.getProjectSetting().getProjectPackage();
+            String codePath = source.getProjectSetting().getCodePath();
+            if (!codePath.endsWith("/")) {
+                codePath = codePath + "/";
+            }
+            String mybatisServiceImplPath = codePath + "src/main/java/" + basePackage.replace(".", "/") + "/base/";
+
+            baseServiceImplCode = baseServiceImplCode.replace("[package]", "package " + mybatisServiceImplPackage + ";");
+
+            File file = new File(mybatisServiceImplPath, filename);
+            if (!file.exists()) {
+                FileUtils.output(baseServiceImplCode, mybatisServiceImplPath, filename);
+            }
+            imports.add(source.getEntitySource().getClassFullName());
+            imports.add(mybatisServiceImplPackage + ".MybatisService");
+            imports.add(mybatisServiceImplPackage + ".MybatisServiceImpl");
+            String primaryKeyType = getClassShortName(source.getEntitySource().getPrimaryKeyType());
+            extendsCode = " extends MybatisServiceImpl<" + source.getEntitySource().getShortName() + ", " + primaryKeyType + ", " + source.getMapperSource().getShortName() + ">";
+
+            code = code.replace("[methods]", "");
+        }
+
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && !source.getUseBaseService()) {
             methodCode = template.t_service_impl_methods_jpa;
 
@@ -157,6 +182,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             implementsCode = " implements JpaService<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ">";
             extendsCode = " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
         }
+
 
         code = code.replace("[methods]", methodCode);
         code = code.replace("[mapperName]", CodeUtils.firstChar2Lowercase(source.getMapperSource().getShortName()));

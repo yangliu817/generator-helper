@@ -35,12 +35,15 @@ public abstract class AbstractCodeSource extends AbstractSource implements Sourc
 
     protected Boolean useSwagger;
 
+    protected ProjectSetting projectSetting;
+
     public AbstractCodeSource(ProjectSetting projectSetting, String sourcePackage, String srcPath) {
         initBaseInfo(projectSetting.getProjectPackage(), sourcePackage, srcPath);
         useSwagger = projectSetting.getUseSwagger();
         useLombok = projectSetting.getUseLombok();
         ormType = OrmTypeEnum.getOrmTypeEnumByType(projectSetting.getOrmType());
         this.contact = projectSetting.getContact();
+        this.projectSetting = projectSetting;
         this.author = projectSetting.getAuthor();
         LocalDateTime now = LocalDateTime.now();
         this.date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));

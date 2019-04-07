@@ -33,7 +33,7 @@ public class ServiceImplSource extends AbstractCodeSource {
         this.useTransactional = serviceSetting.getUseTransactional();
         this.entitySource = mapperSource.getEntitySource();
         if (serviceSetting.getCreateInterface()) {
-            serviceSource = new ServiceSource(projectSetting, serviceSetting, entitySource);
+            serviceSource = new ServiceSource(projectSetting, serviceSetting, entitySource,mapperSource);
         }
         init(serviceSetting, entitySource.shortName, projectSetting.getCodePath());
     }

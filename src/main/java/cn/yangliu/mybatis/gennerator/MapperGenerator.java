@@ -6,6 +6,7 @@ import cn.yangliu.mybatis.source.MapperSource;
 import cn.yangliu.mybatis.tools.FileUtils;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,15 +28,43 @@ public class MapperGenerator extends AbstractDaoGnerator<MapperSource> {
             imports.add(ApplicationContant.config.getProperty("BaseMapper"));
             extendCode = " extends BaseMapper<" + source.getEntitySource().getShortName() + ">";
         }
-        code = code.replace("[extends]", extendCode);
+
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus) && !source.getExtendBaseMapper()) {
             code = generateAbstractMethods(code, source.getEntitySource(), imports);
         }
-        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis) ) {
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis) && !source.getExtendBaseMapper()) {
             code = generateAbstractMethods(code, source.getEntitySource(), imports);
         }
 
+        //mybatis 创建baseService 并且创建接口
+        if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis) && source.getExtendBaseMapper()) {
+            String basePackage = source.getProjectSetting().getProjectPackage();
+            String mybatisMapperPackage = basePackage + ".base";
+            String baseMybatisMapperCode = template.t_mapper_base_mybatis;
+            baseMybatisMapperCode = generateComments(baseMybatisMapperCode, source);
+            String filename = "MybatisMapper.java";
+            String codePath = source.getProjectSetting().getCodePath();
+            if (!codePath.endsWith("/")) {
+                codePath = codePath + "/";
+            }
+            String mybatisServiceImplPath = codePath + "src/main/java/" + basePackage.replace(".", "/") + "/base/";
+
+            baseMybatisMapperCode = baseMybatisMapperCode.replace("[package]", "package " + mybatisMapperPackage + ";");
+
+            File file = new File(mybatisServiceImplPath, filename);
+            if (!file.exists()) {
+                FileUtils.output(baseMybatisMapperCode, mybatisServiceImplPath, filename);
+            }
+            imports.add(source.getEntitySource().getClassFullName());
+            imports.add(mybatisMapperPackage + ".MybatisMapper");
+            String primaryKeyType = getClassShortName(source.getEntitySource().getPrimaryKeyType());
+            extendCode = " extends MybatisMapper<" + source.getEntitySource().getShortName() + ", " + primaryKeyType + ">";
+
+            code = code.replace("[methods]", "");
+        }
+
+        code = code.replace("[extends]", extendCode);
 
         code = code.replace("[methods]", methodCode);
         if (source.getUseMapperAnonntation()) {

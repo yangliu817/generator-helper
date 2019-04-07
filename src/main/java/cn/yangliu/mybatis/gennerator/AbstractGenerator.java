@@ -13,11 +13,13 @@ import cn.yangliu.mybatis.source.AbstractCodeSource;
 import cn.yangliu.mybatis.source.EntitySource;
 import cn.yangliu.mybatis.source.Source;
 import cn.yangliu.mybatis.tools.CodeUtils;
+import cn.yangliu.mybatis.tools.FileUtils;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.util.*;
 
 
@@ -205,7 +207,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     }
 
     /**
-     *  生成log实例
+     * 生成log实例
      */
     protected String checkUseLombok(AbstractCodeSource source, String code, List<String> imports, List<String> anontations) {
         if (source.getUseLombok()) {
@@ -268,5 +270,26 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         }
         code = code.replace("[package]", packageCode);
         return code;
+    }
+
+    protected String generateMybatisBaseService(AbstractCodeSource source) {
+        String baseServiceCode = template.t_service_base_mybatis;
+        baseServiceCode = generateComments(baseServiceCode, source);
+        String filename = "MybatisService.java";
+        String basePackage = source.getProjectSetting().getProjectPackage();
+        String mybatisServicePackage = basePackage + ".base";
+        String codePath = source.getProjectSetting().getCodePath();
+        if (!codePath.endsWith("/")) {
+            codePath = codePath + "/";
+        }
+        String mybatisServicePath = codePath + "src/main/java/" + basePackage.replace(".", "/") + "/base/";
+
+
+        baseServiceCode = baseServiceCode.replace("[package]", "package " + mybatisServicePackage + ";");
+        File file = new File(mybatisServicePath, filename);
+        if (!file.exists()) {
+            FileUtils.output(baseServiceCode, mybatisServicePath, filename);
+        }
+        return mybatisServicePackage;
     }
 }
