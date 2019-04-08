@@ -70,7 +70,7 @@ public class EntitySource extends AbstractCodeSource {
 
         String[] split = entitySetting.getExcludeColumns().split(",");
 
-        excludeColumns = Arrays.asList(split);
+        excludeColumns = new ArrayList<>(Arrays.asList(split));
         for (String s : split) {
             if (StringUtils.isNotEmpty(s)) {
                 excludeColumns.add(s.toLowerCase());
