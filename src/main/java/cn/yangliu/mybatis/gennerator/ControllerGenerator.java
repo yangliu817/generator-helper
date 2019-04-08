@@ -297,6 +297,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             insertMethodCode = insertMethodCode.replace("(\"/save\")", "");
             insertMethodCode = insertMethodCode.replace("(\"/insert\")", "");
         }
+        imports.add(ApplicationContant.config.getProperty("RequestBody"));
         String methodDesp = "新增" + source.getEntitySource().getShortName();
         insertMethodCode = generateSwaggerAnnotation(methodDesp, "POST", insertMethodCode, swaggerDesp, imports, source);
         insertMethodCode = generateShiroAnnotation(insertMethodCode, "insert", source, imports);
