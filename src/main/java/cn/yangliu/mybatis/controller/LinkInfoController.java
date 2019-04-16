@@ -10,7 +10,9 @@ import de.felixroske.jfxsupport.web.AbstractController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @MappingController
@@ -33,10 +35,10 @@ public class LinkInfoController extends AbstractController {
         List<DBUtils.DatabaseInfo> databases = DBUtils.getDatabases(linkInfo);
 
         if (databases.size() > 0) {
-
+            databases = databases.stream().sorted(Comparator.comparing(DBUtils.DatabaseInfo::getName)).collect(Collectors.toList());
             for (DBUtils.DatabaseInfo database : databases) {
                 List<DBUtils.TableInfo> tables = DBUtils.getTables(linkInfo, database.getName());
-
+                tables = tables.stream().sorted(Comparator.comparing(DBUtils.TableInfo::getName)).collect(Collectors.toList());
                 database.setTables(tables);
             }
         }
