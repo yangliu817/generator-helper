@@ -1,3 +1,4 @@
+[copyright]
 [package]
 
 import java.io.Serializable;
@@ -5,9 +6,8 @@ import java.io.Serializable;
 
 /**
  * @author [author]
- * @contact [contact]
  * @date [date]
- * @desp [comment]
+ * [comment]
  */
 [annotations]
 public class [className][extends] implements Serializable {

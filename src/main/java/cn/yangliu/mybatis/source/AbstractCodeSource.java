@@ -27,7 +27,7 @@ public abstract class AbstractCodeSource extends AbstractSource implements Sourc
 
     protected OrmTypeEnum ormType;
 
-    protected String contact;
+    protected String copyright;
 
     protected String author;
 
@@ -42,7 +42,7 @@ public abstract class AbstractCodeSource extends AbstractSource implements Sourc
         useSwagger = projectSetting.getUseSwagger();
         useLombok = projectSetting.getUseLombok();
         ormType = OrmTypeEnum.getOrmTypeEnumByType(projectSetting.getOrmType());
-        this.contact = projectSetting.getContact();
+        this.copyright = projectSetting.getCopyright();
         this.projectSetting = projectSetting;
         this.author = projectSetting.getAuthor();
         LocalDateTime now = LocalDateTime.now();

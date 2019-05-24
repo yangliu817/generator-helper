@@ -26,10 +26,13 @@ public class ControllerSource extends AbstractCodeSource {
 
     private Boolean useShiro;
 
+    private Boolean forceIdOperate;
+
     public ControllerSource(ProjectSetting projectSetting, ControllerSetting controllerSetting, ServiceImplSource serviceImplSource) {
         super(projectSetting, controllerSetting.getControllerPackage(), projectSetting.getCodePath());
         this.serviceImplSource = serviceImplSource;
         this.useShiro = projectSetting.getUseShiro();
+        this.forceIdOperate = controllerSetting.getForceIdOperate();
         entitySource = serviceImplSource.getEntitySource();
         init(controllerSetting, entitySource.shortName);
     }

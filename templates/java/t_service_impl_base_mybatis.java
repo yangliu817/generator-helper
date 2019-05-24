@@ -1,3 +1,4 @@
+[copyright]
 [package]
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import java.util.function.Function;
 
 /**
  * @author [author]
- * @contact [contact]
  * @date [date]
  */
 public abstract class MybatisServiceImpl<T,ID extends Serializable,Mapper extends MybatisMapper<T,ID>> implements MybatisService<T,ID> {
@@ -20,7 +20,6 @@ public abstract class MybatisServiceImpl<T,ID extends Serializable,Mapper extend
 
     @Autowired
     protected Mapper mapper;
-
 
     @Override
     public T execute(Function<TransactionStatus, T> function) {

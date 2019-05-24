@@ -38,7 +38,7 @@ public class ProjectSetting {
 
     private Integer ormType;
 
-    protected String contact;
+    protected String copyright;
 
     protected String author;
 

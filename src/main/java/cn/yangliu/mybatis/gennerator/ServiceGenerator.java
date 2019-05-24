@@ -17,7 +17,7 @@ public class ServiceGenerator extends AbstractGenerator<ServiceSource> {
     public void generate(ServiceSource source) {
         String code = template.t_service;
         code = generateComments(code, source);
-
+        code = generateCopyRight(code, source);
         String className = source.getShortName();
 
         code = generatePackage(source, code);
@@ -37,6 +37,8 @@ public class ServiceGenerator extends AbstractGenerator<ServiceSource> {
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && source.getUseBaseService()) {
             String baseServiceCode = template.t_service_base_jpa;
+            code = generateCopyRight(code, source);
+            baseServiceCode = generateCopyRight(baseServiceCode, source);
             baseServiceCode = generateComments(baseServiceCode, source);
             baseServiceCode = baseServiceCode.replace("[package]", "package " + source.getFullPackage() + ";");
             String filename = "JpaService.java";

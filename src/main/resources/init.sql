@@ -105,6 +105,7 @@ CREATE TABLE "t_controller_setting" (
   "controller_package" TEXT,
   "method_return_type_full_name" TEXT,
   "return_type_static_method" TEXT,
+  "force_id_operate" TEXT,
   "use_restful" TEXT
 );
 
@@ -300,7 +301,7 @@ CREATE TABLE "t_project_setting" (
   "table_prefix" TEXT,
   "orm_type" TEXT,
   "author" TEXT,
-  "contact" TEXT,
+  "copyright" TEXT,
   "primary_key_name" TEXT
 );
 
@@ -310,6 +311,7 @@ CREATE TABLE "t_service_setting" (
   "service_package" TEXT,
   "create_interface" TEXT,
   "use_base_service" TEXT,
+  "start_with_i" TEXT,
   "use_transactional" TEXT
 );
 

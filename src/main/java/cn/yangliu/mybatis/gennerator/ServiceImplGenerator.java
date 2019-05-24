@@ -30,6 +30,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
         }
 
         String code = template.t_service_impl;
+        code = generateCopyRight(code, source);
         code = generateComments(code, source);
         String className = source.getShortName();
         code = code.replace("[className]", className);
@@ -51,7 +52,8 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             imports.add(source.getMapperSource().getClassFullName());
             imports.add(ApplicationContant.config.getProperty("ServiceImpl"));
             implementsCode = " implements " + source.getServiceSource().getShortName();
-            extendsCode = " extends ServiceImpl<" + source.getMapperSource().getShortName() + "," + source.getEntitySource().getShortName() + ">";
+            extendsCode =
+                    " extends ServiceImpl<" + source.getMapperSource().getShortName() + "," + source.getEntitySource().getShortName() + ">";
 
         }
 
@@ -62,7 +64,8 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)
                 && source.getUseBaseService() && !source.getCreateInterface()) {
-            extendsCode = " extends ServiceImpl<" + source.getMapperSource().getShortName() + "," + source.getEntitySource().getShortName() + ">";
+            extendsCode =
+                    " extends ServiceImpl<" + source.getMapperSource().getShortName() + "," + source.getEntitySource().getShortName() + ">";
             imports.add(ApplicationContant.config.getProperty("IService"));
             imports.add(source.getEntitySource().getClassFullName());
         }
@@ -107,6 +110,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis) && source.getUseBaseService() && source.getMapperSource().getExtendBaseMapper()) {
             String mybatisServiceImplPackage = generateMybatisBaseService(source);
             String baseServiceImplCode = template.t_service_impl_base_mybatis;
+            baseServiceImplCode = generateCopyRight(baseServiceImplCode, source);
             baseServiceImplCode = generateComments(baseServiceImplCode, source);
             String filename = "MybatisServiceImpl.java";
             String basePackage = source.getProjectSetting().getProjectPackage();
@@ -116,7 +120,8 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             }
             String mybatisServiceImplPath = codePath + "src/main/java/" + basePackage.replace(".", "/") + "/base/";
 
-            baseServiceImplCode = baseServiceImplCode.replace("[package]", "package " + mybatisServiceImplPackage + ";");
+            baseServiceImplCode = baseServiceImplCode.replace("[package]", "package " + mybatisServiceImplPackage +
+                    ";");
 
             File file = new File(mybatisServiceImplPath, filename);
             if (!file.exists()) {
@@ -126,7 +131,8 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             imports.add(mybatisServiceImplPackage + ".MybatisService");
             imports.add(mybatisServiceImplPackage + ".MybatisServiceImpl");
             String primaryKeyType = getClassShortName(source.getEntitySource().getPrimaryKeyType());
-            extendsCode = " extends MybatisServiceImpl<" + source.getEntitySource().getShortName() + ", " + primaryKeyType + ", " + source.getMapperSource().getShortName() + ">";
+            extendsCode =
+                    " extends MybatisServiceImpl<" + source.getEntitySource().getShortName() + ", " + primaryKeyType + ", " + source.getMapperSource().getShortName() + ">";
 
             code = code.replace("[methods]", "");
         }
@@ -146,7 +152,8 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             imports.add(ApplicationContant.config.getProperty("Autowired"));
             imports.add(ApplicationContant.config.getProperty("Optional"));
             code = generateComponentFields(code, fieldType);
-            methodCode = methodCode.replace("[entityClass-l]", CodeUtils.firstChar2Lowercase(source.getEntitySource().getShortName()));
+            methodCode = methodCode.replace("[entityClass-l]",
+                    CodeUtils.firstChar2Lowercase(source.getEntitySource().getShortName()));
             methodCode = generateConditions(source.getEntitySource(), imports, methodCode);
         }
 
@@ -163,12 +170,15 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             imports.add(source.getRepositorySource().getClassFullName());
             imports.add(source.getEntitySource().getClassFullName());
             String templateBaseServiceImplCode = template.t_service_impl_base_jpa;
-            templateBaseServiceImplCode = templateBaseServiceImplCode.replace("[baseServiceImport]", "import " + source.getServiceSource().getFullPackage() + ".JpaService;");
+            String importCode = "import " + source.getServiceSource().getFullPackage() + ".JpaService;\n"
+                    + "import " + source.getRepositorySource().getFullPackage() + ".BaseRepository;\n";
+            templateBaseServiceImplCode = templateBaseServiceImplCode.replace("[baseServiceImport]", importCode);
             generateJpaService(source, templateBaseServiceImplCode, source.getFilepath(), "JpaServiceImpl.java");
             imports.add(source.getServiceSource().getClassFullName());
             methodCode = "";
             implementsCode = " implements " + source.getServiceSource().getShortName();
-            extendsCode = " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
+            extendsCode =
+                    " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
         }
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && !source.getCreateInterface() && source.getUseBaseService()) {
@@ -179,14 +189,17 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             generateJpaService(source, templateBaseServiceImplCode, source.getFilepath(), "JpaServiceImpl.java");
             generateJpaService(source, template.t_service_base_jpa, source.getFilepath(), "JpaService.java");
             methodCode = "";
-            implementsCode = " implements JpaService<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ">";
-            extendsCode = " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
+            implementsCode =
+                    " implements JpaService<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ">";
+            extendsCode =
+                    " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
         }
 
 
         code = code.replace("[methods]", methodCode);
         code = code.replace("[mapperName]", CodeUtils.firstChar2Lowercase(source.getMapperSource().getShortName()));
-        code = code.replace("[repositoryName]", CodeUtils.firstChar2Lowercase(source.getRepositorySource().getShortName()));
+        code = code.replace("[repositoryName]",
+                CodeUtils.firstChar2Lowercase(source.getRepositorySource().getShortName()));
         code = code.replace("[entityClass]", source.getEntitySource().getShortName());
         code = code.replace("[primaryKeyType]", getClassShortName(source.getEntitySource().getPrimaryKeyType()));
 
@@ -210,6 +223,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
     protected void generateJpaService(Source source, String templateCode, String path, String filename) {
         ServiceImplSource serviceSource = (ServiceImplSource) source;
         templateCode = generateComments(templateCode, serviceSource);
+        templateCode = generateCopyRight(templateCode, serviceSource);
         templateCode = templateCode.replace("[package]", "package " + serviceSource.getFullPackage() + ";");
         File file = new File(serviceSource.getFilepath(), filename);
         if (!file.exists()) {

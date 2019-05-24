@@ -1,6 +1,7 @@
 package cn.yangliu.mybatis;
 
 
+import cn.yangliu.comm.config.CommConfig;
 import cn.yangliu.mybatis.tools.DBUtils;
 import cn.yangliu.mybatis.tools.PathUtils;
 import cn.yangliu.mybatis.tools.SystemUtils;
@@ -13,7 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 
-@SpringBootApplication
+@SpringBootApplication(exclude = CommConfig.class)
 @Slf4j
 @EnableAsync
 public class GeneratorHelperApplication extends AbstractJavaFxApplicationSupport {

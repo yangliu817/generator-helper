@@ -30,4 +30,6 @@ public class ControllerSetting {
 
     private Boolean useRestful;
 
+    private Boolean forceIdOperate;
+
 }

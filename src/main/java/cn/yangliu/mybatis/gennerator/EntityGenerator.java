@@ -23,6 +23,8 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
     public void generate(EntitySource source) {
         String code = template.t_entity;
 
+        code = generateCopyRight(code, source);
+
         code = generateComments(code, source);
 
         code = generatePackage(source, code);

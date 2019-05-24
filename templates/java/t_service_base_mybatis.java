@@ -1,3 +1,4 @@
+[copyright]
 [package]
 
 import org.springframework.transaction.TransactionStatus;
@@ -6,10 +7,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.function.Function;
 
-
 /**
  * @author [author]
- * @contact [contact]
  * @date [date]
  */
 public interface MybatisService<T,ID extends Serializable> {

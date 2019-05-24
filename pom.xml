@@ -72,7 +72,7 @@
         <dependency>
             <groupId>cn.yangliu</groupId>
             <artifactId>comm</artifactId>
-            <version>3.0</version>
+            <version>4.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>

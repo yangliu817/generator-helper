@@ -5,7 +5,6 @@ import java.util.List;
 
 /**
  * @author [author]
- * @contact [contact]
  * @date [date]
  */
 public interface MybatisMapper<T,ID extends Serializable> {

@@ -1,13 +1,13 @@
+[copyright]
 [package]
 
 [imports]
 
 /**
  * @author [author]
- * @contact [contact]
  * @date [date]
  */
 [annotations]
-public interface [className] extends JpaRepository<[entityClassName], [primaryKeyType]>, JpaSpecificationExecutor<[entityClassName]> {
+public interface [className] extends BaseRepository<[entityClassName], [primaryKeyType]> {
 
 }

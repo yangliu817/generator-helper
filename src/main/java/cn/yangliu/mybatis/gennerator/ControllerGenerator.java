@@ -23,6 +23,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         String code = template.t_controller;
         code = generatePackage(source, code);
         code = generateComments(code, source);
+        code = generateCopyRight(code,source);
         code = code.replace("[className]", source.getShortName());
 
         List<String> imports = new ArrayList<>();
@@ -30,7 +31,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         String swaggerDesp = source.getEntitySource().getShortName() + "操作接口";
         if (source.getUseSwagger()) {
             imports.add(ApplicationContant.config.getProperty("Api"));
-            anontations.add("Api(value = \"" + swaggerDesp + "\", tags = \"" + swaggerDesp + "\", description = \"" + swaggerDesp + "\")");
+            anontations.add("Api(value = \"" + swaggerDesp + "\", tags = \"" + swaggerDesp + "\")");
         }
         String controllerAnnotationFullName = ApplicationContant.config.getProperty("Controller");
         String anontation = "Controller";
@@ -58,7 +59,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             fieldType = serviceSource.getShortName();
         }
         imports.add(serverClassFullName);
-        code = generateComponentFields(code, fieldType);
+        code = generateComponentFields(code, fieldType, serviceImplSource.getStartWithI());
 
         code = checkUseLombok(source, code, imports, anontations);
 
@@ -73,7 +74,8 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     }
 
 
-    private String generateMethod(ControllerSource source, List<String> imports, String serviceType, String swaggerDesp) {
+    private String generateMethod(ControllerSource source, List<String> imports, String serviceType,
+                                  String swaggerDesp) {
         StringBuilder sb = new StringBuilder();
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
@@ -85,16 +87,18 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         sb.append(generateListMethod(source, imports, swaggerDesp));
 
-        if (source.isContainsPrimaryKey()) {
+        if (source.getForceIdOperate() || source.isContainsPrimaryKey()) {
             sb.append(generateGetByIdMethod(source, imports, swaggerDesp));
             sb.append(generateDeleteMethed(source, imports, swaggerDesp));
             imports.add(ApplicationContant.config.getProperty("PathVariable"));
         }
-        if (source.getUseRestful()) {
+        if (source.getUseRestful() && !Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
             imports.add(ApplicationContant.config.getProperty("PutMapping"));
-            if (source.isContainsPrimaryKey()) {
-                imports.add(ApplicationContant.config.getProperty("DeleteMapping"));
-            }
+        }
+
+
+        if (source.getUseRestful() && source.getForceIdOperate() || source.isContainsPrimaryKey()) {
+            imports.add(ApplicationContant.config.getProperty("DeleteMapping"));
         }
         imports.add(ApplicationContant.config.getProperty("GetMapping"));
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
@@ -108,6 +112,9 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         String service = CodeUtils.firstChar2Lowercase(serviceType);
 
+        if (source.getServiceImplSource().getStartWithI()) {
+            service = CodeUtils.firstChar2Lowercase(serviceType.substring(1));
+        }
         String primaryKeyType = source.getEntitySource().getPrimaryKeyType();
 
         if (!checkPackageIsSame(source.getFullPackage(), primaryKeyType)) {
@@ -128,12 +135,17 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     private String generateUpdateMethod(ControllerSource source, List<String> imports, String swaggerDesp) {
         String updateMethodCode = template.t_controller_update;
 
-        String returnInfo = getReturnInfo(source, imports, false);
-
+        String returnInfo = "data";
+        if (source.getUseRestful()) {
+            updateMethodCode = updateMethodCode.replace("[returnType]", "[entityClass]");
+        } else {
+            returnInfo = getReturnInfo(source, imports, false);
+        }
         String importCode = ApplicationContant.config.getProperty("PostMapping");
         String annotationCode = "PostMapping";
 
         String httpMethod = "POST";
+
         if (source.getUseRestful()) {
             importCode = ApplicationContant.config.getProperty("PutMapping");
             annotationCode = "PutMapping";
@@ -148,19 +160,27 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         String methodDesp = "修改" + source.getEntitySource().getShortName();
 
-        updateMethodCode = generateSwaggerAnnotation(methodDesp, httpMethod, updateMethodCode, swaggerDesp, imports, source);
+        updateMethodCode = generateSwaggerAnnotation(methodDesp, httpMethod, updateMethodCode, swaggerDesp, imports,
+                source);
 
         updateMethodCode = generateShiroAnnotation(updateMethodCode, "update", source, imports);
         return updateMethodCode;
     }
 
     private String generateGetByIdMethod(ControllerSource source, List<String> imports, String swaggerDesp) {
-        String returnInfo = getReturnInfo(source, imports, true);
         String getByIdMethodCode = template.t_controller_getById_mybatis;
+
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
             getByIdMethodCode = template.t_controller_getById_jpa;
         } else if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
             getByIdMethodCode = template.t_controller_getById_mybatis_plus;
+        }
+
+        String returnInfo = "data";
+        if (source.getUseRestful()) {
+            getByIdMethodCode = getByIdMethodCode.replace("[returnType]", "[entityClass]");
+        } else {
+            returnInfo = getReturnInfo(source, imports, true);
         }
         getByIdMethodCode = getByIdMethodCode.replace("[returnInfo]", returnInfo);
 
@@ -180,7 +200,8 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         getByIdMethodCode = getByIdMethodCode.replace("[primaryKey]", primaryKey);
 
         String methodDesp = "通过主键查询" + source.getEntitySource().getShortName();
-        getByIdMethodCode = generateSwaggerAnnotation(methodDesp, "GET", getByIdMethodCode, swaggerDesp, imports, source);
+        getByIdMethodCode = generateSwaggerAnnotation(methodDesp, "GET", getByIdMethodCode, swaggerDesp, imports,
+                source);
         getByIdMethodCode = generateShiroAnnotation(getByIdMethodCode, "query", source, imports);
         return getByIdMethodCode;
     }
@@ -190,10 +211,12 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
                                              ControllerSource source) {
         if (source.getUseSwagger()) {
             imports.add(ApplicationContant.config.getProperty("ApiOperation"));
-            String swaggerAnnotation = "@ApiOperation(value = \"" + methodDesp + "\", httpMethod = \"" + httpMethod + "\", " +
+            String swaggerAnnotation =
+                    "@ApiOperation(value = \"" + methodDesp + "\", httpMethod = \"" + httpMethod + "\", " +
                     "notes = \"" + methodDesp + "\", tags = \"" + swaggerDesp + "\"";
             if (source.getUseRestful()) {
-                swaggerAnnotation = swaggerAnnotation + ", response = " + source.getMethodReturnTypeShortName() + ".class";
+                swaggerAnnotation = swaggerAnnotation + ", response = " + source.getMethodReturnTypeShortName() +
+                        ".class";
             }
             swaggerAnnotation = swaggerAnnotation + ")";
             return methodCode.replace("[swaggerAnnotation]", swaggerAnnotation);
@@ -206,15 +229,15 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     }
 
     private String generateListMethod(ControllerSource source, List<String> imports, String swaggerDesp) {
-        String returnInfo = getReturnInfo(source, imports, true);
-        imports.add(ApplicationContant.config.getProperty("RequestParam"));
 
         String listMethodCode = null;
+        String returnType = "Page<[entityClass]>";
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
             listMethodCode = template.t_controller_list_mybatis_plus;
             imports.add(ApplicationContant.config.getProperty("Page"));
             imports.add(ApplicationContant.config.getProperty("IPage"));
             imports.add(ApplicationContant.config.getProperty("QueryWrapper"));
+            returnType = "IPage<[entityClass]>";
         }
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis)) {
             listMethodCode = template.t_controller_list_mybatis;
@@ -227,6 +250,15 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             imports.add(ApplicationContant.config.getProperty("PageJpa"));
             imports.add(ApplicationContant.config.getProperty("PageRequest"));
         }
+
+        String returnInfo = "data";
+        if (source.getUseRestful()) {
+            listMethodCode = listMethodCode.replace("[returnType]", returnType);
+        } else {
+            returnInfo = getReturnInfo(source, imports, true);
+        }
+        imports.add(ApplicationContant.config.getProperty("RequestParam"));
+
         listMethodCode = listMethodCode.replace("[returnInfo]", returnInfo);
 
         String methodDesp = "列表查询" + source.getEntitySource().getShortName();
@@ -241,7 +273,8 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         return listMethodCode;
     }
 
-    private String generateShiroAnnotation(String methodCode, String permission, ControllerSource source, List<String> imports) {
+    private String generateShiroAnnotation(String methodCode, String permission, ControllerSource source,
+                                           List<String> imports) {
         if (source.getUseShiro()) {
             EntitySource entitySource = source.getEntitySource();
             String lowerCaseName = CodeUtils.firstChar2Lowercase(entitySource.getShortName());
@@ -262,7 +295,13 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     private String generateSaveMethod(ControllerSource source, List<String> imports, String swaggerDesp) {
         String saveMethodCode = template.t_controller_save_jpa;
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
-        String returnInfo = getReturnInfo(source, imports, false);
+        String returnInfo = "data";
+        if (source.getUseRestful()) {
+            saveMethodCode = saveMethodCode.replace("[returnType]", "[entityClass]");
+        } else {
+            returnInfo = getReturnInfo(source, imports, false);
+        }
+
         imports.add(source.getEntitySource().getClassFullName());
         saveMethodCode = saveMethodCode.replace("[returnInfo]", returnInfo);
 
@@ -291,7 +330,12 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
         imports.add(source.getEntitySource().getClassFullName());
-        String returnInfo = getReturnInfo(source, imports, false);
+        String returnInfo = "data";
+        if (source.getUseRestful()) {
+            insertMethodCode = insertMethodCode.replace("[returnType]", "[entityClass]");
+        } else {
+            returnInfo = getReturnInfo(source, imports, false);
+        }
         insertMethodCode = insertMethodCode.replace("[returnInfo]", returnInfo);
         if (source.getUseRestful()) {
             insertMethodCode = insertMethodCode.replace("(\"/save\")", "");
@@ -299,7 +343,8 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         }
         imports.add(ApplicationContant.config.getProperty("RequestBody"));
         String methodDesp = "新增" + source.getEntitySource().getShortName();
-        insertMethodCode = generateSwaggerAnnotation(methodDesp, "POST", insertMethodCode, swaggerDesp, imports, source);
+        insertMethodCode = generateSwaggerAnnotation(methodDesp, "POST", insertMethodCode, swaggerDesp, imports,
+                source);
         insertMethodCode = generateShiroAnnotation(insertMethodCode, "insert", source, imports);
         return insertMethodCode;
 
@@ -309,7 +354,8 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     private String generateDeleteMethed(ControllerSource source, List<String> imports, String swaggerDesp) {
 
         String deleteMethodCode = null;
-
+        String returnInfo = "true";
+        String returnType = "boolean";
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
             deleteMethodCode = template.t_controller_delete_jpa;
         } else {
@@ -317,9 +363,11 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         }
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.Mybatis)) {
             deleteMethodCode = template.t_controller_delete_mybatis;
+            returnInfo = "result > 0";
         }
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus)) {
             deleteMethodCode = template.t_controller_delete_mybatis_plus;
+            returnInfo = "result";
         }
 
         imports.add(ApplicationContant.config.getProperty("RequestBody"));
@@ -337,13 +385,18 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             imports.add(ApplicationContant.config.getProperty("PostMapping"));
             deleteMethodCode = deleteMethodCode.replace("[annotation]", "PostMapping");
         }
-        String returnInfo = getReturnInfo(source, imports, false);
 
+        if (source.getUseRestful()) {
+            deleteMethodCode = deleteMethodCode.replace("[returnType]", returnType);
+        } else {
+            returnInfo = getReturnInfo(source, imports, false);
+        }
         deleteMethodCode = deleteMethodCode.replace("[returnInfo]", returnInfo);
 
         String methodDesp = "通过主键删除" + source.getEntitySource().getShortName();
 
-        deleteMethodCode = generateSwaggerAnnotation(methodDesp, httpMethod, deleteMethodCode, swaggerDesp, imports, source);
+        deleteMethodCode = generateSwaggerAnnotation(methodDesp, httpMethod, deleteMethodCode, swaggerDesp, imports,
+                source);
 
         deleteMethodCode = generateShiroAnnotation(deleteMethodCode, "delete", source, imports);
         return deleteMethodCode;
@@ -351,15 +404,20 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
     }
 
     private String getReturnInfo(ControllerSource source, List<String> imports, boolean flag) {
+        if (source.getUseRestful()) {
+            return "data";
+        }
         String returnInfo = "null";
         if (Objects.equals(source.getMethodReturnTypeFullName(), "java.lang.String")) {
             return returnInfo;
         }
-        if (Objects.equals(source.getMethodReturnTypeFullName(), ApplicationContant.config.getProperty("ModelAndView"))) {
+        if (Objects.equals(source.getMethodReturnTypeFullName(),
+                ApplicationContant.config.getProperty("ModelAndView"))) {
             returnInfo = "new ModelAndView()";
             return returnInfo;
         }
         if (StringUtils.isEmpty(source.getMethodReturnTypeFullName())) {
+            returnInfo = "null";
             return returnInfo;
         }
 
@@ -377,7 +435,8 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         if (!checkPackageIsSame(source.getFullPackage(), source.getMethodReturnTypeFullName())) {
             imports.add(source.getMethodReturnTypeFullName());
         }
-        returnInfo = source.getMethodReturnTypeShortName() + ApplicationContant.PACKAGE_SEPARATOR + source.getReturnTypeStaticMethod();
+        returnInfo =
+                source.getMethodReturnTypeShortName() + ApplicationContant.PACKAGE_SEPARATOR + source.getReturnTypeStaticMethod();
 
 
         if (flag) {

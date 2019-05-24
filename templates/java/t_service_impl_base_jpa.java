@@ -1,12 +1,14 @@
+[copyright]
 [package]
 
 [baseServiceImport]
+import java.io.Serializable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -18,10 +20,9 @@ import java.util.function.Function;
 
 /**
  * @author [author]
- * @contact [contact]
  * @date [date]
  */
-public abstract class JpaServiceImpl<T, ID, Repository extends JpaRepository<T, ID>> implements JpaService<T, ID> {
+public abstract class JpaServiceImpl<T, ID extends Serializable, Repository extends BaseRepository<T, ID>> implements JpaService<T, ID> {
 
     @Autowired
     protected EntityManagerFactory entityManagerFactory;
@@ -168,5 +169,30 @@ public abstract class JpaServiceImpl<T, ID, Repository extends JpaRepository<T, 
     @Override
     public List<T> findAllById(Iterable<ID> ids) {
         return repository.findAllById(ids);
+    }
+
+    @Override
+    public Optional<T> findOne(Specification<T> spec) {
+        return repository.findOne(spec);
+    }
+
+    @Override
+    public List<T> findAll(Specification<T> spec) {
+        return repository.findAll(spec);
+    }
+
+    @Override
+    public Page<T> findAll(Specification<T> spec, Pageable pageable) {
+        return repository.findAll(spec,pageable);
+    }
+
+    @Override
+    public List<T> findAll(Specification<T> spec, Sort sort) {
+        return repository.findAll(spec,sort);
+    }
+
+    @Override
+    public long count(Specification<T> spec) {
+        return repository.count(spec);
     }
 }

@@ -21,7 +21,7 @@ public class MapperGenerator extends AbstractDaoGnerator<MapperSource> {
         List<String> annotations = new ArrayList<>();
         String code = template.t_mapper.replace("[className]", source.getShortName());
         code = generateComments(code, source);
-
+        code = generateCopyRight(code,source);
         String methodCode = "";
         String extendCode = "";
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus) && source.getExtendBaseMapper()) {

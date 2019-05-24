@@ -30,4 +30,6 @@ public class ServiceSetting {
 
     private Boolean useTransactional;
 
+    private Boolean startWithI;
+
 }

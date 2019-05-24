@@ -6,7 +6,7 @@
     [swaggerAnnotation]
     [shiroAnnotation]
     public [returnType] delete(@RequestBody [primaryKeyType][] ids){
-        [service].removeByIds(Arrays.asList(ids));
+        boolean result = [service].removeByIds(Arrays.asList(ids));
 
         return [returnInfo];
     }

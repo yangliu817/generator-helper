@@ -1,10 +1,10 @@
+[copyright]
 [package]
 
 [imports]
 
 /**
  * @author [author]
- * @contact [contact]
  * @date [date]
  */
 [annotations]

@@ -24,11 +24,14 @@ public class ServiceImplSource extends AbstractCodeSource {
 
     private EntitySource entitySource;
 
+    private Boolean startWithI;
+
     public ServiceImplSource(ProjectSetting projectSetting, ServiceSetting serviceSetting,
                              RepositorySource repositorySource, MapperSource mapperSource) {
         super(projectSetting, serviceSetting.getServicePackage(), projectSetting.getCodePath());
 
         this.mapperSource = mapperSource;
+        this.startWithI = serviceSetting.getStartWithI();
         this.repositorySource = repositorySource;
         this.useTransactional = serviceSetting.getUseTransactional();
         this.entitySource = mapperSource.getEntitySource();

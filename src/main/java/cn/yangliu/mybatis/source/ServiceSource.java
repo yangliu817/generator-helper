@@ -15,8 +15,10 @@ public class ServiceSource extends AbstractCodeSource {
 
     private MapperSource mapperSource;
 
-    public ServiceSource(ProjectSetting projectSetting, ServiceSetting serviceSetting, EntitySource entitySource,MapperSource mapperSource) {
-        super(projectSetting, serviceSetting.getServicePackage(),projectSetting.getCodePath());
+    private Boolean startWithI;
+
+    public ServiceSource(ProjectSetting projectSetting, ServiceSetting serviceSetting, EntitySource entitySource, MapperSource mapperSource) {
+        super(projectSetting, serviceSetting.getServicePackage(), projectSetting.getCodePath());
         this.entitySource = entitySource;
         this.mapperSource = mapperSource;
         init(serviceSetting, entitySource.shortName);
@@ -25,9 +27,16 @@ public class ServiceSource extends AbstractCodeSource {
 
     private void init(ServiceSetting serviceSetting, String entityName) {
         setPrimaryKeyInfo(entitySource);
+        this.startWithI = serviceSetting.getStartWithI();
         useBaseService = serviceSetting.getUseBaseService();
         shortName = entityName + "Service";
         filename = shortName + ".java";
+        if (serviceSetting.getStartWithI()) {
+            shortName = "I" + entityName + "Service";
+            filename = shortName + ".java";
+        }
+
+
         if (StringUtils.isNotEmpty(fullPackage)) {
             classFullName = fullPackage + ApplicationContant.PACKAGE_SEPARATOR + shortName;
         } else {

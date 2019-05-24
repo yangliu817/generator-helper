@@ -62,6 +62,7 @@ public class CodeTemplate {
     protected String t_service_base_mybatis;
     protected String t_service_impl_base_mybatis;
     protected String t_mapper_base_mybatis;
+    protected String t_base_repository;
 
 
     public CodeTemplate() {

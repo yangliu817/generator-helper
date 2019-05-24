@@ -19,6 +19,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+
 import java.io.File;
 import java.util.*;
 
@@ -84,16 +85,20 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
                     mappingSettings.forEach(m -> {
                         switch (m.getDbType()) {
                             case "mysql":
-                                column2javaTypeMap.put(mysqlColumnMap.get(m.getColumnType()), javaFullTypeMap.get(m.getFullName()));
+                                column2javaTypeMap.put(mysqlColumnMap.get(m.getColumnType()),
+                                        javaFullTypeMap.get(m.getFullName()));
                                 break;
                             case "mariadb":
-                                column2javaTypeMap.put(mariadbColumnMap.get(m.getColumnType()), javaFullTypeMap.get(m.getFullName()));
+                                column2javaTypeMap.put(mariadbColumnMap.get(m.getColumnType()),
+                                        javaFullTypeMap.get(m.getFullName()));
                                 break;
                             case "oracle":
-                                column2javaTypeMap.put(oracleColumnMap.get(m.getColumnType()), javaFullTypeMap.get(m.getFullName()));
+                                column2javaTypeMap.put(oracleColumnMap.get(m.getColumnType()),
+                                        javaFullTypeMap.get(m.getFullName()));
                                 break;
                             case "sqlserver":
-                                column2javaTypeMap.put(sqlserverColumnMap.get(m.getColumnType()), javaFullTypeMap.get(m.getFullName()));
+                                column2javaTypeMap.put(sqlserverColumnMap.get(m.getColumnType()),
+                                        javaFullTypeMap.get(m.getFullName()));
                                 break;
                             default:
                                 break;
@@ -142,10 +147,8 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
      */
     protected String generateComments(String source, AbstractCodeSource codeSource) {
         String author = codeSource.getAuthor();
-        String contact = codeSource.getContact();
         String date = codeSource.getDate();
 
-        source = source.replace("[contact]", contact);
         source = source.replace("[author]", author);
         source = source.replace("[date]", date);
         return source;
@@ -200,7 +203,8 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
      */
     protected boolean checkPackageIsSame(String firstPackage, String classFullName) {
         if (classFullName.contains(ApplicationContant.PACKAGE_SEPARATOR) && !Objects.equals(firstPackage, "")) {
-            String classPackage = classFullName.substring(classFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR) + 1);
+            String classPackage =
+                    classFullName.substring(classFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR) + 1);
             return Objects.equals(firstPackage, classPackage);
         }
         return false;
@@ -209,7 +213,8 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     /**
      * 生成log实例
      */
-    protected String checkUseLombok(AbstractCodeSource source, String code, List<String> imports, List<String> anontations) {
+    protected String checkUseLombok(AbstractCodeSource source, String code, List<String> imports,
+                                    List<String> anontations) {
         if (source.getUseLombok()) {
             imports.add(ApplicationContant.config.getProperty("Slf4j"));
             anontations.add("Slf4j");
@@ -217,7 +222,8 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         } else {
             imports.add(ApplicationContant.config.getProperty("Logger"));
             imports.add(ApplicationContant.config.getProperty("LoggerFactory"));
-            code = code.replace("[logger]", "private static final Logger log = LoggerFactory.getLogger(" + source.getShortName() + ".class);");
+            code = code.replace("[logger]",
+                    "private static final Logger log = LoggerFactory.getLogger(" + source.getShortName() + ".class);");
         }
         return code;
     }
@@ -226,7 +232,18 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
      * 生成组件类属性代码
      */
     protected String generateComponentFields(String code, String fieldType) {
-        String fieldName = CodeUtils.firstChar2Lowercase(fieldType);
+        return generateComponentFields(code, fieldType, false);
+    }
+
+    /**
+     * 生成组件类属性代码
+     */
+    protected String generateComponentFields(String code, String fieldType, boolean startWithI) {
+        String fieldName = fieldType;
+        if (startWithI) {
+            fieldName = fieldName.substring(1);
+        }
+        fieldName = CodeUtils.firstChar2Lowercase(fieldName);
 
         String fieldCode = template.t_field;
 
@@ -291,5 +308,11 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
             FileUtils.output(baseServiceCode, mybatisServicePath, filename);
         }
         return mybatisServicePackage;
+    }
+
+    protected String generateCopyRight(String code, AbstractCodeSource source) {
+        String copyright = source.getCopyright();
+        copyright = Objects.equals(copyright, "") ? "" : copyright + "\n";
+        return code.replace("[copyright]\n", copyright);
     }
 }
