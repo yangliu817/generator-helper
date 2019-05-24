@@ -1,3 +1,0 @@
-        <selectKey resultType="[primaryKeyType]" order="AFTER" keyProperty="[primaryKeyFieldName]">
-            select last_insert_id()
-        </selectKey>

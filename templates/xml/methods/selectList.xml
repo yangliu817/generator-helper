@@ -1,4 +1,0 @@
-    <!-- 根据实体属性查询列表记录 -->
-    <select id="selectList" parameterType="[entityClassFullName]" resultMap="BaseResultMap">
-        select * from [tableName]
-[where]    </select>

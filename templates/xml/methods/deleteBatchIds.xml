@@ -1,8 +1,0 @@
-    <!-- 批量删除 -->
-    <delete id="deleteBatchIds" parameterType="list">
-        delete from [tableName] where [primaryKeyName] in (
-            <foreach collection ="list" item="item" index= "index" separator =",">
-                #{item}
-            </foreach >
-        )
-    </delete>
