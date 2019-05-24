@@ -57,6 +57,7 @@ public class RepositoryGenerator extends AbstractDaoGnerator<RepositorySource> {
 
         String code = template.t_base_repository;
         code = generateCopyRight(code,source);
+        code = generateComments(code, source);
         String packageCode = "";
         if (StringUtils.isNotEmpty(packageName)) {
             packageCode = "package " + packageName + ";";
