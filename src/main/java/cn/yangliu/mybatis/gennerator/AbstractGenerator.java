@@ -292,6 +292,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     protected String generateMybatisBaseService(AbstractCodeSource source) {
         String baseServiceCode = template.t_service_base_mybatis;
         baseServiceCode = generateComments(baseServiceCode, source);
+        baseServiceCode = generateCopyRight(baseServiceCode,source);
         String filename = "MybatisService.java";
         String basePackage = source.getProjectSetting().getProjectPackage();
         String mybatisServicePackage = basePackage + ".base";

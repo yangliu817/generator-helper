@@ -1,3 +1,4 @@
+[copyright]
 [package]
 
 import java.io.Serializable;

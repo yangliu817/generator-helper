@@ -42,6 +42,7 @@ public class MapperGenerator extends AbstractDaoGnerator<MapperSource> {
             String basePackage = source.getProjectSetting().getProjectPackage();
             String mybatisMapperPackage = basePackage + ".base";
             String baseMybatisMapperCode = template.t_mapper_base_mybatis;
+            baseMybatisMapperCode = generateCopyRight(baseMybatisMapperCode,source);
             baseMybatisMapperCode = generateComments(baseMybatisMapperCode, source);
             String filename = "MybatisMapper.java";
             String codePath = source.getProjectSetting().getCodePath();
