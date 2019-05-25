@@ -313,7 +313,7 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     protected String generateCopyRight(String code, AbstractCodeSource source) {
         String copyright = source.getCopyright();
-        copyright = Objects.equals(copyright, "") ? "" : copyright + "\n";
+        copyright = Objects.equals(copyright, "") ? "" : (copyright + "\n\n");
         return code.replace("[copyright]\n", copyright);
     }
 }
