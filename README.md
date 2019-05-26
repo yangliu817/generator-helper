@@ -12,7 +12,8 @@
     6.添加软件信息
     
 #### 介绍
-    该程序是一款加入lombok支持的mybatis-plus代码生成工具，
+    该程序是一款支持mybatis,mybatis-plus以及jpa的代码生成工具，
+    同时也支持lombok swagger shiro注解
     可生成controller成的基本增删改查方法，实体类自动生成toString equals和hashCode方法
     doMain_X64.exe4j为exe4j生成exe文件的代码
     项目依赖于
@@ -39,14 +40,14 @@
     第一次启动程序可能很慢,会进行一些初始化工作
     目录结构如下
     -jre               ----- java程序运行环境
-    -libs		       ------java程序包
-    -view		       ------html视图文件
+    -libs	       ------java程序包
+    -view	       ------html视图文件
     -templates	       ------代码生成模板
     generator 86.exe   ------32位环境启动文件exe
     generator 64.exe   ------64位环境启动文件exe
     -log               ------日志目录,运行后生成
     -config            ------配置文件目录,运行后生成
-    -db 		       ------本地数据库目录
+    -db 	       ------本地数据库目录
 
     必要的文件或文件夹
     -jre
