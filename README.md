@@ -1,7 +1,15 @@
 # generator-helper
 
-#### 1.2.2
-    新增shiro注解支持
+#### generator-helper视图项目
+     https://gitee.com/yangliu817/generator-helper-vue
+
+#### 1.4.1
+    1.细节优化
+    2.jpa添加默认service实现
+    3.restful默认选择
+    4.取消shiro注解默认选择
+    5.添加版权功能
+    6.添加软件信息
     
 #### 介绍
     该程序是一款加入lombok支持的mybatis-plus代码生成工具，
