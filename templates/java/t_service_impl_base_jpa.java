@@ -255,8 +255,7 @@ public abstract class JpaServiceImpl<T, ID extends Serializable, Repository exte
         if (!fieldList.isEmpty()) {
             sb.append(" where ");
         }
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-
+      
         List<FieldInfo> fieldInfos = new ArrayList<>();
         for (Field field : fieldList) {
             FieldInfo fieldInfo = getFieldInfo(field, queryPojo);
@@ -269,7 +268,9 @@ public abstract class JpaServiceImpl<T, ID extends Serializable, Repository exte
             sb.append(" and ").append(fieldName).append(" = :").append(fieldName);
         }
 
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         TypedQuery<?> query = entityManager.createQuery(sb.toString(), clazz);
+
         for (FieldInfo fieldInfo : fieldInfos) {
             Object fieldValue = fieldInfo.value;
             query.setParameter(fieldInfo.name, fieldValue);
