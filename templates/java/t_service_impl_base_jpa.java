@@ -13,8 +13,18 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -48,7 +58,6 @@ public abstract class JpaServiceImpl<T, ID extends Serializable, Repository exte
 
     @Override
     public List<T> findAll() {
-
         return repository.findAll();
     }
 
@@ -194,5 +203,128 @@ public abstract class JpaServiceImpl<T, ID extends Serializable, Repository exte
     @Override
     public long count(Specification<T> spec) {
         return repository.count(spec);
+    }
+	
+	@Override
+    public Specification<T> buildSpecification(Object queryPojo) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (queryPojo != null) {
+
+                List<Field> fieldList = getDeclaredFields(queryPojo);
+
+                for (Field field : fieldList) {
+                    FieldInfo fieldInfo = getFieldInfo(field, queryPojo);
+                    if (Objects.isNull(fieldInfo)) {
+                        continue;
+                    }
+
+                    String fieldName = fieldInfo.name;
+                    Object fieldValue = fieldInfo.value;
+                    if (Objects.isNull(fieldValue)) {
+                        continue;
+                    }
+                    Path<?> path = root.get(fieldName);
+
+                    Predicate predicate = cb.equal(path, fieldValue);
+                    predicates.add(predicate);
+                }
+
+            }
+            return cb.and(predicates.toArray(new Predicate[]{}));
+        };
+    }
+
+    @Override
+    public T getOneByJpql(T entity) {
+        return (T) buildJpqlQuery(entity, entity.getClass()).getSingleResult();
+    }
+
+    @Override
+    public List<T> listByJpql(T entity) {
+        return (List<T>) buildJpqlQuery(entity, entity.getClass()).getResultList();
+    }
+
+    @Override
+    public TypedQuery<?> buildJpqlQuery(Object queryPojo, Class<?> clazz) {
+        StringBuilder sb = new StringBuilder("from ");
+        sb.append(clazz.getSimpleName());
+
+        List<Field> fieldList = getDeclaredFields(queryPojo);
+
+        if (!fieldList.isEmpty()) {
+            sb.append(" where ");
+        }
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        for (Field field : fieldList) {
+            FieldInfo fieldInfo = getFieldInfo(field, queryPojo);
+            if (Objects.isNull(fieldInfo)) {
+                continue;
+            }
+            fieldInfos.add(fieldInfo);
+            String fieldName = fieldInfo.name;
+
+            sb.append(" and ").append(fieldName).append(" = :").append(fieldName);
+        }
+
+        TypedQuery<?> query = entityManager.createQuery(sb.toString(), clazz);
+        for (FieldInfo fieldInfo : fieldInfos) {
+            Object fieldValue = fieldInfo.value;
+            query.setParameter(fieldInfo.name, fieldValue);
+        }
+
+        return query;
+    }
+
+    private List<Field> getDeclaredFields(Object queryPojo) {
+        Class<?> clazz = queryPojo.getClass();
+        List<Field> fieldList = new ArrayList<>();
+        while (!clazz.equals(Object.class)) {
+            Field[] fields = clazz.getDeclaredFields();
+            if (fields.length > 0) {
+                fieldList.addAll(Arrays.asList(fields));
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return fieldList;
+    }
+
+    private static class FieldInfo {
+        private String name;
+        private Object value;
+
+        FieldInfo(String name, Object value) {
+            this.name = name;
+            this.value = value;
+        }
+
+    }
+
+    private FieldInfo getFieldInfo(Field field, Object queryPojo) {
+        if (field.isSynthetic() || Modifier.isStatic(field.getModifiers())) {
+            return null;
+        }
+        String fieldName = field.getName();
+        boolean accessible = field.isAccessible();
+        if (!accessible) {
+            field.setAccessible(true);
+        }
+        Object value = null;
+        try {
+            value = field.get(queryPojo);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
+        if (!accessible) {
+            field.setAccessible(false);
+        }
+        if (Objects.isNull(value)) {
+            return null;
+        }
+
+        return new FieldInfo(fieldName, value);
     }
 }
