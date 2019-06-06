@@ -1,68 +1,73 @@
 package cn.yangliu.mybatis.tools;
 
-import cn.yangliu.comm.tools.StringUtils;
-import cn.yangliu.mybatis.bean.LinkInfo;
-import cn.yangliu.mybatis.enums.DBTypeEnum;
-import lombok.Data;
-import org.apache.ibatis.io.Resources;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import cn.yangliu.comm.tools.StringUtils;
+import cn.yangliu.mybatis.bean.LinkInfo;
+import cn.yangliu.mybatis.enums.DBTypeEnum;
+import lombok.Cleanup;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import org.apache.ibatis.io.Resources;
+
 public class DBUtils {
 
+    @SneakyThrows
     public static void init() {
-        try {
-            String dbPath = "db";
-            File file = new File(dbPath);
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-            file = new File(dbPath + "/sqlite.db");
-            if (file.exists()) {
-                return;
-            }
-            Class.forName("org.sqlite.JDBC");
-            //建立一个数据库名sqlite.db的连接，如果不存在就在当前目录下创建之
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:db/sqlite.db");
-            Statement statement = conn.createStatement();
-
-            String initSql = getInitSql();
-            //建表语句
-            statement.executeUpdate(initSql);
-
-            close(statement, conn);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+        String dbPath = "db";
+        File file = new File(dbPath);
+        if (!file.exists()) {
+            file.mkdirs();
         }
+        file = new File(dbPath + "/sqlite.db");
+        if (file.exists()) {
+            return;
+        }
+        Class.forName("org.sqlite.JDBC");
+        //建立一个数据库名sqlite.db的连接，如果不存在就在当前目录下创建之
+        @Cleanup Connection conn = DriverManager.getConnection("jdbc:sqlite:db/sqlite.db");
+        @Cleanup Statement statement = conn.createStatement();
+
+        String initSql = getInitSql();
+        //建表语句
+        statement.executeUpdate(initSql);
 
     }
 
+    @SneakyThrows
     private static String getInitSql() {
         StringBuilder sb = new StringBuilder();
 
-        try (InputStream is = Resources.getResourceAsStream("init.sql");
-             InputStreamReader isr = new InputStreamReader(is);
-             BufferedReader reader = new BufferedReader(isr)) {
+        @Cleanup InputStream is = Resources.getResourceAsStream("init.sql");
+        @Cleanup InputStreamReader isr = new InputStreamReader(is);
+        @Cleanup BufferedReader reader = new BufferedReader(isr);
 
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
         }
-
         return sb.toString();
     }
 
+    @SneakyThrows
     private static DBType getDBType(LinkInfo linkInfo) {
         String url = null;
         String driver = null;
@@ -87,7 +92,7 @@ public class DBUtils {
                 driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
                 break;
             default:
-                throw new NullPointerException("不支持的数据库类型");
+                throw new IllegalAccessException("不支持的数据库类型");
         }
         return new DBType(url, driver);
     }
@@ -105,84 +110,70 @@ public class DBUtils {
     }
 
 
+    @SneakyThrows
     private static <T> List<T> excuteSQL(String sql, LinkInfo linkInfo, BiConsumer<ResultSet, List<T>> consumer) {
         List<T> dataList = new ArrayList<>();
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            connection = getConnection(linkInfo);
-            ps = connection.prepareStatement(sql);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                consumer.accept(rs, dataList);
-            }
-            return dataList;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            close(rs, ps, connection);
+        @Cleanup Connection connection = getConnection(linkInfo);
+        @Cleanup PreparedStatement ps = connection.prepareStatement(sql);
+        @Cleanup ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            consumer.accept(rs, dataList);
         }
+        dataList = dataList.stream().distinct().collect(Collectors.toList());
+        return dataList;
+
     }
 
+    @SneakyThrows
     public static List<DatabaseInfo> getDatabases(LinkInfo linkInfo) {
         String sql = "";
         BiConsumer<ResultSet, List<DatabaseInfo>> consumer = (rs, list) -> {
-            try {
-                String databaseName = rs.getString(1);
-                list.add(new DatabaseInfo(databaseName));
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
-            }
+
+            String databaseName = rs.getString(1);
+            list.add(new DatabaseInfo(databaseName));
         };
         if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.ORACLE.getDbType())) {
-            return Arrays.asList(new DatabaseInfo(linkInfo.getUser().toUpperCase()));
+            return Collections.singletonList(new DatabaseInfo(linkInfo.getUser().toUpperCase()));
         } else if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.MYSQL.getDbType())) {
             sql = "show databases";
         } else if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.MARIADB.getDbType())) {
             sql = "show databases";
         } else if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.SQLSERVER.getDbType())) {
-            sql = "SELECT name FROM sys.databases WHERE HAS_DBACCESS(name) = 1 and name not in ('master','tempdb','msdb')";
+            sql = "SELECT name FROM sys.databases WHERE HAS_DBACCESS(name) = 1 and name not in ('master','tempdb'," +
+                    "'msdb')";
         }
 
         return excuteSQL(sql, linkInfo, consumer);
     }
 
 
-    private static void close(AutoCloseable... sources) {
-        if (sources == null || sources.length == 0) {
-            return;
-        }
-        for (AutoCloseable source : sources) {
-            if (source == null) {
-                continue;
-            }
-            try {
-                source.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    @Getter
+    @Setter
+    @EqualsAndHashCode
+    static class DbObject {
+
+        protected String name;
+
     }
 
-    @Data
-    public static class DatabaseInfo {
+    @Getter
+    @Setter
+    public static class DatabaseInfo extends DbObject {
 
-        private String name;
-
-        public DatabaseInfo(String name) {
+        DatabaseInfo(String name) {
             this.name = name;
         }
 
         private List<TableInfo> tables;
 
         private Boolean checked = false;
+
     }
 
-    @Data
-    public static class ColumInfo {
-
-        private String name;
+    @Getter
+    @Setter
+    public static class ColumInfo extends DbObject {
 
         private String type;
 
@@ -190,7 +181,7 @@ public class DBUtils {
 
         private int index;
 
-        public ColumInfo(String name, String type, String comment, int index) {
+        ColumInfo(String name, String type, String comment, int index) {
             this.name = name;
             this.type = type;
             this.comment = comment;
@@ -198,10 +189,9 @@ public class DBUtils {
         }
     }
 
-    @Data
-    public static class TableInfo {
-
-        private String name;
+    @Getter
+    @Setter
+    public static class TableInfo extends DbObject {
 
         private Boolean checked = false;
 
@@ -209,33 +199,31 @@ public class DBUtils {
 
         private List<ColumInfo> columInfos;
 
-        public TableInfo(String name, String comment, List<ColumInfo> columInfos) {
+        TableInfo(String name, String comment, List<ColumInfo> columInfos) {
             this.name = name;
             this.comment = comment;
             this.columInfos = columInfos;
         }
 
-        public TableInfo(String name) {
+        TableInfo(String name) {
             this.name = name;
         }
     }
 
+    @SneakyThrows
     private static Connection getConnection(LinkInfo linkInfo) {
-        try {
-            DBType dbType = getDBType(linkInfo);
-            Class.forName(dbType.getDriver());
-            DriverManager.setLoginTimeout(3);
-            return DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
+        DBType dbType = getDBType(linkInfo);
+        Class.forName(dbType.getDriver());
+        DriverManager.setLoginTimeout(3);
+        return DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
     }
 
+    @SneakyThrows
     public static List<ColumInfo> getTableColumInfo(LinkInfo linkInfo, String database, String table) {
         String sql = "";
         if (Objects.equals(DBTypeEnum.ORACLE.getDbType(), linkInfo.getDatabaseType())) {
-            sql = "select distinct cc.column_name as Field,tc.data_type as Type,cc.comments as \"Comment\" from user_col_comments cc,user_tab_columns tc " +
+            sql = "select distinct cc.column_name as Field,tc.data_type as Type,cc.comments as \"Comment\" from " +
+                    "user_col_comments cc,user_tab_columns tc " +
                     "where cc.column_name = tc.column_name and tc.table_name = '" + table + "'";
         } else if (Objects.equals(DBTypeEnum.MYSQL.getDbType(), linkInfo.getDatabaseType())) {
             sql = "show full columns from " + database + "." + table;
@@ -259,24 +247,21 @@ public class DBUtils {
 
         BiConsumer<ResultSet, List<ColumInfo>> consumer = (rs, list) -> {
 
-            try {
-                int index = rs.getRow();
-                String name = rs.getString("Field");
-                String type = rs.getString("Type");
-                String comment = rs.getString("Comment");
-                ColumInfo columInfo = new ColumInfo(name, type, comment, index);
-                list.add(columInfo);
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
-            }
+            int index = rs.getRow();
+            String name = rs.getString("Field");
+            String type = rs.getString("Type");
+            String comment = rs.getString("Comment");
+            ColumInfo columInfo = new ColumInfo(name, type, comment, index);
+            list.add(columInfo);
+
         };
         List<ColumInfo> columInfos = excuteSQL(sql, linkInfo, consumer);
-        Set<ColumInfo> set = new HashSet<>(columInfos);
-        columInfos = new ArrayList<>(set);
         columInfos.sort(Comparator.comparingInt(c -> c.index));
         return columInfos;
     }
 
+
+    @SneakyThrows
     public static List<TableInfo> getTables(LinkInfo linkInfo, String database) {
         String sql = "";
 
@@ -295,18 +280,12 @@ public class DBUtils {
         }
 
         BiConsumer<ResultSet, List<TableInfo>> consumer = (rs, list) -> {
-            try {
-                list.add(new TableInfo(rs.getString(1)));
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
-            }
+            list.add(new TableInfo(rs.getString(1)));
         };
-        List<TableInfo> tableInfos = excuteSQL(sql, linkInfo, consumer);
-        Set<TableInfo> set = new HashSet<>(tableInfos);
-        tableInfos = new ArrayList<>(set);
-        return tableInfos;
+        return excuteSQL(sql, linkInfo, consumer);
     }
 
+    @SneakyThrows
     public static List<TableInfo> getTablesInfo(LinkInfo linkInfo, String database, List<String> tables) {
         String tableString = tables.toString().replace("[", "'").replace("]", "'").replace(", ", "', '");
         String sql = "";
@@ -328,7 +307,8 @@ public class DBUtils {
 
             sql = "SELECT " +
                     "d.name TABLE_NAME," +
-                    "TABLE_COMMENT = case when a.colorder = 1 then isnull(convert(varchar(100), f.value),'') else '' end " +
+                    "TABLE_COMMENT = case when a.colorder = 1 then isnull(convert(varchar(100), f.value),'') else '' " +
+                    "end " +
                     "FROM syscolumns a " +
                     "inner join sysobjects d on a.id=d.id and d.xtype = 'U' and d.name<>'dtproperties' " +
                     "left join sys.extended_properties f on d.id = f.major_id and f.minor_id = 0 " +
@@ -339,19 +319,13 @@ public class DBUtils {
         sql = sql.replace("[tables]", tableString);
 
         BiConsumer<ResultSet, List<TableInfo>> consumer = (rs, list) -> {
-            try {
-                String tableName = rs.getString("TABLE_NAME");
-                String tableComment = rs.getString("TABLE_COMMENT");
+            String tableName = rs.getString("TABLE_NAME");
+            String tableComment = rs.getString("TABLE_COMMENT");
 
-                List<ColumInfo> tableColumInfo = getTableColumInfo(linkInfo, database, tableName);
-                list.add(new TableInfo(tableName, tableComment, tableColumInfo));
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
-            }
+            List<ColumInfo> tableColumInfo = getTableColumInfo(linkInfo, database, tableName);
+            list.add(new TableInfo(tableName, tableComment, tableColumInfo));
         };
-        List<TableInfo> tableInfos = excuteSQL(sql, linkInfo, consumer);
-        Set<TableInfo> set = new HashSet<>(tableInfos);
-        tableInfos = new ArrayList<>(set);
-        return tableInfos;
+
+        return excuteSQL(sql, linkInfo, consumer);
     }
 }
