@@ -24,6 +24,7 @@ import lombok.Cleanup;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Lombok;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.ibatis.io.Resources;
@@ -118,6 +119,7 @@ public class DBUtils {
         @Cleanup ResultSet rs = ps.executeQuery();
 
         while (rs.next()) {
+
             consumer.accept(rs, dataList);
         }
         dataList = dataList.stream().distinct().collect(Collectors.toList());
@@ -125,13 +127,17 @@ public class DBUtils {
 
     }
 
-    @SneakyThrows
+
     public static List<DatabaseInfo> getDatabases(LinkInfo linkInfo) {
         String sql = "";
         BiConsumer<ResultSet, List<DatabaseInfo>> consumer = (rs, list) -> {
+            try {
+                String databaseName = rs.getString(1);
+                list.add(new DatabaseInfo(databaseName));
+            } catch (Exception e) {
+                throw Lombok.sneakyThrow(e);
+            }
 
-            String databaseName = rs.getString(1);
-            list.add(new DatabaseInfo(databaseName));
         };
         if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.ORACLE.getDbType())) {
             return Collections.singletonList(new DatabaseInfo(linkInfo.getUser().toUpperCase()));
@@ -218,7 +224,6 @@ public class DBUtils {
         return DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
     }
 
-    @SneakyThrows
     public static List<ColumInfo> getTableColumInfo(LinkInfo linkInfo, String database, String table) {
         String sql = "";
         if (Objects.equals(DBTypeEnum.ORACLE.getDbType(), linkInfo.getDatabaseType())) {
@@ -247,12 +252,16 @@ public class DBUtils {
 
         BiConsumer<ResultSet, List<ColumInfo>> consumer = (rs, list) -> {
 
-            int index = rs.getRow();
-            String name = rs.getString("Field");
-            String type = rs.getString("Type");
-            String comment = rs.getString("Comment");
-            ColumInfo columInfo = new ColumInfo(name, type, comment, index);
-            list.add(columInfo);
+            try {
+                int index = rs.getRow();
+                String name = rs.getString("Field");
+                String type = rs.getString("Type");
+                String comment = rs.getString("Comment");
+                ColumInfo columInfo = new ColumInfo(name, type, comment, index);
+                list.add(columInfo);
+            } catch (Exception e) {
+                throw Lombok.sneakyThrow(e);
+            }
 
         };
         List<ColumInfo> columInfos = excuteSQL(sql, linkInfo, consumer);
@@ -261,7 +270,6 @@ public class DBUtils {
     }
 
 
-    @SneakyThrows
     public static List<TableInfo> getTables(LinkInfo linkInfo, String database) {
         String sql = "";
 
@@ -280,12 +288,17 @@ public class DBUtils {
         }
 
         BiConsumer<ResultSet, List<TableInfo>> consumer = (rs, list) -> {
-            list.add(new TableInfo(rs.getString(1)));
+            try {
+                list.add(new TableInfo(rs.getString(1)));
+            } catch (Exception e) {
+                throw Lombok.sneakyThrow(e);
+            }
+
         };
         return excuteSQL(sql, linkInfo, consumer);
     }
 
-    @SneakyThrows
+
     public static List<TableInfo> getTablesInfo(LinkInfo linkInfo, String database, List<String> tables) {
         String tableString = tables.toString().replace("[", "'").replace("]", "'").replace(", ", "', '");
         String sql = "";
@@ -319,11 +332,17 @@ public class DBUtils {
         sql = sql.replace("[tables]", tableString);
 
         BiConsumer<ResultSet, List<TableInfo>> consumer = (rs, list) -> {
-            String tableName = rs.getString("TABLE_NAME");
-            String tableComment = rs.getString("TABLE_COMMENT");
 
-            List<ColumInfo> tableColumInfo = getTableColumInfo(linkInfo, database, tableName);
-            list.add(new TableInfo(tableName, tableComment, tableColumInfo));
+            try {
+                String tableName = rs.getString("TABLE_NAME");
+                String tableComment = rs.getString("TABLE_COMMENT");
+
+                List<ColumInfo> tableColumInfo = getTableColumInfo(linkInfo, database, tableName);
+                list.add(new TableInfo(tableName, tableComment, tableColumInfo));
+            } catch (Exception e) {
+                throw Lombok.sneakyThrow(e);
+            }
+
         };
 
         return excuteSQL(sql, linkInfo, consumer);
