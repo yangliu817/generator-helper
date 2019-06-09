@@ -102,7 +102,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         }
         imports.add(ApplicationContant.config.getProperty("GetMapping"));
         imports.add(ApplicationContant.config.getProperty("PostMapping"));
-        imports.add(ApplicationContant.config.getProperty("RequestParam"));
+
 
         if (!checkPackageIsSame(source.getFullPackage(), source.getMethodReturnTypeFullName())) {
             imports.add(source.getMethodReturnTypeFullName());
@@ -257,7 +257,6 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         } else {
             returnInfo = getReturnInfo(source, imports, true);
         }
-        imports.add(ApplicationContant.config.getProperty("RequestParam"));
 
         listMethodCode = listMethodCode.replace("[returnInfo]", returnInfo);
 
