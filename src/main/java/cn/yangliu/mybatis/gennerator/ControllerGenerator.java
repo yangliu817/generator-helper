@@ -216,10 +216,6 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             String swaggerAnnotation =
                     "@ApiOperation(value = \"" + methodDesp + "\", httpMethod = \"" + httpMethod + "\", " +
                     "notes = \"" + methodDesp + "\", tags = \"" + swaggerDesp + "\"";
-            if (source.getUseRestful()) {
-                swaggerAnnotation = swaggerAnnotation + ", response = " + source.getMethodReturnTypeShortName() +
-                        ".class";
-            }
             swaggerAnnotation = swaggerAnnotation + ")";
             return methodCode.replace("[swaggerAnnotation]", swaggerAnnotation);
         }
