@@ -43,7 +43,9 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         anontations.add(anontation);
 
         imports.add(ApplicationContant.config.getProperty("RequestMapping"));
-        anontations.add("RequestMapping(\"/" + CodeUtils.firstChar2Lowercase(source.getEntitySource().getEntityName()) + "\")");
+        anontations.add("RequestMapping(\"/" + CodeUtils.firstChar2Lowercase(
+                source.getEntitySource().getEntityName().replace(source.getEntitySource().getClassSufix(),""))
+                + "\")");
 
         imports.add(ApplicationContant.config.getProperty("Autowired"));
 
