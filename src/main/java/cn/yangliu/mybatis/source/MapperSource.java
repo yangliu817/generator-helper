@@ -20,7 +20,7 @@ public class MapperSource extends AbstractCodeSource {
     public MapperSource(ProjectSetting projectSetting, MapperSetting mapperSetting, EntitySource entitySource) {
         super(projectSetting, mapperSetting.getMapperPackage(), projectSetting.getCodePath());
         this.entitySource = entitySource;
-        init(mapperSetting, entitySource.shortName);
+        init(mapperSetting, entitySource.shortName.replace(entitySource.getClassSufix(),""));
     }
 
     private void init(MapperSetting mapperSetting, String entityName) {

@@ -21,7 +21,7 @@ public class ServiceSource extends AbstractCodeSource {
         super(projectSetting, serviceSetting.getServicePackage(), projectSetting.getCodePath());
         this.entitySource = entitySource;
         this.mapperSource = mapperSource;
-        init(serviceSetting, entitySource.shortName);
+        init(serviceSetting, entitySource.shortName.replace(entitySource.getClassSufix(),""));
     }
 
 

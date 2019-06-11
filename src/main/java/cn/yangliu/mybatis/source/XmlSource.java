@@ -33,7 +33,7 @@ public class XmlSource extends AbstractSource {
 
         this.dbType = dbType;
 
-        filename = entityName + mapperSetting.getMapperSufix().trim() + ".xml";
+        filename = entitySource.shortName.replace(entitySource.getClassSufix(),"") + mapperSetting.getMapperSufix().trim() + ".xml";
 
         mapperFullName = mapperSource.getClassFullName();
 

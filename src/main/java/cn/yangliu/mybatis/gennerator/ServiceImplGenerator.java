@@ -132,7 +132,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             imports.add(mybatisServiceImplPackage + ".MybatisServiceImpl");
             String primaryKeyType = getClassShortName(source.getEntitySource().getPrimaryKeyType());
             extendsCode =
-                    " extends MybatisServiceImpl<" + source.getEntitySource().getShortName() + ", " + primaryKeyType + ", " + source.getMapperSource().getShortName() + ">";
+                    " extends MybatisServiceImpl<" + source.getEntitySource().getEntityName() + ", " + primaryKeyType + ", " + source.getMapperSource().getShortName() + ">";
 
             code = code.replace("[methods]", "");
         }
@@ -153,7 +153,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             imports.add(ApplicationContant.config.getProperty("Optional"));
             code = generateComponentFields(code, fieldType);
             methodCode = methodCode.replace("[entityClass-l]",
-                    CodeUtils.firstChar2Lowercase(source.getEntitySource().getShortName()));
+                    CodeUtils.firstChar2Lowercase(source.getEntitySource().getEntityName()));
             methodCode = generateConditions(source.getEntitySource(), imports, methodCode);
         }
 
@@ -178,7 +178,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             methodCode = "";
             implementsCode = " implements " + source.getServiceSource().getShortName();
             extendsCode =
-                    " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
+                    " extends JpaServiceImpl<" + source.getEntitySource().getEntityName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
         }
 
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.JPA) && !source.getCreateInterface() && source.getUseBaseService()) {
@@ -190,9 +190,9 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
             generateJpaService(source, template.t_service_base_jpa, source.getFilepath(), "JpaService.java");
             methodCode = "";
             implementsCode =
-                    " implements JpaService<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ">";
+                    " implements JpaService<" + source.getEntitySource().getEntityName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ">";
             extendsCode =
-                    " extends JpaServiceImpl<" + source.getEntitySource().getShortName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
+                    " extends JpaServiceImpl<" + source.getEntitySource().getEntityName() + ", " + getClassShortName(source.getEntitySource().getPrimaryKeyType()) + ", " + source.getRepositorySource().getShortName() + ">";
         }
 
 
@@ -200,7 +200,7 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
         code = code.replace("[mapperName]", CodeUtils.firstChar2Lowercase(source.getMapperSource().getShortName()));
         code = code.replace("[repositoryName]",
                 CodeUtils.firstChar2Lowercase(source.getRepositorySource().getShortName()));
-        code = code.replace("[entityClass]", source.getEntitySource().getShortName());
+        code = code.replace("[entityClass]", source.getEntitySource().getEntityName());
         code = code.replace("[primaryKeyType]", getClassShortName(source.getEntitySource().getPrimaryKeyType()));
 
         code = code.replace("[methods]", methodCode);

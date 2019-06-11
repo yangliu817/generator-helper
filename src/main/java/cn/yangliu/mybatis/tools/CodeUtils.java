@@ -9,8 +9,10 @@ public class CodeUtils {
         tableName = tableName.toLowerCase();
         StringBuilder sb = new StringBuilder();
         if (StringUtils.isNotEmpty(tablePrefix)) {
-            if (tableName.startsWith(tablePrefix)) {
+            if (tableName.startsWith(tablePrefix)||tableName.startsWith(tablePrefix.toLowerCase())||tableName.startsWith(tablePrefix.toUpperCase())) {
                 tableName = tableName.replaceFirst(tablePrefix, "");
+                tableName = tableName.replaceFirst(tablePrefix.toLowerCase(), "");
+                tableName = tableName.replaceFirst(tablePrefix.toUpperCase(), "");
             }
         }
         String[] array = tableName.split("_");

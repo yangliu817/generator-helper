@@ -13,6 +13,8 @@ import cn.yangliu.mybatis.tools.FileUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,7 +31,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
         code = generatePackage(source, code);
 
-        code = code.replace("[className]", source.getShortName());
+        code = code.replace("[className]", source.getEntityName());
 
         List<String> imports = new ArrayList<>();
 
@@ -219,11 +221,11 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
 
     private String generateFieldCodes(EntitySource source, List<String> imports, List<String> annotations, List<String> fieldNames, StringBuilder setterAndGetterCode) {
-
+        Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
 
         List<DBUtils.ColumInfo> columInfos = source.getTableInfo().getColumInfos();
-
+        columInfos.sort(Comparator.comparing(DBUtils.ColumInfo::getName));
         for (DBUtils.ColumInfo columInfo : columInfos) {
 
             String columnName = columInfo.getName();

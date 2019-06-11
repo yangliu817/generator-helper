@@ -84,7 +84,7 @@ public class GeneratorController extends AbstractController {
 
             String tablePrefix = request.getSettings().getProject().getTablePrefix();
 
-            String entityName = CodeUtils.getClassName(tableName, tablePrefix);
+            String entityName = CodeUtils.getClassName(tableName, tablePrefix) + entitySetting.getClassSufix();
 
 
             EntitySource entitySource = new EntitySource(projectSetting, entitySetting, entityName,

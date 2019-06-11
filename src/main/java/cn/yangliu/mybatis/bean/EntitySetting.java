@@ -48,6 +48,8 @@ public class EntitySetting {
 
     private String strategy;
 
+    private String classSufix;
+
     /*@TableField(exist = false)
     private List<MappingSetting> mapping;*/
 

@@ -34,7 +34,7 @@ public class ControllerSource extends AbstractCodeSource {
         this.useShiro = projectSetting.getUseShiro();
         this.forceIdOperate = controllerSetting.getForceIdOperate();
         entitySource = serviceImplSource.getEntitySource();
-        init(controllerSetting, entitySource.shortName);
+        init(controllerSetting, entitySource.shortName.replace(entitySource.getClassSufix(),""));
     }
 
     private void init(ControllerSetting controllerSetting, String entityName) {

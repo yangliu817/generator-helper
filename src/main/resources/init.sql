@@ -118,6 +118,7 @@ CREATE TABLE "t_entity_setting" (
   "no_arg_constructor" TEXT,
   "chain" TEXT,
   "use_base_class" TEXT,
+  "class_sufix" TEXT,
   "setting_id" INTEGER,
   "primary_key_name" TEXT,
   "exclude_columns" TEXT,

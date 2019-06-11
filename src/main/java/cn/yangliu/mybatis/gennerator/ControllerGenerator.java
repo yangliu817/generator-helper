@@ -28,7 +28,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         List<String> imports = new ArrayList<>();
         List<String> anontations = new ArrayList<>();
-        String swaggerDesp = source.getEntitySource().getShortName() + "操作接口";
+        String swaggerDesp = source.getEntitySource().getEntityName() + "操作接口";
         if (source.getUseSwagger()) {
             imports.add(ApplicationContant.config.getProperty("Api"));
             anontations.add("Api(value = \"" + swaggerDesp + "\", tags = \"" + swaggerDesp + "\")");
@@ -43,7 +43,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         anontations.add(anontation);
 
         imports.add(ApplicationContant.config.getProperty("RequestMapping"));
-        anontations.add("RequestMapping(\"/" + CodeUtils.firstChar2Lowercase(source.getEntitySource().getShortName()) + "\")");
+        anontations.add("RequestMapping(\"/" + CodeUtils.firstChar2Lowercase(source.getEntitySource().getEntityName()) + "\")");
 
         imports.add(ApplicationContant.config.getProperty("Autowired"));
 
@@ -128,7 +128,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         methodCode = methodCode.replace("[primaryKeyType]", primaryKeyType);
         methodCode = methodCode.replace("[returnType]", returnType);
         methodCode = methodCode.replace("[service]", service);
-        methodCode = methodCode.replace("[entityClass]", source.getEntitySource().getShortName());
+        methodCode = methodCode.replace("[entityClass]", source.getEntitySource().getEntityName());
         return methodCode;
     }
 
@@ -158,7 +158,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         updateMethodCode = updateMethodCode.replace("[returnInfo]", returnInfo);
 
-        String methodDesp = "修改" + source.getEntitySource().getShortName();
+        String methodDesp = "修改" + source.getEntitySource().getEntityName();
 
         updateMethodCode = generateSwaggerAnnotation(methodDesp, httpMethod, updateMethodCode, swaggerDesp, imports,
                 source);
@@ -199,7 +199,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         getByIdMethodCode = getByIdMethodCode.replace("[primaryKey]", primaryKey);
 
-        String methodDesp = "通过主键查询" + source.getEntitySource().getShortName();
+        String methodDesp = "通过主键查询" + source.getEntitySource().getEntityName();
         getByIdMethodCode = generateSwaggerAnnotation(methodDesp, "GET", getByIdMethodCode, swaggerDesp, imports,
                 source);
         getByIdMethodCode = generateShiroAnnotation(getByIdMethodCode, "query", source, imports);
@@ -260,7 +260,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 
         listMethodCode = listMethodCode.replace("[returnInfo]", returnInfo);
 
-        String methodDesp = "列表查询" + source.getEntitySource().getShortName();
+        String methodDesp = "列表查询" + source.getEntitySource().getEntityName();
         listMethodCode = generateSwaggerAnnotation(methodDesp, "GET", listMethodCode, swaggerDesp, imports, source);
 
         listMethodCode = generateShiroAnnotation(listMethodCode, "query", source, imports);
@@ -276,7 +276,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
                                            List<String> imports) {
         if (source.getUseShiro()) {
             EntitySource entitySource = source.getEntitySource();
-            String lowerCaseName = CodeUtils.firstChar2Lowercase(entitySource.getShortName());
+            String lowerCaseName = CodeUtils.firstChar2Lowercase(entitySource.getEntityName());
             String permissionCode = lowerCaseName + ":" + permission;
             String shiroAnnotationCode = "@RequiresPermissions(\"" + permissionCode + "\")";
             imports.add(ApplicationContant.config.getProperty("RequiresPermissions"));
@@ -304,7 +304,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         imports.add(source.getEntitySource().getClassFullName());
         saveMethodCode = saveMethodCode.replace("[returnInfo]", returnInfo);
 
-        saveMethodCode = generateSwaggerAnnotation("新增或修改" + source.getEntitySource().getShortName(),
+        saveMethodCode = generateSwaggerAnnotation("新增或修改" + source.getEntitySource().getEntityName(),
                 "POST", saveMethodCode, swaggerDesp, imports, source);
 
         if (source.getUseRestful()) {
@@ -341,7 +341,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
             insertMethodCode = insertMethodCode.replace("(\"/insert\")", "");
         }
         imports.add(ApplicationContant.config.getProperty("RequestBody"));
-        String methodDesp = "新增" + source.getEntitySource().getShortName();
+        String methodDesp = "新增" + source.getEntitySource().getEntityName();
         insertMethodCode = generateSwaggerAnnotation(methodDesp, "POST", insertMethodCode, swaggerDesp, imports,
                 source);
         insertMethodCode = generateShiroAnnotation(insertMethodCode, "insert", source, imports);
@@ -392,7 +392,7 @@ public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
         }
         deleteMethodCode = deleteMethodCode.replace("[returnInfo]", returnInfo);
 
-        String methodDesp = "通过主键删除" + source.getEntitySource().getShortName();
+        String methodDesp = "通过主键删除" + source.getEntitySource().getEntityName();
 
         deleteMethodCode = generateSwaggerAnnotation(methodDesp, httpMethod, deleteMethodCode, swaggerDesp, imports,
                 source);

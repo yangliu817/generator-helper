@@ -60,7 +60,7 @@ public class MapperGenerator extends AbstractDaoGnerator<MapperSource> {
             imports.add(source.getEntitySource().getClassFullName());
             imports.add(mybatisMapperPackage + ".MybatisMapper");
             String primaryKeyType = getClassShortName(source.getEntitySource().getPrimaryKeyType());
-            extendCode = " extends MybatisMapper<" + source.getEntitySource().getShortName() + ", " + primaryKeyType + ">";
+            extendCode = " extends MybatisMapper<" + source.getEntitySource().getEntityName() + ", " + primaryKeyType + ">";
 
             code = code.replace("[methods]", "");
         }

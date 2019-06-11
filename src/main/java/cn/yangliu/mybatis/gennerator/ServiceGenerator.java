@@ -31,7 +31,7 @@ public class ServiceGenerator extends AbstractGenerator<ServiceSource> {
         if (Objects.equals(source.getOrmType(), OrmTypeEnum.MybatisPlus) && source.getUseBaseService()) {
             imports.add(ApplicationContant.config.getProperty("IService"));
             imports.add(source.getEntitySource().getClassFullName());
-            extendCode = " extends IService<" + source.getEntitySource().getShortName() + ">";
+            extendCode = " extends IService<" + source.getEntitySource().getEntityName() + ">";
             code = code.replace("[methods]", "");
         }
 

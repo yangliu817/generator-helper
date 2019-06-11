@@ -17,7 +17,7 @@ public class RepositorySource extends AbstractCodeSource {
     public RepositorySource(ProjectSetting projectSetting, RepositorySetting repositorySetting, EntitySource entitySource) {
         super(projectSetting, repositorySetting.getRepositoryPackage(), projectSetting.getCodePath());
         this.entitySource = entitySource;
-        init(repositorySetting, entitySource.shortName);
+        init(repositorySetting, entitySource.shortName.replace(entitySource.getClassSufix(),""));
     }
 
     private void init(RepositorySetting repositorySetting, String entityName) {

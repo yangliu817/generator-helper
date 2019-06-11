@@ -38,7 +38,7 @@ public class ServiceImplSource extends AbstractCodeSource {
         if (serviceSetting.getCreateInterface()) {
             serviceSource = new ServiceSource(projectSetting, serviceSetting, entitySource,mapperSource);
         }
-        init(serviceSetting, entitySource.shortName, projectSetting.getCodePath());
+        init(serviceSetting, entitySource.shortName.replace(entitySource.getClassSufix(),""), projectSetting.getCodePath());
     }
 
     private void init(ServiceSetting serviceSetting, String entityName, String srcPath) {

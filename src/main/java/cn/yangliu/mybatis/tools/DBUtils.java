@@ -149,8 +149,9 @@ public class DBUtils {
             sql = "SELECT name FROM sys.databases WHERE HAS_DBACCESS(name) = 1 and name not in ('master','tempdb'," +
                     "'msdb')";
         }
-
-        return excuteSQL(sql, linkInfo, consumer);
+        List<DatabaseInfo> databaseInfos = excuteSQL(sql, linkInfo, consumer);
+        databaseInfos.sort(Comparator.comparing(DatabaseInfo::getName));
+        return databaseInfos;
     }
 
 
@@ -295,7 +296,9 @@ public class DBUtils {
             }
 
         };
-        return excuteSQL(sql, linkInfo, consumer);
+        List<TableInfo> tableInfos = excuteSQL(sql, linkInfo, consumer);
+        tableInfos.sort(Comparator.comparing(TableInfo::getName));
+        return tableInfos;
     }
 
 
@@ -345,6 +348,8 @@ public class DBUtils {
 
         };
 
-        return excuteSQL(sql, linkInfo, consumer);
+        List<TableInfo> tableInfos = excuteSQL(sql, linkInfo, consumer);
+        tableInfos.sort(Comparator.comparing(TableInfo::getName));
+        return tableInfos;
     }
 }

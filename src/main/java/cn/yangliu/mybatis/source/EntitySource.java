@@ -1,16 +1,20 @@
 package cn.yangliu.mybatis.source;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
 import cn.yangliu.comm.tools.StringUtils;
 import cn.yangliu.mybatis.ApplicationContant;
 import cn.yangliu.mybatis.bean.EntitySetting;
 import cn.yangliu.mybatis.bean.JavaType;
 import cn.yangliu.mybatis.bean.ProjectSetting;
-import cn.yangliu.mybatis.enums.StrategyEnum;
 import cn.yangliu.mybatis.ex.HelperException;
 import cn.yangliu.mybatis.tools.DBUtils;
 import lombok.Data;
-
-import java.util.*;
 
 @Data
 public class EntitySource extends AbstractCodeSource {
@@ -28,6 +32,10 @@ public class EntitySource extends AbstractCodeSource {
     private Boolean useBaseClass;
 
     private String baseClassShortName;
+
+    private String entityName;
+
+    private String classSufix;
 
     private String baseClassPackage;
 
@@ -47,7 +55,7 @@ public class EntitySource extends AbstractCodeSource {
 
     private String strategy;
 
-    private Map<String,JavaType> columnMapping = new HashMap<>();
+    private Map<String, JavaType> columnMapping = new HashMap<>();
 
     private Map<String, JavaType> singleTableMapping;
 
@@ -63,6 +71,8 @@ public class EntitySource extends AbstractCodeSource {
         this.mapping = EntitySetting.getMappings(entitySetting);
         this.primaryKeyName = entitySetting.getPrimaryKeyName();
         this.primaryKeyType = entitySetting.getPrimaryKeyType();
+        this.entityName = entityName;
+        this.classSufix = entitySetting.getClassSufix();
         init(entitySetting, entityName);
     }
 
@@ -95,8 +105,10 @@ public class EntitySource extends AbstractCodeSource {
             throw new HelperException("基类参数非法");
         }
         if (baseClassFullName.contains(ApplicationContant.PACKAGE_SEPARATOR)) {
-            baseClassPackage = baseClassFullName.substring(0, baseClassFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR));
-            baseClassShortName = baseClassFullName.substring(baseClassFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR) + 1);
+            baseClassPackage = baseClassFullName.substring(0,
+                    baseClassFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR));
+            baseClassShortName =
+                    baseClassFullName.substring(baseClassFullName.lastIndexOf(ApplicationContant.PACKAGE_SEPARATOR) + 1);
         }
 
         filename = entityName + ".java";

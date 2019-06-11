@@ -37,7 +37,7 @@ public class RepositoryGenerator extends AbstractDaoGnerator<RepositorySource> {
 
         code = code.replace("[className]", source.getShortName());
         code = code.replace("[primaryKeyType]", getClassShortName(source.getPrimaryKeyType()));
-        code = code.replace("[entityClassName]", source.getEntitySource().getShortName());
+        code = code.replace("[entityClassName]", source.getEntitySource().getEntityName());
 
         imports.add(source.getEntitySource().getClassFullName());
 
