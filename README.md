@@ -57,6 +57,16 @@
     generator 86.exe或者generator 64.exe
     其他文件或文件夹在运行后自动创建
 
+### 软件截图
+
+![avatar](imgs/1.png)
+
+![avatar](imgs/2.png)
+
+![avatar](imgs/3.png)
+
+![avatar](imgs/4.png)
+
 #### 参与贡献
 
     问道于盲 yangliu817@126.com
