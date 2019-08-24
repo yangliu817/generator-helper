@@ -32,6 +32,9 @@
 #### 安装教程
 
     1. 将libs目录下的jar包分别安装到本地maven仓库中
+        示例命令 
+        mvn install:install-file -Dfile=D:/taobao-sdk-java-auto-20160607.jar -DgroupId=com.ganshane.specs -DartifactId=taobao-sdk-java-auto-20160607 -Dversion=1.0.0 -Dpackaging=jar
+        安装后 用libs目录下的pom文件替换本地maven仓库里面对应jar包的pom文件
     2. 将代码download下来后添加到ide中，配置为springboot项目
     3. 运行GeneratorHelperApplication的main方法
 
