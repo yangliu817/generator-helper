@@ -5,9 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * The type File utils.
+ */
 @Slf4j
 public class FileUtils {
 
+    /**
+     * Gets full path.
+     *
+     * @param folder   the folder
+     * @param filename the filename
+     * @return the full path
+     */
     public static String getFullPath(String folder, String filename) {
         String path = PathUtils.getHomePath(FileUtils.class);
         if (path.endsWith(File.separator)) {
@@ -16,6 +26,13 @@ public class FileUtils {
         return path + File.separator + folder + File.separator + filename;
     }
 
+    /**
+     * Output.
+     *
+     * @param content  the content
+     * @param path     the path
+     * @param filename the filename
+     */
     public static void output(String content, String path, String filename) {
         File fileFolder = new File(path);
         if (!fileFolder.exists()) {
@@ -41,6 +58,13 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Read string.
+     *
+     * @param filepath the filepath
+     * @param wrap     the wrap
+     * @return the string
+     */
     public static String read(String filepath, boolean wrap) {
         try (InputStream is = new FileInputStream(filepath)) {
             return read(is, "", wrap);
@@ -49,6 +73,14 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Read string.
+     *
+     * @param filepath the filepath
+     * @param space    the space
+     * @param wrap     the wrap
+     * @return the string
+     */
     public static String read(String filepath, String space, boolean wrap) {
         try (InputStream is = new FileInputStream(filepath)) {
             return read(is, space, wrap);
@@ -57,6 +89,14 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Read string.
+     *
+     * @param is    the is
+     * @param space the space
+     * @param wrap  the wrap
+     * @return the string
+     */
     public static String read(InputStream is, String space, boolean wrap) {
         StringBuilder sb = new StringBuilder();
         try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
@@ -74,6 +114,13 @@ public class FileUtils {
         return sb.toString();
     }
 
+    /**
+     * Read string.
+     *
+     * @param is   the is
+     * @param wrap the wrap
+     * @return the string
+     */
     public static String read(InputStream is, boolean wrap) {
         return read(is, "", wrap);
     }

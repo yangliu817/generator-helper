@@ -1,47 +1,65 @@
 package cn.yangliu.mybatis.controller;
 
+import java.util.List;
+
+import cn.yangliu.mybatis.anonntations.JsonResponse;
 import cn.yangliu.mybatis.bean.Settings;
 import cn.yangliu.mybatis.bean.SettingsInfo;
 import cn.yangliu.mybatis.service.SettingsInfoService;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import de.felixroske.jfxsupport.annotations.Mapping;
-import de.felixroske.jfxsupport.annotations.MappingController;
-import de.felixroske.jfxsupport.web.AbstractController;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * The type Setting controller.
+ *
  * @author 杨柳
- * @date 2019-01-06
+ * @date 2019 -01-06
  */
-@MappingController
-public class SettingController extends AbstractController {
+@RestController
+@JsonResponse
+public class SettingController {
 
     @Autowired
     private SettingsInfoService settingsInfoService;
 
-    @Mapping("/saveSettings")
-    public void saveSettings(String json) {
-        SettingsInfo settingsInfo = JSON.parseObject(json, SettingsInfo.class);
+    /**
+     * 保存配置信息
+     *
+     * @param settingsInfo the settingsInfo
+     */
+    @PostMapping("/saveSettings")
+    public SettingsInfo saveSettings(SettingsInfo settingsInfo) {
         settingsInfoService.insert(settingsInfo);
+        return settingsInfo;
     }
 
-    @Mapping("/loadSettings")
-    public String loadSettings(String id) {
+    /**
+     * 加载配置信息
+     *
+     * @param id the id
+     * @return string
+     */
+    @GetMapping("/loadSettings/{id}")
+    public List<SettingsInfo> loadSettings(String id) {
         Long linkId = Long.parseLong(id);
         SettingsInfo query = new SettingsInfo();
         query.setLinkId(linkId);
-        List<SettingsInfo> settingsInfos = settingsInfoService.selectList(new EntityWrapper<>(query));
-        return JSON.toJSONString(settingsInfos);
+        return settingsInfoService.selectList(new EntityWrapper<>(query));
     }
 
-    @Mapping("/loadSettingDetail")
-    public String loadSettingDetail(String id) {
+    /**
+     * 加载配置信息详情
+     *
+     * @param id the id
+     * @return string
+     */
+    @GetMapping("/loadSettingDetail/{id}")
+    public Settings loadSettingDetail(String id) {
         SettingsInfo settingsInfo = settingsInfoService.selectById(Long.parseLong(id));
-        Settings settings = settingsInfo.getSettings();
-        return JSON.toJSONString(settings);
+        return settingsInfo.getSettings();
 
     }
 

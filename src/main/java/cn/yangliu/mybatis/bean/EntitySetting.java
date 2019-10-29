@@ -11,11 +11,19 @@ import lombok.NoArgsConstructor;
 
 import java.util.*;
 
+/**
+ * The type Entity setting.
+ */
 @Data
 @TableName("t_entity_setting")
 @NoArgsConstructor
 public class EntitySetting {
 
+    /**
+     * Instantiates a new Entity setting.
+     *
+     * @param settingId the setting id
+     */
     public EntitySetting(Long settingId) {
         this.settingId = settingId;
     }
@@ -56,6 +64,14 @@ public class EntitySetting {
     @TableField(exist = false)
     private String mapping;
 
+    /**
+     * Gets mapping list.
+     *
+     * @param entitySetting the entity setting
+     * @param settingId     the setting id
+     * @param dbType        the db type
+     * @return the mapping list
+     */
     public static List<MappingSetting> getMappingList(EntitySetting entitySetting,Long settingId,String dbType) {
         List<MappingSetting> mappingList = new ArrayList<>();
         HashMap<String,String> mappingData = getMappings(entitySetting);
@@ -90,6 +106,12 @@ public class EntitySetting {
         return mappingList;
     }
 
+    /**
+     * Get mappings hash map.
+     *
+     * @param entitySetting the entity setting
+     * @return the hash map
+     */
     public static  HashMap<String,String> getMappings(EntitySetting entitySetting){
         return JSON.parseObject(entitySetting.getMapping(), HashMap.class);
     }

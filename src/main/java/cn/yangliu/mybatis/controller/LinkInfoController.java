@@ -1,72 +1,105 @@
 package cn.yangliu.mybatis.controller;
 
+import cn.yangliu.mybatis.anonntations.JsonResponse;
 import cn.yangliu.mybatis.bean.LinkInfo;
 import cn.yangliu.mybatis.service.LinkInfoService;
 import cn.yangliu.mybatis.tools.DBUtils;
 import com.alibaba.fastjson.JSON;
-import de.felixroske.jfxsupport.annotations.Mapping;
-import de.felixroske.jfxsupport.annotations.MappingController;
-import de.felixroske.jfxsupport.web.AbstractController;
+
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The type Link info controller.
+ */
 @Slf4j
-@MappingController
-public class LinkInfoController extends AbstractController {
+@RestController
+@JsonResponse
+public class LinkInfoController {
 
     @Autowired
     private LinkInfoService linkInfoService;
 
-    @Mapping("/loadLinks")
-    public String loadLinks() {
-        List<LinkInfo> linkInfos = linkInfoService.queryAll();
-        return JSON.toJSONString(linkInfos);
+    /**
+     * 加载 连接信息
+     *
+     * @return string
+     */
+    @GetMapping("/loadLinks")
+    public List<LinkInfo> loadLinks() {
+        return linkInfoService.queryAll();
     }
 
-    @Mapping("/loadDatabases")
-    public String loadDatabases(String linkInfoString) {
-
-        LinkInfo linkInfo = JSON.parseObject(linkInfoString, LinkInfo.class);
+    /**
+     * 加载数据库信息
+     *
+     * @param linkInfo the link info
+     * @return string
+     */
+    @GetMapping("/loadDatabases")
+    public List<DBUtils.DatabaseInfo> loadDatabases(LinkInfo linkInfo) {
 
         List<DBUtils.DatabaseInfo> databases = DBUtils.getDatabases(linkInfo);
 
-        if (databases.size() > 0) {
-            databases = databases.stream().sorted(Comparator.comparing(DBUtils.DatabaseInfo::getName)).collect(Collectors.toList());
+        if (!databases.isEmpty()) {
+            databases =
+                    databases.stream().sorted(Comparator.comparing(DBUtils.DatabaseInfo::getName)).collect(Collectors.toList());
             for (DBUtils.DatabaseInfo database : databases) {
                 List<DBUtils.TableInfo> tables = DBUtils.getTables(linkInfo, database.getName());
-                tables = tables.stream().sorted(Comparator.comparing(DBUtils.TableInfo::getName)).collect(Collectors.toList());
+                tables =
+                        tables.stream().sorted(Comparator.comparing(DBUtils.TableInfo::getName)).collect(Collectors.toList());
                 database.setTables(tables);
             }
         }
-        return JSON.toJSONString(databases);
+        return databases;
     }
 
-    @Mapping("/saveLink")
-    public String saveLink(String data) {
-
-        LinkInfo linkInfo = JSON.parseObject(data, LinkInfo.class);
+    /**
+     * 保存连接
+     *
+     * @param linkInfo the linkInfo
+     * @return string
+     */
+    @PostMapping("/saveLink")
+    public LinkInfo saveLink(LinkInfo linkInfo) {
         linkInfoService.insert(linkInfo);
-
-        return JSON.toJSONString(linkInfo);
+        return linkInfo;
     }
 
-    @Mapping("/updateLink")
-    public void updateLink(String data) {
-        LinkInfo linkInfo = JSON.parseObject(data, LinkInfo.class);
+    /**
+     * 更新连接信息
+     *
+     * @param linkInfo the linkInfo
+     */
+    @PutMapping("/updateLink")
+    public LinkInfo updateLink(LinkInfo linkInfo) {
         String name = linkInfo.getName();
         linkInfo = linkInfoService.selectById(linkInfo.getId());
         linkInfo.setName(name);
         linkInfoService.updateById(linkInfo);
+        return linkInfo;
     }
 
-    @Mapping("/deleteLink")
-    public void deleteLink(String id) {
+    /**
+     * 删除连接
+     *
+     * @param id the id
+     */
+    @DeleteMapping("/deleteLink/{id}")
+    public boolean deleteLink(@PathVariable("/id") String id) {
         Long linkId = Long.parseLong(id);
-        linkInfoService.deleteById(linkId);
+        return linkInfoService.deleteById(linkId);
     }
 
 }

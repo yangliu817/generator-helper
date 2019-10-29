@@ -6,11 +6,19 @@ import com.baomidou.mybatisplus.annotations.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type Mapper setting.
+ */
 @Data
 @TableName("t_mapper_setting")
 @NoArgsConstructor
 public class MapperSetting {
 
+    /**
+     * Instantiates a new Mapper setting.
+     *
+     * @param settingId the setting id
+     */
     public MapperSetting(Long settingId) {
         this.settingId = settingId;
     }

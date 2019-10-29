@@ -6,16 +6,32 @@ import com.baomidou.mybatisplus.annotations.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type Mapping setting.
+ */
 @Data
 @TableName("t_mapping_setting")
 @NoArgsConstructor
 public class MappingSetting {
 
+    /**
+     * Instantiates a new Mapping setting.
+     *
+     * @param settingId the setting id
+     * @param dbType    the db type
+     */
     public MappingSetting(Long settingId, String dbType) {
         this.settingId = settingId;
         this.dbType = dbType;
     }
 
+    /**
+     * Instantiates a new Mapping setting.
+     *
+     * @param columnTypeId the column type id
+     * @param javaTypeId   the java type id
+     * @param settingId    the setting id
+     */
     public MappingSetting(Long columnTypeId, Long javaTypeId, Long settingId) {
         this.columnTypeId = columnTypeId;
         this.javaTypeId = javaTypeId;

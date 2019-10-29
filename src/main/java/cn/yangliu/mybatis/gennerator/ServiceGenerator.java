@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The type Service generator.
+ */
 @Component
 public class ServiceGenerator extends AbstractGenerator<ServiceSource> {
     @Override

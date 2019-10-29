@@ -25,11 +25,17 @@ import java.util.*;
 
 
 /**
+ * The type Abstract generator.
+ *
+ * @param <S> the type parameter
  * @author mechrevo
  */
 @Data
 public abstract class AbstractGenerator<S extends Source> implements Generator<S> {
 
+    /**
+     * The Template.
+     */
     @Autowired
     protected CodeTemplate template;
 
@@ -40,89 +46,117 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
     @Autowired
     private MappingSettingService mappingSettingService;
 
+    /**
+     * Init.
+     */
     @PostConstruct
     @Autowired
     public void init() {
 
-        if (javaFullTypeMap == null) {
-            synchronized (this) {
-                if (javaFullTypeMap == null) {
-                    column2javaTypeMap = new HashMap<>(500);
-                    javaFullTypeMap = new HashMap<>(500);
-                    mysqlColumnMap = new HashMap<>(500);
-                    mariadbColumnMap = new HashMap<>(500);
-                    oracleColumnMap = new HashMap<>(500);
-                    sqlserverColumnMap = new HashMap<>(500);
-
-                    List<JavaType> javaTypes = javaTypeService.selectList(new EntityWrapper<>());
-                    javaTypes.forEach(t -> {
-                        javaFullTypeMap.put(t.getFullName(), t);
-                    });
-
-                    List<ColumnType> columnTypes = columnTypeService.selectList(new EntityWrapper<>());
-                    columnTypes.forEach(columnType -> {
-                        switch (columnType.getDbType()) {
-                            case "mysql":
-                                mysqlColumnMap.put(columnType.getColumnType(), columnType);
-                                break;
-                            case "mariadb":
-                                mariadbColumnMap.put(columnType.getColumnType(), columnType);
-                                break;
-                            case "oracle":
-                                oracleColumnMap.put(columnType.getColumnType(), columnType);
-                                break;
-                            case "sqlserver":
-                                sqlserverColumnMap.put(columnType.getColumnType(), columnType);
-                                break;
-                            default:
-                                break;
-                        }
-                    });
-
-                    MappingSetting queryPojo = new MappingSetting(0L, null);
-                    List<MappingSetting> mappingSettings = mappingSettingService.loadMapping(queryPojo);
-
-                    mappingSettings.forEach(m -> {
-                        switch (m.getDbType()) {
-                            case "mysql":
-                                column2javaTypeMap.put(mysqlColumnMap.get(m.getColumnType()),
-                                        javaFullTypeMap.get(m.getFullName()));
-                                break;
-                            case "mariadb":
-                                column2javaTypeMap.put(mariadbColumnMap.get(m.getColumnType()),
-                                        javaFullTypeMap.get(m.getFullName()));
-                                break;
-                            case "oracle":
-                                column2javaTypeMap.put(oracleColumnMap.get(m.getColumnType()),
-                                        javaFullTypeMap.get(m.getFullName()));
-                                break;
-                            case "sqlserver":
-                                column2javaTypeMap.put(sqlserverColumnMap.get(m.getColumnType()),
-                                        javaFullTypeMap.get(m.getFullName()));
-                                break;
-                            default:
-                                break;
-                        }
-                    });
-                }
-            }
+        if (Objects.isNull(javaFullTypeMap)) {
+            return;
         }
 
+        synchronized (this) {
+            if (Objects.isNull(javaFullTypeMap)) {
+                return;
+            }
+
+            column2javaTypeMap = new HashMap<>(500);
+            javaFullTypeMap = new HashMap<>(500);
+            mysqlColumnMap = new HashMap<>(500);
+            mariadbColumnMap = new HashMap<>(500);
+            oracleColumnMap = new HashMap<>(500);
+            sqlserverColumnMap = new HashMap<>(500);
+
+            List<JavaType> javaTypes = javaTypeService.selectList(new EntityWrapper<>());
+            javaTypes.forEach(t -> {
+                javaFullTypeMap.put(t.getFullName(), t);
+            });
+
+            List<ColumnType> columnTypes = columnTypeService.selectList(new EntityWrapper<>());
+            columnTypes.forEach(columnType -> {
+                switch (columnType.getDbType()) {
+                    case "mysql":
+                        mysqlColumnMap.put(columnType.getColumnType(), columnType);
+                        break;
+                    case "mariadb":
+                        mariadbColumnMap.put(columnType.getColumnType(), columnType);
+                        break;
+                    case "oracle":
+                        oracleColumnMap.put(columnType.getColumnType(), columnType);
+                        break;
+                    case "sqlserver":
+                        sqlserverColumnMap.put(columnType.getColumnType(), columnType);
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            MappingSetting queryPojo = new MappingSetting(0L, null);
+            List<MappingSetting> mappingSettings = mappingSettingService.loadMapping(queryPojo);
+
+            mappingSettings.forEach(m -> {
+                switch (m.getDbType()) {
+                    case "mysql":
+                        column2javaTypeMap.put(mysqlColumnMap.get(m.getColumnType()),
+                                javaFullTypeMap.get(m.getFullName()));
+                        break;
+                    case "mariadb":
+                        column2javaTypeMap.put(mariadbColumnMap.get(m.getColumnType()),
+                                javaFullTypeMap.get(m.getFullName()));
+                        break;
+                    case "oracle":
+                        column2javaTypeMap.put(oracleColumnMap.get(m.getColumnType()),
+                                javaFullTypeMap.get(m.getFullName()));
+                        break;
+                    case "sqlserver":
+                        column2javaTypeMap.put(sqlserverColumnMap.get(m.getColumnType()),
+                                javaFullTypeMap.get(m.getFullName()));
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
 
     }
 
+    /**
+     * The Mysql column map.
+     */
     public static Map<String, ColumnType> mysqlColumnMap;
+    /**
+     * The Mariadb column map.
+     */
     public static Map<String, ColumnType> mariadbColumnMap;
+    /**
+     * The Oracle column map.
+     */
     public static Map<String, ColumnType> oracleColumnMap;
+    /**
+     * The Sqlserver column map.
+     */
     public static Map<String, ColumnType> sqlserverColumnMap;
 
+    /**
+     * The Column 2 java type map.
+     */
     public static Map<ColumnType, JavaType> column2javaTypeMap;
 
+    /**
+     * The Java full type map.
+     */
     public static Map<String, JavaType> javaFullTypeMap;
 
 
     /**
      * 生成导包代码
+     *
+     * @param source  the source
+     * @param imports the imports
+     * @return the string
      */
     protected String generateImports(String source, List<String> imports) {
         Set<String> set = new HashSet<>(imports);
@@ -144,6 +178,10 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 生成类注释代码
+     *
+     * @param source     the source
+     * @param codeSource the code source
+     * @return the string
      */
     protected String generateComments(String source, AbstractCodeSource codeSource) {
         String author = codeSource.getAuthor();
@@ -156,6 +194,10 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 生成注解代码
+     *
+     * @param source      the source
+     * @param annotations the annotations
+     * @return the string
      */
     protected String generateAnnotations(String source, List<String> annotations) {
         Set<String> set = new HashSet<>(annotations);
@@ -175,6 +217,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 获取类的包名
+     *
+     * @param fullName the full name
+     * @return the class package
      */
     protected String getClassPackage(String fullName) {
 
@@ -187,6 +232,9 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 获取类的短类名
+     *
+     * @param fullName the full name
+     * @return the class short name
      */
     protected String getClassShortName(String fullName) {
 
@@ -200,6 +248,10 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 比较类所在的包和目标包是否一致
+     *
+     * @param firstPackage  the first package
+     * @param classFullName the class full name
+     * @return the boolean
      */
     protected boolean checkPackageIsSame(String firstPackage, String classFullName) {
         if (classFullName.contains(ApplicationContant.PACKAGE_SEPARATOR) && !Objects.equals(firstPackage, "")) {
@@ -212,6 +264,12 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 生成log实例
+     *
+     * @param source      the source
+     * @param code        the code
+     * @param imports     the imports
+     * @param anontations the anontations
+     * @return the string
      */
     protected String checkUseLombok(AbstractCodeSource source, String code, List<String> imports,
                                     List<String> anontations) {
@@ -230,6 +288,10 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 生成组件类属性代码
+     *
+     * @param code      the code
+     * @param fieldType the field type
+     * @return the string
      */
     protected String generateComponentFields(String code, String fieldType) {
         return generateComponentFields(code, fieldType, false);
@@ -237,6 +299,11 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 生成组件类属性代码
+     *
+     * @param code       the code
+     * @param fieldType  the field type
+     * @param startWithI the start with i
+     * @return the string
      */
     protected String generateComponentFields(String code, String fieldType, boolean startWithI) {
         String fieldName = fieldType;
@@ -256,6 +323,11 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 生成接口公共抽象方法
+     *
+     * @param code    the code
+     * @param source  the source
+     * @param imports the imports
+     * @return the string
      */
     protected String generateAbstractMethods(String code, EntitySource source, Collection<String> imports) {
         String templateCode = template.t_abstract_methods_normal;
@@ -279,6 +351,10 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
 
     /**
      * 生成包代码
+     *
+     * @param source the source
+     * @param code   the code
+     * @return the string
      */
     protected String generatePackage(AbstractCodeSource source, String code) {
         String packageCode = "";
@@ -289,10 +365,16 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return code;
     }
 
+    /**
+     * Generate mybatis base service string.
+     *
+     * @param source the source
+     * @return the string
+     */
     protected String generateMybatisBaseService(AbstractCodeSource source) {
         String baseServiceCode = template.t_service_base_mybatis;
         baseServiceCode = generateComments(baseServiceCode, source);
-        baseServiceCode = generateCopyRight(baseServiceCode,source);
+        baseServiceCode = generateCopyRight(baseServiceCode, source);
         String filename = "MybatisService.java";
         String basePackage = source.getProjectSetting().getProjectPackage();
         String mybatisServicePackage = basePackage + ".base";
@@ -311,6 +393,13 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
         return mybatisServicePackage;
     }
 
+    /**
+     * Generate copy right string.
+     *
+     * @param code   the code
+     * @param source the source
+     * @return the string
+     */
     protected String generateCopyRight(String code, AbstractCodeSource source) {
         String copyright = source.getCopyright();
         copyright = Objects.equals(copyright, "") ? "" : (copyright + "\n\n");

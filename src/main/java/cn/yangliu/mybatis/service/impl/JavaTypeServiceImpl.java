@@ -6,6 +6,9 @@ import cn.yangliu.mybatis.service.JavaTypeService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+/**
+ * The type Java type service.
+ */
 @Service
 public class JavaTypeServiceImpl extends ServiceImpl<JavaTypeMapper, JavaType> implements JavaTypeService {
 }

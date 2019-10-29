@@ -6,11 +6,19 @@ import com.baomidou.mybatisplus.annotations.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type Service setting.
+ */
 @Data
 @TableName("t_service_setting")
 @NoArgsConstructor
 public class ServiceSetting {
 
+    /**
+     * Instantiates a new Service setting.
+     *
+     * @param settingId the setting id
+     */
     public ServiceSetting(Long settingId) {
         this.settingId = settingId;
     }

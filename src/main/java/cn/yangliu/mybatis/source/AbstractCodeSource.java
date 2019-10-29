@@ -10,33 +10,79 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * The type Abstract code source.
+ */
 @Data
 public abstract class AbstractCodeSource extends AbstractSource implements Source {
 
+    /**
+     * The Full package.
+     */
     protected String fullPackage;
 
+    /**
+     * The Filepath.
+     */
     protected String filepath;
 
+    /**
+     * The Filename.
+     */
     protected String filename;
 
+    /**
+     * The Class full name.
+     */
     protected String classFullName;
 
+    /**
+     * The Short name.
+     */
     protected String shortName;
 
+    /**
+     * The Use lombok.
+     */
     protected Boolean useLombok;
 
+    /**
+     * The Orm type.
+     */
     protected OrmTypeEnum ormType;
 
+    /**
+     * The Copyright.
+     */
     protected String copyright;
 
+    /**
+     * The Author.
+     */
     protected String author;
 
+    /**
+     * The Date.
+     */
     protected String date;
 
+    /**
+     * The Use swagger.
+     */
     protected Boolean useSwagger;
 
+    /**
+     * The Project setting.
+     */
     protected ProjectSetting projectSetting;
 
+    /**
+     * Instantiates a new Abstract code source.
+     *
+     * @param projectSetting the project setting
+     * @param sourcePackage  the source package
+     * @param srcPath        the src path
+     */
     public AbstractCodeSource(ProjectSetting projectSetting, String sourcePackage, String srcPath) {
         initBaseInfo(projectSetting.getProjectPackage(), sourcePackage, srcPath);
         useSwagger = projectSetting.getUseSwagger();
@@ -49,6 +95,13 @@ public abstract class AbstractCodeSource extends AbstractSource implements Sourc
         this.date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
 
+    /**
+     * Init base info.
+     *
+     * @param basePackage   the base package
+     * @param sourcePackage the source package
+     * @param srcPath       the src path
+     */
     protected void initBaseInfo(String basePackage, String sourcePackage, String srcPath) {
         fullPackage = basePackage;
         if (StringUtils.isNotEmpty(sourcePackage)) {

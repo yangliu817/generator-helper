@@ -7,6 +7,9 @@ import cn.yangliu.mybatis.bean.ProjectSetting;
 import cn.yangliu.mybatis.ex.HelperException;
 import lombok.Data;
 
+/**
+ * The type Controller source.
+ */
 @Data
 public class ControllerSource extends AbstractCodeSource {
 
@@ -28,6 +31,13 @@ public class ControllerSource extends AbstractCodeSource {
 
     private Boolean forceIdOperate;
 
+    /**
+     * Instantiates a new Controller source.
+     *
+     * @param projectSetting    the project setting
+     * @param controllerSetting the controller setting
+     * @param serviceImplSource the service impl source
+     */
     public ControllerSource(ProjectSetting projectSetting, ControllerSetting controllerSetting, ServiceImplSource serviceImplSource) {
         super(projectSetting, controllerSetting.getControllerPackage(), projectSetting.getCodePath());
         this.serviceImplSource = serviceImplSource;

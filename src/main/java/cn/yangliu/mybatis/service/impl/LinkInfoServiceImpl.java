@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
+ * The type Link info service.
+ *
  * @author mechrevo
  */
 @Slf4j

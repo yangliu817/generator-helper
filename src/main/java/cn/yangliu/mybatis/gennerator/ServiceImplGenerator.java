@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * The type Service impl generator.
+ */
 @Component
 public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
 
@@ -220,6 +223,14 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
         FileUtils.output(code, source.getFilepath(), source.getFilename());
     }
 
+    /**
+     * Generate jpa service.
+     *
+     * @param source       the source
+     * @param templateCode the template code
+     * @param path         the path
+     * @param filename     the filename
+     */
     protected void generateJpaService(Source source, String templateCode, String path, String filename) {
         ServiceImplSource serviceSource = (ServiceImplSource) source;
         templateCode = generateComments(templateCode, serviceSource);
@@ -231,6 +242,14 @@ public class ServiceImplGenerator extends AbstractGenerator<ServiceImplSource> {
         }
     }
 
+    /**
+     * Generate conditions string.
+     *
+     * @param entitySource the entity source
+     * @param imports      the imports
+     * @param code         the code
+     * @return the string
+     */
     protected String generateConditions(EntitySource entitySource, List<String> imports, String code) {
         List<DBUtils.ColumInfo> columInfos = entitySource.getTableInfo().getColumInfos();
         imports.add(ApplicationContant.config.getProperty("Path"));

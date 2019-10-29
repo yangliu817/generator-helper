@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * The type Xml generator.
+ */
 @Component
 public class XmlGenerator implements Generator<XmlSource> {
 
@@ -32,6 +35,9 @@ public class XmlGenerator implements Generator<XmlSource> {
     private String t_mapper_foreach;
     private String t_mapper_result;
 
+    /**
+     * Instantiates a new Xml generator.
+     */
     public XmlGenerator() {
         t_mapper = FileUtils.read(FileUtils.getFullPath("templates/xml", "t_mapper.xml"), true);
         t_mapper_foreach = FileUtils.read(FileUtils.getFullPath("templates/xml", "t_mapper_foreach.xml"), true);
@@ -90,6 +96,19 @@ public class XmlGenerator implements Generator<XmlSource> {
         FileUtils.output(xmlCode, source.getFilepath(), source.getFilename());
     }
 
+    /**
+     * Generate methods string.
+     *
+     * @param source                 the source
+     * @param xmlCode                the xml code
+     * @param tableInfo              the table info
+     * @param primaryKeyName         the primary key name
+     * @param columns                the columns
+     * @param fields                 the fields
+     * @param containsPrimaryKey     the contains primary key
+     * @param primaryKeyTypeIsString the primary key type is string
+     * @return the string
+     */
     protected String generateMethods(XmlSource source, String xmlCode, DBUtils.TableInfo tableInfo, String primaryKeyName,
                                      List<String> columns, List<String> fields, boolean containsPrimaryKey, boolean primaryKeyTypeIsString) {
         String entityClassFullName = source.getEntitySource().getClassFullName();
@@ -127,6 +146,15 @@ public class XmlGenerator implements Generator<XmlSource> {
     }
 
 
+    /**
+     * Generate column sql string.
+     *
+     * @param columns            the columns
+     * @param containsPrimaryKey the contains primary key
+     * @param primaryKeyName     the primary key name
+     * @param code               the code
+     * @return the string
+     */
     protected String generateColumnSQL(List<String> columns, boolean containsPrimaryKey, String primaryKeyName, String code) {
         String columnString = columns.toString().replace("[", "").replace("]", "");
         if (containsPrimaryKey) {
@@ -136,6 +164,16 @@ public class XmlGenerator implements Generator<XmlSource> {
         return code;
     }
 
+    /**
+     * Generate insert select string.
+     *
+     * @param containsPrimaryKey     the contains primary key
+     * @param primaryKeyTypeIsString the primary key type is string
+     * @param primaryKeyName         the primary key name
+     * @param columns                the columns
+     * @param fields                 the fields
+     * @return the string
+     */
     protected String generateInsertSelect(boolean containsPrimaryKey, boolean primaryKeyTypeIsString,
                                           String primaryKeyName, List<String> columns, List<String> fields) {
 
@@ -171,6 +209,13 @@ public class XmlGenerator implements Generator<XmlSource> {
     }
 
 
+    /**
+     * Generate update by id string.
+     *
+     * @param columns the columns
+     * @param fields  the fields
+     * @return the string
+     */
     protected String generateUpdateById(List<String> columns, List<String> fields) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
@@ -184,6 +229,16 @@ public class XmlGenerator implements Generator<XmlSource> {
         return updateById.replace("[column2field]", sb.toString());
     }
 
+    /**
+     * Generate insert list string.
+     *
+     * @param containsPrimaryKey     the contains primary key
+     * @param primaryKeyTypeIsString the primary key type is string
+     * @param primaryKeyName         the primary key name
+     * @param columns                the columns
+     * @param fields                 the fields
+     * @return the string
+     */
     protected String generateInsertList(boolean containsPrimaryKey, boolean primaryKeyTypeIsString,
                                         String primaryKeyName, List<String> columns, List<String> fields) {
         String columnCode = columns.toString().replace("[", "").replace("]", "");
@@ -201,10 +256,25 @@ public class XmlGenerator implements Generator<XmlSource> {
         return insertListCode;
     }
 
+    /**
+     * Generate select list string.
+     *
+     * @param columns the columns
+     * @param fields  the fields
+     * @return the string
+     */
     protected String generateSelectList(List<String> columns, List<String> fields) {
         return generateSelectCode(columns, fields, selectList);
     }
 
+    /**
+     * Generate select code string.
+     *
+     * @param columns         the columns
+     * @param fields          the fields
+     * @param replaceTemplate the replace template
+     * @return the string
+     */
     protected String generateSelectCode(List<String> columns, List<String> fields, String replaceTemplate) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
@@ -218,22 +288,51 @@ public class XmlGenerator implements Generator<XmlSource> {
         return replaceTemplate.replace("[where]", whereCode);
     }
 
+    /**
+     * Generate select one string.
+     *
+     * @param columns the columns
+     * @param fields  the fields
+     * @return the string
+     */
     protected String generateSelectOne(List<String> columns, List<String> fields) {
         return generateSelectCode(columns, fields, selectOne);
     }
 
+    /**
+     * Generate select by id string.
+     *
+     * @return the string
+     */
     protected String generateSelectById() {
         return selectById;
     }
 
+    /**
+     * Generate delete by id string.
+     *
+     * @return the string
+     */
     protected String generateDeleteById() {
         return deleteById;
     }
 
+    /**
+     * Generate delete batch ids string.
+     *
+     * @return the string
+     */
     protected String generateDeleteBatchIds() {
         return deleteBatchIds;
     }
 
+    /**
+     * Generate uspdate select by id string.
+     *
+     * @param columns the columns
+     * @param fields  the fields
+     * @return the string
+     */
     protected String generateUspdateSelectById(List<String> columns, List<String> fields) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < columns.size(); i++) {
@@ -250,6 +349,16 @@ public class XmlGenerator implements Generator<XmlSource> {
         return updateSelectById.replace("[ifList]", sb.toString());
     }
 
+    /**
+     * Generate mapping string.
+     *
+     * @param primaryKeyName     the primary key name
+     * @param containsPrimaryKey the contains primary key
+     * @param columns            the columns
+     * @param fields             the fields
+     * @param code               the code
+     * @return the string
+     */
     protected String generateMapping(String primaryKeyName, boolean containsPrimaryKey, List<String> columns, List<String> fields, String code) {
         StringBuilder sb = new StringBuilder();
         if (containsPrimaryKey) {
@@ -274,6 +383,13 @@ public class XmlGenerator implements Generator<XmlSource> {
 
     /**
      * 全字段新增
+     *
+     * @param containsPrimaryKey     the contains primary key
+     * @param primaryKeyTypeIsString the primary key type is string
+     * @param primaryKeyName         the primary key name
+     * @param columns                the columns
+     * @param fields                 the fields
+     * @return the string
      */
     protected String generateInsert(boolean containsPrimaryKey, boolean primaryKeyTypeIsString,
                                     String primaryKeyName, List<String> columns, List<String> fields) {

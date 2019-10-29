@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.util.Objects;
 
+/**
+ * The type Column type.
+ */
 @Data
 @TableName("t_column_type")
 public class ColumnType {

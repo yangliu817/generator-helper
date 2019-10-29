@@ -1,6 +1,7 @@
 package cn.yangliu.mybatis.controller;
 
 import cn.yangliu.comm.tools.StringUtils;
+import cn.yangliu.mybatis.anonntations.JsonResponse;
 import cn.yangliu.mybatis.bean.ColumnType;
 import cn.yangliu.mybatis.bean.JavaType;
 import cn.yangliu.mybatis.bean.LinkInfo;
@@ -11,21 +12,25 @@ import cn.yangliu.mybatis.service.JavaTypeService;
 import cn.yangliu.mybatis.service.MappingSettingService;
 import cn.yangliu.mybatis.tools.CodeUtils;
 import cn.yangliu.mybatis.tools.DBUtils;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import de.felixroske.jfxsupport.annotations.Mapping;
-import de.felixroske.jfxsupport.web.AbstractController;
+
+
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
 /**
+ * The type Mapping controller.
+ *
  * @author 杨柳
- * @date 2019-01-06
+ * @date 2019 -01-06
  */
-@de.felixroske.jfxsupport.annotations.MappingController
-public class MappingController extends AbstractController {
+@RestController
+@JsonResponse
+public class MappingController {
 
     @Autowired
     private MappingSettingService mappingSettingService;
@@ -33,9 +38,17 @@ public class MappingController extends AbstractController {
     @Autowired
     private JavaTypeService javaTypeService;
 
-    @Mapping("/loadSingleTableMapping")
-    public String loadSingleTableMapping(String primaryKeyName, String database, String table, String linkInfoString) {
-        LinkInfo linkInfo = JSON.parseObject(linkInfoString, LinkInfo.class);
+    /**
+     * 获取表数据类型映射信息
+     *
+     * @param primaryKeyName the primary key name
+     * @param database       the database
+     * @param table          the table
+     * @param linkInfo       the link info
+     * @return string
+     */
+    @GetMapping("/loadSingleTableMapping")
+    public Map<String, Object> loadSingleTableMapping(String primaryKeyName, String database, String table, LinkInfo linkInfo) {
         List<DBUtils.TableInfo> tableInfos = DBUtils.getTablesInfo(linkInfo, database, Arrays.asList(table));
         Map<String, ColumnType> columnTypeMap = getDefaultColumnTypeMap(linkInfo);
 
@@ -63,12 +76,18 @@ public class MappingController extends AbstractController {
         if (!Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.SQLSERVER.getDbType())) {
             javaTypes.remove(new JavaType("DateTimeOffset", "microsoft.sql.DateTimeOffset", true));
         }
-        Map<String, Object> data = new HashMap<>(500);
+        Map<String, Object> data = new HashMap<>(2);
         data.put("javaTypes", javaTypes);
         data.put("mappings", mappings);
-        return JSON.toJSONString(data);
+        return data;
     }
 
+    /**
+     * 获取默认的类型映射关系
+     *
+     * @param linkInfo
+     * @return
+     */
     private static Map<String, ColumnType> getDefaultColumnTypeMap(LinkInfo linkInfo) {
         if (Objects.equals(linkInfo.getDatabaseType(), DBTypeEnum.MYSQL.getDbType())) {
             return AbstractGenerator.mysqlColumnMap;
@@ -82,6 +101,9 @@ public class MappingController extends AbstractController {
         throw new RuntimeException();
     }
 
+    /**
+     * The type Single table mapping.
+     */
     @Data
     public static class SingleTableMapping {
 
@@ -91,6 +113,13 @@ public class MappingController extends AbstractController {
 
         private JavaType javaType;
 
+        /**
+         * Instantiates a new Single table mapping.
+         *
+         * @param columnName the column name
+         * @param columnType the column type
+         * @param javaType   the java type
+         */
         public SingleTableMapping(String columnName, String columnType, JavaType javaType) {
             this.columnName = columnName;
             this.columnType = columnType;
@@ -98,11 +127,15 @@ public class MappingController extends AbstractController {
         }
     }
 
-    @Mapping("/loadMappings")
-    public String loadMappings(String json, String settingId) {
-
-        LinkInfo linkInfo = JSON.parseObject(json, LinkInfo.class);
-
+    /**
+     * 加载映射信息
+     *
+     * @param linkInfo  the linkInfo
+     * @param settingId the setting id
+     * @return string
+     */
+    @GetMapping("/loadMappings")
+    public Map<String, Object> loadMappings(LinkInfo linkInfo, String settingId) {
         long id = 0L;
         if (StringUtils.isNotEmpty(settingId)) {
             id = Long.parseLong(settingId);
@@ -117,6 +150,6 @@ public class MappingController extends AbstractController {
         data.put("javaTypes", javaTypes);
         data.put("mappingSettings", mappingSettings);
 
-        return JSON.toJSONString(data);
+        return data;
     }
 }

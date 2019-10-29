@@ -12,11 +12,20 @@ import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
+/**
+ * The type Application contant.
+ */
 @Slf4j
 public class ApplicationContant {
 
+    /**
+     * The constant PACKAGE_SEPARATOR.
+     */
     public static final String PACKAGE_SEPARATOR = ".";
 
+    /**
+     * The constant config.
+     */
     public static Properties config;
 
     static {
@@ -24,6 +33,9 @@ public class ApplicationContant {
     }
 
 
+    /**
+     * Init.
+     */
     public static void init() {
         try {
             String path = PathUtils.getHomePath(ApplicationContant.class);

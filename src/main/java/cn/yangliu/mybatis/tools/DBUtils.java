@@ -29,8 +29,14 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.ibatis.io.Resources;
 
+/**
+ * The type Db utils.
+ */
 public class DBUtils {
 
+    /**
+     * Init.
+     */
     @SneakyThrows
     public static void init() {
         String dbPath = "db";
@@ -99,11 +105,20 @@ public class DBUtils {
     }
 
 
+    /**
+     * The type Db type.
+     */
     @Data
     static class DBType {
         private String url;
         private String driver;
 
+        /**
+         * Instantiates a new Db type.
+         *
+         * @param url    the url
+         * @param driver the driver
+         */
         public DBType(String url, String driver) {
             this.url = url;
             this.driver = driver;
@@ -128,6 +143,12 @@ public class DBUtils {
     }
 
 
+    /**
+     * Gets databases.
+     *
+     * @param linkInfo the link info
+     * @return the databases
+     */
     public static List<DatabaseInfo> getDatabases(LinkInfo linkInfo) {
         String sql = "";
         BiConsumer<ResultSet, List<DatabaseInfo>> consumer = (rs, list) -> {
@@ -155,19 +176,33 @@ public class DBUtils {
     }
 
 
+    /**
+     * The type Db object.
+     */
     @Getter
     @Setter
     @EqualsAndHashCode
     static class DbObject {
 
+        /**
+         * The Name.
+         */
         protected String name;
 
     }
 
+    /**
+     * The type Database info.
+     */
     @Getter
     @Setter
     public static class DatabaseInfo extends DbObject {
 
+        /**
+         * Instantiates a new Database info.
+         *
+         * @param name the name
+         */
         DatabaseInfo(String name) {
             this.name = name;
         }
@@ -178,6 +213,9 @@ public class DBUtils {
 
     }
 
+    /**
+     * The type Colum info.
+     */
     @Getter
     @Setter
     public static class ColumInfo extends DbObject {
@@ -188,6 +226,14 @@ public class DBUtils {
 
         private int index;
 
+        /**
+         * Instantiates a new Colum info.
+         *
+         * @param name    the name
+         * @param type    the type
+         * @param comment the comment
+         * @param index   the index
+         */
         ColumInfo(String name, String type, String comment, int index) {
             this.name = name;
             this.type = type;
@@ -196,6 +242,9 @@ public class DBUtils {
         }
     }
 
+    /**
+     * The type Table info.
+     */
     @Getter
     @Setter
     public static class TableInfo extends DbObject {
@@ -206,12 +255,24 @@ public class DBUtils {
 
         private List<ColumInfo> columInfos;
 
+        /**
+         * Instantiates a new Table info.
+         *
+         * @param name       the name
+         * @param comment    the comment
+         * @param columInfos the colum infos
+         */
         TableInfo(String name, String comment, List<ColumInfo> columInfos) {
             this.name = name;
             this.comment = comment;
             this.columInfos = columInfos;
         }
 
+        /**
+         * Instantiates a new Table info.
+         *
+         * @param name the name
+         */
         TableInfo(String name) {
             this.name = name;
         }
@@ -225,6 +286,14 @@ public class DBUtils {
         return DriverManager.getConnection(dbType.getUrl(), linkInfo.getUser(), linkInfo.getPassword());
     }
 
+    /**
+     * Gets table colum info.
+     *
+     * @param linkInfo the link info
+     * @param database the database
+     * @param table    the table
+     * @return the table colum info
+     */
     public static List<ColumInfo> getTableColumInfo(LinkInfo linkInfo, String database, String table) {
         String sql = "";
         if (Objects.equals(DBTypeEnum.ORACLE.getDbType(), linkInfo.getDatabaseType())) {
@@ -271,6 +340,13 @@ public class DBUtils {
     }
 
 
+    /**
+     * Gets tables.
+     *
+     * @param linkInfo the link info
+     * @param database the database
+     * @return the tables
+     */
     public static List<TableInfo> getTables(LinkInfo linkInfo, String database) {
         String sql = "";
 
@@ -302,6 +378,14 @@ public class DBUtils {
     }
 
 
+    /**
+     * Gets tables info.
+     *
+     * @param linkInfo the link info
+     * @param database the database
+     * @param tables   the tables
+     * @return the tables info
+     */
     public static List<TableInfo> getTablesInfo(LinkInfo linkInfo, String database, List<String> tables) {
         String tableString = tables.toString().replace("[", "'").replace("]", "'").replace(", ", "', '");
         String sql = "";

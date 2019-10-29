@@ -9,6 +9,9 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
+/**
+ * The type Settings info.
+ */
 @Getter
 @Setter
 @TableName("t_settings_info")

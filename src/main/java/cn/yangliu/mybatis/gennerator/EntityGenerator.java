@@ -18,6 +18,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The type Entity generator.
+ */
 @Component
 public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
@@ -65,9 +68,11 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
         StringBuilder setterAndGetterCode = new StringBuilder();
 
+        //生成成员变量代码
         String fieldsCode = generateFieldCodes(source, imports, annotations, fieldNames, setterAndGetterCode);
         code = code.replace("[fields]", fieldsCode);
 
+        //添加lombok相关的注解 前提是勾选了lombok相关的注解功能
         if (source.getUseLombok()) {
 
             if (source.getToString()) {
@@ -105,16 +110,22 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
             code = code.replace("[setter-getter]", setterAndGetterCode.toString());
         }
 
+        //生成构造器
         code = generateConstructor(source, code);
 
+        //生成equals hashcode方法
         code = generateEqualsAndHashCode(source, code, fieldNames, imports);
 
+        //生成toString方法
         code = generateToString(source, code, fieldNames);
 
+        //生成导包代码
         code = generateImports(code, imports);
 
+        //生成类注解代码
         code = generateAnnotations(code, annotations);
 
+        //生成类注释信息
         String comment = source.getTableInfo().getComment();
 
         if (StringUtils.isEmpty(comment)) {
@@ -123,11 +134,20 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
         code = code.replace("[comment]", comment);
 
+        //生成代码文件
         FileUtils.output(code, source.getFilepath(), source.getFilename());
 
     }
 
 
+    /**
+     * 生成toString方法
+     *
+     * @param entitySource 包含配置信息的source
+     * @param sourceCode 代码
+     * @param fieldNames 成员变量名
+     * @return
+     */
     private String generateToString(EntitySource entitySource, String sourceCode, List<String> fieldNames) {
         String toString = "";
         if (!entitySource.getUseLombok() && entitySource.getToString()) {
@@ -152,6 +172,14 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
     }
 
 
+    /**
+     * 生成equals 和 hashcode
+     * @param entitySource
+     * @param sourceCode
+     * @param fieldNames
+     * @param imports
+     * @return
+     */
     private String generateEqualsAndHashCode(EntitySource entitySource, String sourceCode, List<String> fieldNames, List<String> imports) {
         String equalsAndHashCode = "";
         if (entitySource.getEqualAndHash() && !entitySource.getUseLombok()) {
@@ -161,6 +189,13 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         return sourceCode.replace("[equals-hash]", equalsAndHashCode);
     }
 
+    /**
+     * 生成equals方法
+     *
+     * @param entitySource
+     * @param fieldNames
+     * @return
+     */
     private String generateEqualsCode(EntitySource entitySource, List<String> fieldNames) {
 
         StringBuilder sb = new StringBuilder();
@@ -182,11 +217,23 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         return equalsCode + "\n";
     }
 
+    /**
+     * 生成hashcode方法
+     * @param fieldNames
+     * @return
+     */
     private String generateHashCode(List<String> fieldNames) {
         String fields = fieldNames.toString().replace("[", "").replace("]", "");
         return template.t_hash.replace("[fields]", fields) + "\n";
     }
 
+    /**
+     * 生成构造器代码
+     *
+     * @param source
+     * @param code
+     * @return
+     */
     private String generateConstructor(EntitySource source, String code) {
         String constructorCode = "";
         if (source.getNoArgConstructor() && !source.getUseLombok()) {
@@ -195,6 +242,13 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         return code.replace("[constructor]", constructorCode);
     }
 
+    /**
+     * 生成getter代码
+     *
+     * @param fieldType
+     * @param fieldName
+     * @param setterAndGetterCode
+     */
     private void generateGetterCode(String fieldType, String fieldName, StringBuilder setterAndGetterCode) {
         String code = template.t_getter.replace("[returnType]", fieldType)
                 .replace("[fieldName-u]", CodeUtils.firstChar2Uppercase(fieldName))
@@ -202,6 +256,15 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         setterAndGetterCode.append(code).append("\n");
     }
 
+    /**
+     * 生成setter代码
+     *
+     * @param chain
+     * @param fieldType
+     * @param className
+     * @param fieldName
+     * @param setterAndGetterCode
+     */
     private void generateSetterCode(boolean chain, String fieldType, String className, String fieldName, StringBuilder setterAndGetterCode) {
 
         if (chain) {
@@ -220,6 +283,15 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
     }
 
 
+    /**
+     * 生成成员变量代码
+     * @param source
+     * @param imports
+     * @param annotations
+     * @param fieldNames
+     * @param setterAndGetterCode
+     * @return
+     */
     private String generateFieldCodes(EntitySource source, List<String> imports, List<String> annotations, List<String> fieldNames, StringBuilder setterAndGetterCode) {
         Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
@@ -338,6 +410,14 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         return sb.toString();
     }
 
+    /**
+     * 获取成员变量对应的java类型
+     *
+     * @param source
+     * @param columnName
+     * @param columnType
+     * @return
+     */
     private JavaType getJavaType(EntitySource source, String columnName, String columnType) {
 
         //判断是不是主键

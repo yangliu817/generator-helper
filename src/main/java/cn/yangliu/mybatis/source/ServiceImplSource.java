@@ -7,6 +7,9 @@ import lombok.Data;
 
 import java.io.File;
 
+/**
+ * The type Service impl source.
+ */
 @Data
 public class ServiceImplSource extends AbstractCodeSource {
 
@@ -26,6 +29,14 @@ public class ServiceImplSource extends AbstractCodeSource {
 
     private Boolean startWithI;
 
+    /**
+     * Instantiates a new Service impl source.
+     *
+     * @param projectSetting   the project setting
+     * @param serviceSetting   the service setting
+     * @param repositorySource the repository source
+     * @param mapperSource     the mapper source
+     */
     public ServiceImplSource(ProjectSetting projectSetting, ServiceSetting serviceSetting,
                              RepositorySource repositorySource, MapperSource mapperSource) {
         super(projectSetting, serviceSetting.getServicePackage(), projectSetting.getCodePath());

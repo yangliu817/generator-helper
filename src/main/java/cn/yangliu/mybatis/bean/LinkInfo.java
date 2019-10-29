@@ -23,6 +23,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class LinkInfo implements Serializable {
 
+    /**
+     * Instantiates a new Link info.
+     *
+     * @param id the id
+     */
     public LinkInfo(Long id) {
         this.id = id;
     }

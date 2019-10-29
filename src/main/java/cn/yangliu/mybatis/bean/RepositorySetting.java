@@ -6,11 +6,19 @@ import com.baomidou.mybatisplus.annotations.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type Repository setting.
+ */
 @Data
 @TableName("t_repository_setting")
 @NoArgsConstructor
 public class RepositorySetting {
 
+    /**
+     * Instantiates a new Repository setting.
+     *
+     * @param settingId the setting id
+     */
     public RepositorySetting(Long settingId) {
         this.settingId = settingId;
     }

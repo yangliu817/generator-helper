@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The type Controller generator.
+ */
 @Component
 public class ControllerGenerator extends AbstractGenerator<ControllerSource> {
 

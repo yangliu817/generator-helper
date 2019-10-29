@@ -6,6 +6,9 @@ import cn.yangliu.mybatis.service.ColumnTypeService;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+/**
+ * The type Column type service.
+ */
 @Service
 public class ColumnTypeServiceImpl extends ServiceImpl<ColumnTypeMapper, ColumnType> implements ColumnTypeService {
 }

@@ -6,11 +6,19 @@ import com.baomidou.mybatisplus.annotations.TableName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type Controller setting.
+ */
 @Data
 @TableName("t_controller_setting")
 @NoArgsConstructor
 public class ControllerSetting {
 
+    /**
+     * Instantiates a new Controller setting.
+     *
+     * @param settingId the setting id
+     */
     public ControllerSetting(Long settingId) {
         this.settingId = settingId;
     }

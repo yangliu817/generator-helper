@@ -6,6 +6,9 @@ import cn.yangliu.mybatis.bean.ProjectSetting;
 import cn.yangliu.mybatis.bean.ServiceSetting;
 import lombok.Data;
 
+/**
+ * The type Service source.
+ */
 @Data
 public class ServiceSource extends AbstractCodeSource {
 
@@ -17,6 +20,14 @@ public class ServiceSource extends AbstractCodeSource {
 
     private Boolean startWithI;
 
+    /**
+     * Instantiates a new Service source.
+     *
+     * @param projectSetting the project setting
+     * @param serviceSetting the service setting
+     * @param entitySource   the entity source
+     * @param mapperSource   the mapper source
+     */
     public ServiceSource(ProjectSetting projectSetting, ServiceSetting serviceSetting, EntitySource entitySource, MapperSource mapperSource) {
         super(projectSetting, serviceSetting.getServicePackage(), projectSetting.getCodePath());
         this.entitySource = entitySource;

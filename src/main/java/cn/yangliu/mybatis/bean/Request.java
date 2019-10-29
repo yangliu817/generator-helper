@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * The type Request.
+ */
 @Data
 public class Request {
 
@@ -13,6 +16,9 @@ public class Request {
 
     private List<Database> databases;
 
+    /**
+     * The type Database.
+     */
     @Data
     public static class Database{
 
@@ -20,6 +26,9 @@ public class Request {
 
         private List<Table> tables;
 
+        /**
+         * The type Table.
+         */
         @Data
         public static class Table{
             private String table;

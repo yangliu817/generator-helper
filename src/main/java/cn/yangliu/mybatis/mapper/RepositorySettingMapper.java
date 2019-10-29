@@ -4,8 +4,10 @@ import cn.yangliu.mybatis.bean.RepositorySetting;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
 /**
+ * The interface Repository setting mapper.
+ *
  * @author 杨柳
- * @date 2019-01-11
+ * @date 2019 -01-11
  */
 public interface RepositorySettingMapper extends BaseMapper<RepositorySetting> {
 }

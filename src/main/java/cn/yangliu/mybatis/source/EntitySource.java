@@ -16,6 +16,9 @@ import cn.yangliu.mybatis.ex.HelperException;
 import cn.yangliu.mybatis.tools.DBUtils;
 import lombok.Data;
 
+/**
+ * The type Entity source.
+ */
 @Data
 public class EntitySource extends AbstractCodeSource {
 
@@ -59,6 +62,17 @@ public class EntitySource extends AbstractCodeSource {
 
     private Map<String, JavaType> singleTableMapping;
 
+    /**
+     * Instantiates a new Entity source.
+     *
+     * @param projectSetting     the project setting
+     * @param entitySetting      the entity setting
+     * @param entityName         the entity name
+     * @param tableInfo          the table info
+     * @param dbType             the db type
+     * @param singleTable        the single table
+     * @param singleTableMapping the single table mapping
+     */
     public EntitySource(ProjectSetting projectSetting, EntitySetting entitySetting, String entityName,
                         DBUtils.TableInfo tableInfo, String dbType, boolean singleTable,
                         Map<String, JavaType> singleTableMapping) {

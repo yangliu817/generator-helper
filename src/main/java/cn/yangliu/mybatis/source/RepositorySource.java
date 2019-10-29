@@ -7,6 +7,9 @@ import cn.yangliu.mybatis.bean.ProjectSetting;
 import cn.yangliu.mybatis.bean.RepositorySetting;
 import lombok.Data;
 
+/**
+ * The type Repository source.
+ */
 @Data
 public class RepositorySource extends AbstractCodeSource {
 
@@ -14,6 +17,13 @@ public class RepositorySource extends AbstractCodeSource {
 
     private EntitySource entitySource;
 
+    /**
+     * Instantiates a new Repository source.
+     *
+     * @param projectSetting    the project setting
+     * @param repositorySetting the repository setting
+     * @param entitySource      the entity source
+     */
     public RepositorySource(ProjectSetting projectSetting, RepositorySetting repositorySetting, EntitySource entitySource) {
         super(projectSetting, repositorySetting.getRepositoryPackage(), projectSetting.getCodePath());
         this.entitySource = entitySource;

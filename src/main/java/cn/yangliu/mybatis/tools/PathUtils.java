@@ -16,6 +16,12 @@ public final class PathUtils {
 
     private static String path;
 
+    /**
+     * Gets home path.
+     *
+     * @param clazz the clazz
+     * @return the home path
+     */
     public final static String getHomePath(Class<?> clazz) {
 
         if (path == null) {

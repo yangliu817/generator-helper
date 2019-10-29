@@ -6,17 +6,30 @@ import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
+/**
+ * The type Java type.
+ */
 @Data
 @TableName("t_java_type")
 @NoArgsConstructor
 public class JavaType {
 
+    /**
+     * Instantiates a new Java type.
+     *
+     * @param shortName  the short name
+     * @param fullName   the full name
+     * @param needImport the need import
+     */
     public JavaType(String shortName, String fullName, boolean needImport) {
         this.shortName = shortName;
         this.fullName = fullName;
         this.needImport = needImport;
     }
 
+    /**
+     * The constant DEFAULT.
+     */
     public static JavaType DEFAULT = new JavaType("String", "java.lang.String", false);
 
     private Long id;
@@ -27,6 +40,12 @@ public class JavaType {
 
     private boolean needImport = false;
 
+    /**
+     * New instance java type.
+     *
+     * @param javaType the java type
+     * @return the java type
+     */
     public static JavaType newInstance(JavaType javaType){
         String shortName = javaType.shortName;
         String fullName = javaType.fullName;

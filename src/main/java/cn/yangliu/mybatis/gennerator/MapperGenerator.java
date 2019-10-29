@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The type Mapper generator.
+ */
 @Component
 public class MapperGenerator extends AbstractDaoGnerator<MapperSource> {
 

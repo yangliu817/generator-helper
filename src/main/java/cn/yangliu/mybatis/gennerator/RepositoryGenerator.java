@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * The type Repository generator.
+ *
  * @author 杨柳
- * @date 2019-01-11
+ * @date 2019 -01-11
  */
 @Component
 public class RepositoryGenerator extends AbstractDaoGnerator<RepositorySource> {
@@ -47,6 +49,11 @@ public class RepositoryGenerator extends AbstractDaoGnerator<RepositorySource> {
         FileUtils.output(code, source.getFilepath(), source.getFilename());
     }
 
+    /**
+     * Gennerate base repository.
+     *
+     * @param source the source
+     */
     protected void gennerateBaseRepository(RepositorySource source){
         String fileName = "BaseRepository.java";
         String filePathName = source.getFilepath() + File.separator + fileName;

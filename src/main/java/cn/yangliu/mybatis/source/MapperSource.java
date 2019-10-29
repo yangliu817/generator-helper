@@ -6,6 +6,9 @@ import cn.yangliu.mybatis.bean.MapperSetting;
 import cn.yangliu.mybatis.bean.ProjectSetting;
 import lombok.Data;
 
+/**
+ * The type Mapper source.
+ */
 @Data
 public class MapperSource extends AbstractCodeSource {
 
@@ -17,6 +20,13 @@ public class MapperSource extends AbstractCodeSource {
     private EntitySource entitySource;
 
 
+    /**
+     * Instantiates a new Mapper source.
+     *
+     * @param projectSetting the project setting
+     * @param mapperSetting  the mapper setting
+     * @param entitySource   the entity source
+     */
     public MapperSource(ProjectSetting projectSetting, MapperSetting mapperSetting, EntitySource entitySource) {
         super(projectSetting, mapperSetting.getMapperPackage(), projectSetting.getCodePath());
         this.entitySource = entitySource;

@@ -13,6 +13,8 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
+ * The type Settings info service.
+ *
  * @author mechrevo
  */
 @Service
