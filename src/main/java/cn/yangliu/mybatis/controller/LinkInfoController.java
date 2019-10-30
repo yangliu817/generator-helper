@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Comparator;
@@ -72,7 +73,7 @@ public class LinkInfoController {
      * @return string
      */
     @PostMapping("/saveLink")
-    public LinkInfo saveLink(LinkInfo linkInfo) {
+    public LinkInfo saveLink(@RequestBody LinkInfo linkInfo) {
         linkInfoService.insert(linkInfo);
         return linkInfo;
     }
@@ -83,7 +84,7 @@ public class LinkInfoController {
      * @param linkInfo the linkInfo
      */
     @PutMapping("/updateLink")
-    public LinkInfo updateLink(LinkInfo linkInfo) {
+    public LinkInfo updateLink(@RequestBody LinkInfo linkInfo) {
         String name = linkInfo.getName();
         linkInfo = linkInfoService.selectById(linkInfo.getId());
         linkInfo.setName(name);
@@ -97,7 +98,7 @@ public class LinkInfoController {
      * @param id the id
      */
     @DeleteMapping("/deleteLink/{id}")
-    public boolean deleteLink(@PathVariable("/id") String id) {
+    public boolean deleteLink(@PathVariable("id") String id) {
         Long linkId = Long.parseLong(id);
         return linkInfoService.deleteById(linkId);
     }

@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -31,7 +32,7 @@ public class SettingController {
      * @param settingsInfo the settingsInfo
      */
     @PostMapping("/saveSettings")
-    public SettingsInfo saveSettings(SettingsInfo settingsInfo) {
+    public SettingsInfo saveSettings(@RequestBody SettingsInfo settingsInfo) {
         settingsInfoService.insert(settingsInfo);
         return settingsInfo;
     }
