@@ -65,7 +65,7 @@ public class SettingsInfoServiceImpl extends ServiceImpl<SettingsInfoMapper, Set
         controllerSetting.setSettingId(settingId);
 
         List<MappingSetting> mapping = EntitySetting.getMappingList(entitySetting, settingId, entity.getDbType());
-        if (mapping != null && mapping.size() > 0) {
+        if (mapping != null && !mapping.isEmpty()) {
             mappingSettingMapper.bathchInsert(mapping);
         }
         projectSettingMapper.insert(projectSetting);

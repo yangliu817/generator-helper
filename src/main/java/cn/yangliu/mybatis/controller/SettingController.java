@@ -9,6 +9,7 @@ import cn.yangliu.mybatis.service.SettingsInfoService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,14 +41,13 @@ public class SettingController {
     /**
      * 加载配置信息
      *
-     * @param id the id
+     * @param linkId the linkId
      * @return string
      */
-    @GetMapping("/loadSettings/{id}")
-    public List<SettingsInfo> loadSettings(String id) {
-        Long linkId = Long.parseLong(id);
+    @GetMapping("/loadSettings/{linkId}")
+    public List<SettingsInfo> loadSettings(@PathVariable("linkId") String linkId) {
         SettingsInfo query = new SettingsInfo();
-        query.setLinkId(linkId);
+        query.setLinkId(Long.parseLong(linkId));
         return settingsInfoService.selectList(new EntityWrapper<>(query));
     }
 

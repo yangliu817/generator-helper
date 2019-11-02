@@ -50,15 +50,14 @@ public abstract class AbstractGenerator<S extends Source> implements Generator<S
      * Init.
      */
     @PostConstruct
-    @Autowired
     public void init() {
 
-        if (Objects.isNull(javaFullTypeMap)) {
+        if (Objects.nonNull(javaFullTypeMap)) {
             return;
         }
 
         synchronized (this) {
-            if (Objects.isNull(javaFullTypeMap)) {
+            if (Objects.nonNull(javaFullTypeMap)) {
                 return;
             }
 

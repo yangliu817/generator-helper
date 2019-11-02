@@ -45,12 +45,13 @@ public class LinkInfoController {
     /**
      * 加载数据库信息
      *
-     * @param linkInfo the link info
+     * @param linkId the link id
      * @return string
      */
-    @GetMapping("/loadDatabases")
-    public List<DBUtils.DatabaseInfo> loadDatabases(LinkInfo linkInfo) {
+    @GetMapping("/loadDatabases/{linkId}")
+    public List<DBUtils.DatabaseInfo> loadDatabases(@PathVariable("linkId") Long linkId) {
 
+        LinkInfo linkInfo = linkInfoService.selectById(linkId);
         List<DBUtils.DatabaseInfo> databases = DBUtils.getDatabases(linkInfo);
 
         if (!databases.isEmpty()) {

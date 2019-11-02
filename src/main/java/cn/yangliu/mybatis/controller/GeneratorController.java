@@ -62,7 +62,7 @@ public class GeneratorController {
         List<DBUtils.TableInfo> tableInfos = new ArrayList<>();
         for (Request.Database database : databases) {
             List<Request.Database.Table> tables = database.getTables();
-            if (tables == null || tables.size() == 0) {
+            if (tables == null || tables.isEmpty()) {
                 continue;
             }
             List<String> tableNames = new ArrayList<>();
