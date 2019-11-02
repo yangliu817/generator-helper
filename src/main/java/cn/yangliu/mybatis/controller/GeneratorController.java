@@ -8,14 +8,13 @@ import cn.yangliu.mybatis.service.LinkInfoService;
 import cn.yangliu.mybatis.source.*;
 import cn.yangliu.mybatis.tools.CodeUtils;
 import cn.yangliu.mybatis.tools.DBUtils;
-import com.alibaba.fastjson.JSON;
-
-
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -49,13 +48,12 @@ public class GeneratorController {
      * 生成代码
      *
      * @param request                     the request
-     * @param singleTableMappingString the single table mapping string
      */
-    @GetMapping("/generateCode")
-    public void generateCode(Request request, String singleTableMappingString) {
+    @PostMapping("/generateCode")
+    public void generateCode(@RequestBody Request request) {
 
          //当前连接信息
-        LinkInfo linkInfo = linkInfoService.selectById(request.getId());
+        LinkInfo linkInfo = linkInfoService.selectById(request.getLinkId());
         //当前数据库信息
         List<Request.Database> databases = request.getDatabases();
         //选择的表信息
@@ -99,7 +97,7 @@ public class GeneratorController {
         //字段映射信息
         Map<String, JavaType> mapping = new HashMap<>(1000);
         if (singleTable) {
-            List<SingleTableMapping> mappings = JSON.parseArray(singleTableMappingString, SingleTableMapping.class);
+            List<SingleTableMapping> mappings = request.getSingleTableMappings();
             for (SingleTableMapping m : mappings) {
                 mapping.put(m.column, AbstractGenerator.javaFullTypeMap.getOrDefault(m.javaType, JavaType.DEFAULT));
             }

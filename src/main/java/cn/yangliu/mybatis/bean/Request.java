@@ -1,5 +1,6 @@
 package cn.yangliu.mybatis.bean;
 
+import cn.yangliu.mybatis.controller.GeneratorController;
 import lombok.Data;
 
 import java.util.List;
@@ -10,11 +11,13 @@ import java.util.List;
 @Data
 public class Request {
 
-    private Long id;
+    private Long linkId;
 
     private Settings settings;
 
     private List<Database> databases;
+
+    private List<GeneratorController.SingleTableMapping> singleTableMappings;
 
     /**
      * The type Database.

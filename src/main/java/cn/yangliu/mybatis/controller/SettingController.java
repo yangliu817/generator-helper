@@ -58,7 +58,7 @@ public class SettingController {
      * @return string
      */
     @GetMapping("/loadSettingDetail/{id}")
-    public Settings loadSettingDetail(String id) {
+    public Settings loadSettingDetail(@PathVariable("id") String id) {
         SettingsInfo settingsInfo = settingsInfoService.selectById(Long.parseLong(id));
         return settingsInfo.getSettings();
 
