@@ -8,6 +8,7 @@ import cn.yangliu.mybatis.bean.SettingsInfo;
 import cn.yangliu.mybatis.service.SettingsInfoService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,7 +62,17 @@ public class SettingController {
     public Settings loadSettingDetail(@PathVariable("id") String id) {
         SettingsInfo settingsInfo = settingsInfoService.selectById(Long.parseLong(id));
         return settingsInfo.getSettings();
+    }
 
+    /**
+     * 删除配置信息
+     *
+     * @param id the id
+     * @return string
+     */
+    @DeleteMapping("/deleteSetting/{id}")
+    public void deleteSetting(@PathVariable("id") String id) {
+        settingsInfoService.deleteById(Long.parseLong(id));
     }
 
 }

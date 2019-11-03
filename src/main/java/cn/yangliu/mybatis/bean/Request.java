@@ -3,6 +3,7 @@ package cn.yangliu.mybatis.bean;
 import cn.yangliu.mybatis.controller.GeneratorController;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ public class Request {
 
     private List<Database> databases;
 
-    private List<GeneratorController.SingleTableMapping> singleTableMappings;
+    private List<GeneratorController.SingleTableMapping> singleTableMappings = new ArrayList<>();
 
     /**
      * The type Database.

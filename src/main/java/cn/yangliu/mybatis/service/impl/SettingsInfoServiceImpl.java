@@ -89,6 +89,7 @@ public class SettingsInfoServiceImpl extends ServiceImpl<SettingsInfoMapper, Set
     @Override
     public boolean deleteById(Serializable id) {
         boolean flag = super.deleteById(id);
+
         return flag;
     }
 

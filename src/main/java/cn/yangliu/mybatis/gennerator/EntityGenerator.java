@@ -130,6 +130,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
 
         if (StringUtils.isEmpty(comment)) {
             comment = "";
+            code = code.replace(" * [comment]\n", comment);
         }
 
         code = code.replace("[comment]", comment);
@@ -350,7 +351,7 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
                     && Objects.equals(source.getOrmType(), OrmTypeEnum.JPA)) {
                 imports.add(ApplicationContant.config.getProperty("Id"));
                 imports.add(ApplicationContant.config.getProperty("GeneratedValue"));
-                annotationCode = "@Id\n    @GeneratedValue";
+                annotationCode = "\n    @Id\n    @GeneratedValue";
             }
 
             if (Objects.equals(columnName, source.getPrimaryKeyName())
@@ -410,6 +411,26 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         return sb.toString();
     }
 
+    private ColumnType getColumnType(String dbType, String columnType){
+        ColumnType ct = null;
+        switch (dbType) {
+            case "mysql":
+                ct = mysqlColumnMap.get(columnType);
+                break;
+            case "mariadb":
+                ct = mariadbColumnMap.get(columnType);
+                break;
+            case "oracle":
+                ct = oracleColumnMap.get(columnType);
+                break;
+            case "sqlserver":
+                ct = sqlserverColumnMap.get(columnType);
+                break;
+            default:
+                break;
+        }
+        return ct;
+    }
     /**
      * 获取成员变量对应的java类型
      *
@@ -426,28 +447,24 @@ public class EntityGenerator extends AbstractGenerator<EntitySource> {
         }
 
         if (source.isSingleTable()) {
-            return source.getSingleTableMapping().getOrDefault(columnName, JavaType.DEFAULT);
+            JavaType javaType = source.getSingleTableMapping().get(columnName);
+            if (Objects.isNull(javaType)){
+                ColumnType ct = getColumnType(source.getDbType(), columnType);
+
+                if (ct == null) {
+                    return JavaType.DEFAULT;
+                }
+
+                return column2javaTypeMap.getOrDefault(ct, JavaType.DEFAULT);
+
+            }
+            return JavaType.DEFAULT;
         }
         String javaTypeFullName = source.getMapping().get(columnType);
 
         if (StringUtils.isEmpty(javaTypeFullName)) {
-            ColumnType ct = null;
-            switch (source.getDbType()) {
-                case "mysql":
-                    ct = mysqlColumnMap.get(columnType);
-                    break;
-                case "mariadb":
-                    ct = mariadbColumnMap.get(columnType);
-                    break;
-                case "oracle":
-                    ct = oracleColumnMap.get(columnType);
-                    break;
-                case "sqlserver":
-                    ct = sqlserverColumnMap.get(columnType);
-                    break;
-                default:
-                    break;
-            }
+            ColumnType ct = getColumnType(source.getDbType(), columnType);
+
             if (ct == null) {
                 return JavaType.DEFAULT;
             }
